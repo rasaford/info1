@@ -80,6 +80,34 @@ public class MiniJava {
     write("" + output);
   }
 
+  public static void writeLineConsole(String output) {
+    System.out.println(output);
+  }
+
+  public static void writeLineConsole(int output) {
+    writeLineConsole("" + output);
+  }
+
+  public static void writeLineConsole(double output) {
+    writeLineConsole("" + output);
+  }
+  
+  public static void writeLineConsole() {
+    writeLineConsole("");
+  }
+  
+  public static void writeConsole(String output) {
+    System.out.print(output);
+  }
+
+  public static void writeConsole(int output) {
+    writeConsole("" + output);
+  }
+
+  public static void writeConsole(double output) {
+    writeConsole("" + output);
+  }
+
   public static int randomInt(int minval, int maxval) {
     return minval + (new java.util.Random()).nextInt(maxval - minval + 1);
   }
