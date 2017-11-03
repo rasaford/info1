@@ -134,3 +134,32 @@ Temporary Items
 .apdisk
 
 # End of https://www.gitignore.io/api/osx,java,maven,intellij
+
+# latex stuff
+# All these files are genertated by some parts of the latex toolchain. They are not necessary for compiling the .tex files
+*.aux
+*.glo
+*.idx
+*.log
+*.toc
+*.ist
+*.acn
+*.acr
+*.alg
+*.bbl
+*.blg
+*.dvi
+*.glg
+*.gls
+*.ilg
+*.ind
+*.lof
+*.lot
+*.maf
+*.mtc
+*.mtc1
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.sta

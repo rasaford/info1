@@ -1,0 +1,45 @@
+\documentclass[a4paper, 10pt]{article}
+    \usepackage[ngerman]{babel}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage{hyphenat}
+    \hyphenation{Mathe-matik wieder-gewinnen}
+    \usepackage{amsmath}
+    \usepackage{hyperref}
+
+    \title{Praktikum Grundlagen der Programmierung Hausaufgaben Blatt 2}
+    \author{Maximilian Frühauf}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+	\item[2.5]
+	      \begin{enumerate}
+		      \item[1.] Eine Grammatik für zulässige Telefonnummern lautet:
+
+		            \( \text{tel} ::= (+ | 00 \text{ lvw ow nr}) | 0 \text{ow nr}\)
+		      \item[2.] \( \text{name} ::= \text{(letter special?)* letter } \)
+
+		            \( \text{adresse} ::= \text{name @ name}^+ . \text{name}^+ \)
+	      \end{enumerate}
+	\item[2.6]
+	      \begin{enumerate}
+		      \item[1.] Der Reguläre Ausdruck \( \alpha \) beschreibt einen beliebigen Text, welcher den Buchstaben
+		            a nur genau einmal enthalten darf.
+
+		            \( \alpha ::= \text{bbisz* a bbisz*} \)
+
+		            \( \text{match} ::=  \alpha\alpha | \alpha\alpha\alpha | \alpha\alpha\alpha\alpha \)
+		      \item[2.] \( \text{match} ::= \text{bbisz | } (\text{bbisz a | bbisz bbisz})^* \)
+		      \item[3.]
+		            match \( ::=  \) bbisz\( ^* \) |
+		            ((cbisz\( ^* \) | bbisz\( ^* \) cbisz\( ^+ \)) b (cbisz | a)\( ^* \) a bbisz\( ^* \))\( ^+ \)
+
+		            \vspace{10pt}
+		            Hier noch ein paar Beispiele mit der RegEx:
+
+		            \url{https://regex101.com/r/hlGHMg/3}
+	      \end{enumerate}
+\end{enumerate}
+\end{document}
