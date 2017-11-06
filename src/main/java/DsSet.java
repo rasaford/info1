@@ -1,9 +1,6 @@
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by data on 27.10.17.
- */
 public class DsSet {
 
   public static void main(String[] args) {
