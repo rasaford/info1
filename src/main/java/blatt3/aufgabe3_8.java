@@ -23,6 +23,7 @@ public class aufgabe3_8 extends MiniJava {
       numbers[i] = (byte) (number % 10);
       number /= 10;
     }
+
     for (int i = 0; i <= size / 2; i++) {
       if (numbers[i] != numbers[size - i - 1]) {
         return false;

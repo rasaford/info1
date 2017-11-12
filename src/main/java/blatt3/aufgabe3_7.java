@@ -28,24 +28,26 @@ public class aufgabe3_7 extends MiniJava {
     write(second(input));
   }
 
-  private static int second(int[] input) {
+  public static int second(int[] input) {
     int max = Integer.MIN_VALUE, second = Integer.MIN_VALUE;
     for (int i : input) {
       if (i > max) {
-        second = max;
         max = i;
       }
+      if (i < max && i > second) {
+        second = i;
+      }
     }
-    return second;
+    return (second == Integer.MIN_VALUE) ? max : second;
   }
 
   public static void twoElementSum() {
     int[] input = readArray();
-    writeConsole(twoSum(input));
+    write(twoSum(input));
   }
 
-  private static int[] twoSum(int[] input) {
-    for (int i = 0; i < input.length - 1; i += 2) {
+  public static int[] twoSum(int[] input) {
+    for (int i = 0; i < input.length - 1; i++) {
       input[i] = input[i] + input[i + 1];
     }
     return input;
@@ -61,12 +63,12 @@ public class aufgabe3_7 extends MiniJava {
     return array;
   }
 
-  private static void writeConsole(int[] input) {
+  private static void write(int[] input) {
     String elements = "";
-    for (int i : input) {
-      elements += i + ",";
+    for (int i = 0; i < input.length; i++) {
+      elements += (i == input.length - 1) ? input[i] : input[i] + ",";
     }
-    writeConsole("[" + elements + "]");
+    write("[" + elements + "]");
   }
 
   /**
