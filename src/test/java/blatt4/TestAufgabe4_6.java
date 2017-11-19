@@ -9,7 +9,7 @@ public class TestAufgabe4_6 {
   @Test
   public void TestCountLetters() {
     assertEquals(
-        "[A: 3 C: 1 D: 2 E: 8 H: 2 I: 4 K: 1 L: 2 M: 3 N: 6 R: 2 S: 5 T: 3 U: 1 W: 2 Z: 1 Ä: 1 ]",
+        "A: 3 C: 1 D: 2 E: 8 H: 2 I: 4 K: 1 L: 2 M: 3 N: 6 R: 2 S: 5 T: 3 U: 1 W: 2 Z: 1 Ä: 1 ",
         aufgabe4_6.countLetters("Dass ich erkenne, was die Welt \n"
             + "Im Innersten zusammenhält"));
   }

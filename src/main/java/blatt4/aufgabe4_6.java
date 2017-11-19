@@ -4,10 +4,73 @@ import miniJava.MiniJava;
 
 public class aufgabe4_6 extends MiniJava {
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
-    countLetters("");
-    replace('a', 'z', "");
-    reverse("");
+    String text = getText("Please enter a text to modify with stingray:");
+    int choice = getIntInRange(1, 4, "What do you want to do with it? \n"
+        + "1: Count the letters\n"
+        + "2: replace letters\n"
+        + "3: word mirroring");
+    switch (choice) {
+      case 1:
+        write(countLetters(text));
+        break;
+      case 2:
+        char from = getChar("Enter the letter you want to match");
+        char to = getChar("Enter the letter you want to match");
+        write(replace(from, to, text));
+        break;
+      case 3:
+        write(reverse(text));
+        break;
+    }
+  }
+
+  private static String getText(String dialog) {
+    String input = readString(dialog);
+    // validate input
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      if (!(matches(c, 'a', 'z') ||
+          matches(c, '.', ',', ' ',';', 'ä', 'ö', 'ü', '?', '!'))) {
+        write("The text you entered has invalid characters");
+        return getText(dialog);
+      }
+    }
+    return input;
+  }
+
+  private static char getChar(String dialog) {
+    String input = readString(dialog);
+
+    if (input.length() != 1) {
+      write("You can only enter one character");
+      return getChar(dialog);
+    }
+    char c = input.charAt(0);
+    if (!(matches(c, 'a', 'z') ||
+        matches(c, 'ä', 'ö', 'ü'))) {
+      write("The input has to be a letter");
+      return getChar(dialog);
+    }
+    return input.charAt(0);
+  }
+
+  /**
+   * getIntInRange gets an int from the user in the given range.
+   *
+   * @param min min of the input value (inclusive)
+   * @param max max of the input value (exclusive)
+   * @param dialog Message to display to the user
+   * @return user input
+   */
+  private static int getIntInRange(int min, int max, String dialog) {
+    int input = readInt(dialog);
+    if (input < min || input >= max) {
+      write(String.format("The given number has to be in the range %d <= x < %d", min, max));
+      return getIntInRange(min, max, dialog);
+    }
+    return input;
   }
 
   public static String countLetters(String text) {
@@ -28,7 +91,7 @@ public class aufgabe4_6 extends MiniJava {
       }
       out += hashInv(i) + ": " + counts[i] + " ";
     }
-    return "[" + out + "]";
+    return out;
   }
 
 
@@ -84,17 +147,19 @@ public class aufgabe4_6 extends MiniJava {
     return (c < 'Z') ? (char) (c + 32) : c;
   }
 
-  private static boolean matches(char test, char pattern) {
-    return test == pattern || test == (char) (pattern - 32);
+  private static boolean matches(char test, char... pattern) {
+    boolean match = false;
+    for (char c : pattern) {
+      match = match || (test == c || test == (char) (c - 32));
+    }
+    return match;
   }
 
-  private static char getChar(String dialog) {
-    String input = readString(dialog);
-    if (input.length() != 1) {
-      return getChar(dialog);
-    }
-    return input.charAt(0);
+  private static boolean matches(char test, char start, char end) {
+    return start <= test && test <= end ||
+        (char) (start - 32) <= test && test <= (char) (end - 32);
   }
+
 
   public static String reverse(String text) {
     String word = "";

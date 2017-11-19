@@ -1,15 +1,62 @@
 package blatt4;
 
 import java.util.Arrays;
+import miniJava.MiniJava;
 
-public class aufgabe4_7 {
+public class aufgabe4_7 extends MiniJava {
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
-    System.out.println(
-        Arrays.toString(
-            mixedCase(
-                new String[]{"this", "IS", "a", "TeST"}
-            )));
+    String[] words = getWords("Please enter the words to merge "
+        + "separated by \", \"");
+    write(mixedCase(words));
+  }
+
+
+  private static String[] getWords(String dialog) {
+    String[] words = new String[0];
+    String input = readString(dialog);
+    int last = 0;
+    for (int i = 0; i < input.length(); i++) {
+      // split
+      if (i == input.length() - 1 || input.charAt(i) == ',' && input.charAt(i + 1) == ' ') {
+        if (i == input.length() -1) {
+          i++;
+        }
+        int len = words.length;
+        String[] tmpWords = new String[len + 1];
+        for (int j = 0; j < words.length; j++) {
+          tmpWords[j] = words[j];
+        }
+        String newWord = substring(input, last, i);
+        last = i + 2;
+        if (!validate(newWord)) {
+          return getWords(dialog);
+        }
+        words = tmpWords;
+        words[len] = newWord;
+      }
+    }
+    return words;
+  }
+
+  private static String substring(String input, int low, int high) {
+    String res = "";
+    for (int i = low; i < high; i++) {
+      res += input.charAt(i);
+    }
+    return res;
+  }
+
+  private static boolean validate(String word) {
+    for (int j = 0; j < word.length(); j++) {
+      char c = word.charAt(j);
+      if (!('A' <= c && c <= 'Z' || 'a' <= c && c <= 'z')) {
+        write("The word " + word + " is not in the range A-Z|a-z");
+        return false;
+      }
+    }
+    return true;
   }
 
   public static String[] mixedCase(String[] words) {
@@ -17,126 +64,87 @@ public class aufgabe4_7 {
     for (int i = 0; i < words.length; i++) {
       words[i] = toLowerCase(words[i]);
     }
-    Buffer b = new Buffer();
-    results[0] = b.add("Startcase: ").add(startCase(words)).toString();
-    b.clear();
-    results[1] = b.add("UPPERCASE: ").add(upperCase(words)).toString();
-    b.clear();
-    results[2] = b.add("snake_case: ").add(snakeCase(words)).toString();
-    b.clear();
-    results[3] = b.add("PascalCase: ").add(pascalCase(words)).toString();
+    results[0] = "Startcase: " + startCase(words);
+    results[1] = "UPPERCASE: " + upperCase(words);
+    results[2] = "snake_case: " + snakeCase(words);
+    results[3] = "PascalCase: " + pascalCase(words);
     return results;
   }
 
   private static String toLowerCase(String input) {
-    Buffer b = new Buffer();
+    String res = "";
     for (int i = 0; i < input.length(); i++) {
       char c = input.charAt(i);
-      b.add(('A' <= c && c <= 'Z') ? (char) (c + 32) : c);
+      res += ('A' <= c && c <= 'Z') ? (char) (c + 32) : c;
     }
-    return b.toString();
+    return res;
   }
 
   private static String upperCase(String[] input) {
-    Buffer b = new Buffer();
+    String res = "";
     for (String word : input) {
       for (int i = 0; i < word.length(); i++) {
         char c = word.charAt(i);
-        b.add(('A' <= c && c <= 'Z') ? c : (char) (c - 32));
+        res += ('A' <= c && c <= 'Z') ? c : (char) (c - 32);
       }
     }
-    return b.toString();
+    return res;
   }
 
   private static String snakeCase(String[] input) {
-    Buffer b = new Buffer();
+    String res = "";
     for (int i = 0; i < input.length; i++) {
       String word = input[i];
       if (word.length() == 0) {
         continue;
       }
       if (i != 0) {
-        b.add('_');
+        res += '_';
       }
       for (int j = 0; j < word.length(); j++) {
         char c = word.charAt(j);
-        b.add(('A' <= c && c <= 'Z') ? (char) (c + 32) : c);
+        res += ('A' <= c && c <= 'Z') ? (char) (c + 32) : c;
       }
     }
-    return b.toString();
+    return res;
   }
 
   private static String pascalCase(String[] input) {
-    Buffer b = new Buffer();
+    String res = "";
     for (String word : input) {
       for (int i = 0; i < word.length(); i++) {
         char c = word.charAt(i);
         if (i == 0) {
-          b.add(('A' <= c && c <= 'Z') ? c : (char) (c - 32));
+          res += ('A' <= c && c <= 'Z') ? c : (char) (c - 32);
         } else {
-          b.add(('A' <= c && c <= 'Z') ? (char) (c + 32) : c);
+          res += ('A' <= c && c <= 'Z') ? (char) (c + 32) : c;
         }
       }
     }
-    return b.toString();
+    return res;
   }
 
   private static String startCase(String[] input) {
-    Buffer b = new Buffer();
+    String res = "";
     for (int i = 0; i < input.length; i++) {
       String word = input[i];
       for (int j = 0; j < word.length(); j++) {
         char c = word.charAt(j);
         if (i == 0 && j == 0) {
-          b.add(('A' <= c && c <= 'Z') ? c : (char) (c - 32));
+          res += ('A' <= c && c <= 'Z') ? c : (char) (c - 32);
         } else {
-          b.add(('A' <= c && c <= 'Z') ? (char) (c + 32) : c);
+          res += ('A' <= c && c <= 'Z') ? (char) (c + 32) : c;
         }
       }
     }
-    return b.toString();
+    return res;
   }
 
-
-  static class Buffer {
-
-    private char[] buffer;
-    private int len;
-
-    public Buffer() {
-      buffer = new char[8];
+  public static void write(String[] input) {
+    String res = "";
+    for (int i = 0; i < input.length; i++) {
+      res += input[i] + (i != input.length - 1 ? "\n" : "");
     }
-
-    public Buffer add(char c) {
-      if (len == buffer.length) {
-        char[] old = buffer;
-        buffer = new char[old.length * 2];
-        for (int i = 0; i < old.length; i++) {
-          buffer[i] = old[i];
-        }
-      }
-      buffer[len++] = c;
-      return this;
-    }
-
-    public Buffer add(String str) {
-      for (int i = 0; i < str.length(); i++) {
-        add(str.charAt(i));
-      }
-      return this;
-    }
-
-    public Buffer clear() {
-      len = 0;
-      return this;
-    }
-
-    public String toString() {
-      String r = "";
-      for (int i = 0; i < len; i++) {
-        r += buffer[i];
-      }
-      return r;
-    }
+    write(res);
   }
 }

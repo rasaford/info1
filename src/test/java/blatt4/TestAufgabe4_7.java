@@ -17,5 +17,4 @@ public class TestAufgabe4_7 {
         "hand", "BAll", "toR", ""
     }));
   }
-
 }
