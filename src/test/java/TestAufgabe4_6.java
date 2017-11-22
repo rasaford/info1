@@ -1,4 +1,3 @@
-package blatt4;
 
 import org.junit.Test;
 

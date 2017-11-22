@@ -1,8 +1,3 @@
-package blatt4;
-
-import java.util.Arrays;
-import miniJava.MiniJava;
-
 public class aufgabe4_7 extends MiniJava {
 
   // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
@@ -20,7 +15,7 @@ public class aufgabe4_7 extends MiniJava {
     for (int i = 0; i < input.length(); i++) {
       // split
       if (i == input.length() - 1 || input.charAt(i) == ',' && input.charAt(i + 1) == ' ') {
-        if (i == input.length() -1) {
+        if (i == input.length() - 1) {
           i++;
         }
         int len = words.length;

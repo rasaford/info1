@@ -1,7 +1,3 @@
-package blatt4;
-
-import miniJava.MiniJava;
-
 public class aufgabe4_6 extends MiniJava {
 
   // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
@@ -32,7 +28,7 @@ public class aufgabe4_6 extends MiniJava {
     for (int i = 0; i < input.length(); i++) {
       char c = input.charAt(i);
       if (!(matches(c, 'a', 'z') ||
-          matches(c, '.', ',', ' ',';', 'ä', 'ö', 'ü', '?', '!'))) {
+          matches(c, '.', ',', ' ', ';', 'ä', 'ö', 'ü', '?', '!'))) {
         write("The text you entered has invalid characters");
         return getText(dialog);
       }

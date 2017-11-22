@@ -1,9 +1,7 @@
-package blatt3;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import miniJava.MiniJava;
 
 public class aufgabe3_5 extends MiniJava {
 

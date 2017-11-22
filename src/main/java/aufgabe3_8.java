@@ -1,7 +1,3 @@
-package blatt3;
-
-import miniJava.MiniJava;
-
 public class aufgabe3_8 extends MiniJava {
 
   public static void main(String[] args) {

@@ -1,7 +1,3 @@
-package blatt4;
-
-import miniJava.MiniJava;
-
 public class aufgabe4_8 extends MiniJava {
 
   // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
