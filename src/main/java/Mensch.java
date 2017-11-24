@@ -3,6 +3,7 @@ public class Mensch extends Aerger {
   private static int[][] players;
   private static int currentPlayer;
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
     players = new int[][]{
         {-1, -1, -1, -1},

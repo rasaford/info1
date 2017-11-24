@@ -68,7 +68,6 @@ public class TestAufgabe5_7 {
     };
     setRows(3);
     aufgabe5_7.searchSwap(matrix, 0);
-    aufgabe5_7.printMatrix(matrix);
     assertArrayEquals(new int[]{
         1, 1, 1, 1,
         0, 0, 3, 4,
@@ -127,6 +126,16 @@ public class TestAufgabe5_7 {
     };
     setRows(1);
     assertArrayEquals(new int[]{3},
+        aufgabe5_7.solveSystem(matrix));
+  }
+
+  @Test
+  public void solve6() {
+    int[] matrix = new int[]{
+        1, 2
+    };
+    setRows(1);
+    assertArrayEquals(new int[]{2},
         aufgabe5_7.solveSystem(matrix));
   }
 

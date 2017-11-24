@@ -2,10 +2,11 @@ public class aufgabe5_7 extends MiniJava {
 
   private static int lines;
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
-    lines = read("Geben Sie die Anzahl der Gliechungen ein");
+    lines = getIntInRange(0, Integer.MAX_VALUE, "Geben Sie die Anzahl der Gliechungen ein");
     int[] matrix = readMatrix();
-    printMatrix(matrix);
+    write(solveSystem(matrix));
   }
 
   public static int[] readMatrix() {
@@ -18,6 +19,23 @@ public class aufgabe5_7 extends MiniJava {
       }
     }
     return matrix;
+  }
+
+  /**
+   * getIntInRange gets an int from the user in the given range.
+   *
+   * @param min min of the input value (inclusive)
+   * @param max max of the input value (exclusive)
+   * @param dialog Message to display to the user
+   * @return user input
+   */
+  private static int getIntInRange(int min, int max, String dialog) {
+    int input = readInt(dialog);
+    if (input < min || input >= max) {
+      write(String.format("The given number has to be in the range %d <= x < %d", min, max));
+      return getIntInRange(min, max, dialog);
+    }
+    return input;
   }
 
   public static int get(int[] matrix, int row, int col) {
@@ -125,18 +143,26 @@ public class aufgabe5_7 extends MiniJava {
   }
 
   public static void printMatrix(int[] matrix) {
-    writeConsole(pMatrix(matrix));
+    write(pMatrix(matrix));
   }
 
   private static String pMatrix(int[] matrix) {
     String res = "";
     for (int i = 0; i < lines; i++) {
-      for (int j = 0; j < lines + 1; j++) {
+      for (int j = 0; j <= lines; j++) {
         res += get(matrix, i, j);
         res += j == lines ? "" : ", ";
       }
       res += "\n";
     }
     return res;
+  }
+
+  public static void write(int[] array) {
+    String res = "";
+    for (int i : array) {
+      res += i;
+    }
+    write(res);
   }
 }
