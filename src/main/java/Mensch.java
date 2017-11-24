@@ -70,7 +70,7 @@ public class Mensch extends Aerger {
     }
     // is this the figures first move ?
     if (current == -1) {
-      players[player][fig] = (startPos + offset + 1) % 40;
+      players[player][fig] = (startPos + offset) % 40;
       return true;
     }
     int newPos = current + offset;

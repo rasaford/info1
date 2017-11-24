@@ -41,6 +41,7 @@ public class aufgabe5_7 extends MiniJava {
           get(matrix, row, i) / divisor);
     }
   }
+
   public static void multAddLine(int[] matrix, int row, int otherRow, int factor) {
     for (int i = 0; i < lines + 1; i++) {
       set(matrix, row, i,
@@ -58,9 +59,12 @@ public class aufgabe5_7 extends MiniJava {
   }
 
   public static void searchSwap(int[] matrix, int row) {
-    if (row < lines && get(matrix, row, row) == 0) {
-      searchSwap(matrix, row + 1);
-      swap(matrix, row, row + 1);
+    int initialRow = row;
+    while (get(matrix, row, initialRow) == 0) {
+      row++;
+    }
+    while (initialRow != row) {
+      swap(matrix, row, --row);
     }
   }
 
@@ -68,29 +72,56 @@ public class aufgabe5_7 extends MiniJava {
     if (a == 0 && a == b) {
       return 0;
     }
-    return (a * b) / gcd(a, b);
+    a = a < 0 ? -a : a;
+    b = b < 0 ? -b : b;
+    return a * b / gcd(a, b);
   }
 
-  private static int gcd(int a, int b) {
-    if (b == 0) {
-      return a;
+  private static int gcd(int numA, int numB) {
+    if (numB == 0) {
+      return numA;
     }
-    if (b > a) {
-      int temp = a;
-      a = b;
-      b = temp;
+    if (numB > numA) {
+      int temp = numA;
+      numA = numB;
+      numB = temp;
     }
-    return gcd(b, a % b);
+    return gcd(numB, numA % numB);
   }
 
   public static int[] rowEchelonToResult(int[] matrix) {
-    for (int i = lines -1; i >= 0; i--) {
-      for (int j = i; j >= 0 ; j--) {
-        int div = get(matrix, i, j);
-        divLine(matrix, i, div);
+    for (int i = lines - 1; i >= 0; i--) {
+      for (int j = lines - 1; j > i; j--) {
+        int factor = get(matrix, i, j);
+        multAddLine(matrix, i, j, -factor);
+      }
+      int div = get(matrix, i, i);
+      divLine(matrix, i, div);
+    }
+    // extract the result from the solved matrix
+    int[] result = new int[lines];
+    for (int i = 0; i < lines; i++) {
+      result[i] = get(matrix, i, lines);
+    }
+    return result;
+  }
+
+  public static int[] solveSystem(int[] matrix) {
+    for (int i = 0; i < lines; i++) {
+      // only does anything if the current value on the diagonal is 0
+      searchSwap(matrix, i);
+      for (int j = i + 1; j < lines; j++) {
+        int val = get(matrix, j, i);
+        if (val == 0) {
+          continue;
+        }
+        int diag = get(matrix, i, i);
+        int lcm = kgv(diag, val);
+        multLine(matrix, j, lcm / val);
+        multAddLine(matrix, j, i, -lcm / diag);
       }
     }
-    return null;
+    return rowEchelonToResult(matrix);
   }
 
   public static void printMatrix(int[] matrix) {
