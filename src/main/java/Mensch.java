@@ -75,7 +75,7 @@ public class Mensch extends Aerger {
       return true;
     }
     int newPos = current + offset;
-    if (before(current, startPos) && !before(current + offset, startPos)) {
+    if (before(current, startPos) && !before(newPos, startPos)) {
       players[player][fig] = 40;
       return true;
     } else {
@@ -90,7 +90,7 @@ public class Mensch extends Aerger {
       a = (a + 1) % 40;
       steps++;
     }
-    return steps < 20;
+    return steps <= 20;
   }
 
   public static boolean kickFigure(int player, int newPos, int fig) {
