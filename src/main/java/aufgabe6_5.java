@@ -1,16 +1,15 @@
 public class aufgabe6_5 extends Maze {
 
   private static int[][] maze;
-  private static int[][] adjacent;
 
   // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
     int size = getIntInRange(0, Integer.MAX_VALUE,
         "How large do you want the maze to be?");
-//    int size = 16;
+//    int size = 50;
     int maxDist = getIntInRange(0, Integer.MAX_VALUE,
         "How far are you willing to go from the start?");
-//    int maxDist = 40;
+//    int maxDist = 200;
     init(size);
     int score = walk(1, 0, maxDist);
     MiniJava.write(String.format("DONE! Penguins saved: %d", score));
@@ -18,15 +17,6 @@ public class aufgabe6_5 extends Maze {
 
   private static void init(int size) {
     maze = generateMaze(size);
-    adjacent = new int[8][];
-    adjacent[0] = new int[]{-1, -1}; // topLeft
-    adjacent[1] = new int[]{0, -1}; // topCenter
-    adjacent[2] = new int[]{1, -1}; // topRight
-    adjacent[3] = new int[]{-1, 0}; // centerLeft
-    adjacent[4] = new int[]{1, 0}; // centerRight
-    adjacent[5] = new int[]{-1, 1}; // bottomLeft
-    adjacent[6] = new int[]{0, 1}; // bottomCenter
-    adjacent[7] = new int[]{1, 1}; // bottomRight
   }
 
   public static int[][] generateMaze(int size) {
@@ -47,14 +37,21 @@ public class aufgabe6_5 extends Maze {
       if (maze[newX][newY] != OLD_PATH_DONE) {
         maze[x][y] = OLD_PATH_ACTIVE;
         score += walk(newX, newY, maxDistance - 1);
-        maze[x][y] = OLD_PATH_DONE;
+        maze[x][y] = PLAYER;
       }
     }
     draw(maze);
+    maze[x][y] = OLD_PATH_DONE;
     return score;
   }
 
   public static int[][] validTiles(int x, int y, int maxDistance) {
+    int[][] adjacent = new int[][]{
+        {0, -1}, // topCenter
+        {-1, 0}, // centerLeft
+        {1, 0}, // centerRight
+        {0, 1}, // bottomCenter
+    };
     if (maxDistance == 0 || !nearWall(x, y)) {
       return new int[0][];
     }
@@ -86,6 +83,16 @@ public class aufgabe6_5 extends Maze {
   }
 
   private static boolean nearWall(int x, int y) {
+    int[][] adjacent = new int[][]{
+        {-1, -1}, // topLeft
+        {0, -1}, // topCenter
+        {1, -1}, // topRight
+        {-1, 0}, // centerLeft
+        {1, 0}, // centerRight
+        {-1, 1}, // bottomLeft
+        {0, 1}, // bottomCenter
+        {1, 1} // bottomRight
+    };
     for (int[] offset : adjacent) {
       int absX = x + offset[0];
       int absY = y + offset[1];
