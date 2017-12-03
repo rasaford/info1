@@ -1,23 +1,41 @@
-import java.util.Arrays;
+public class aufgabe6_6 extends MiniJava {
 
-public class aufgabe6_6 {
-
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
     double[] coefficients = new double[4];
     for (int i = 0; i < coefficients.length; i++) {
       coefficients[i] = getDoubleInRange(-Double.MAX_VALUE, Double.MAX_VALUE,
-          String.format("coefficient for x^%d", i));
+          String.format("current polynomial: %s\ncoefficient for x^%d", toString(coefficients), i));
     }
-    int[] interval = findIntervalRecursive(coefficients, -2, 2, 10);
-    int root = findRootRecursive(coefficients, interval[0], interval[1]);
-    double[] reduced = hornerSchema(coefficients, root);
-    int[] roots = quadraticFormula(reduced);
-    String res = "x_0 = " + root;
+    int degree = degree(coefficients);
+    int[] roots;
+    if (degree == 0) {
+      write(String.format("the polynomial %s has no or infinite integer roots",
+          toString(coefficients)));
+      return;
+    } else if (degree == 1) {
+      int[] interval = findIntervalRecursive(coefficients, -2, 2, 10);
+      int root = findRootRecursive(coefficients, interval[0], interval[1]);
+      roots = new int[]{root};
+    } else if (degree == 2) {
+      roots = quadraticFormula(coefficients);
+    } else {
+      int[] interval = findIntervalRecursive(coefficients, -2, 2, 10);
+      int root = findRootRecursive(coefficients, interval[0], interval[1]);
+      double[] reduced = hornerSchema(coefficients, root);
+      int[] r = quadraticFormula(reduced);
+      roots = new int[]{root, r[0], r[1]};
+    }
+    writeRoots(coefficients, roots);
+  }
+
+  private static void writeRoots(double[] coefficients, int[] roots) {
+    String res = "";
     for (int i = 0; i < roots.length; i++) {
-      res += String.format(", x_%d = %d", i + 1, roots[i]);
+      res += String.format("x_%d = %d", i + 1, roots[i]);
+      res += i == roots.length - 1 ? "" : ", ";
     }
-    MiniJava.write(String.format("The polynomial %.0fx^3 %.0fx^2 %.0fx^1 %.0fx^0 has the roots:\n"
-        + res, coefficients[3], coefficients[2], coefficients[1], coefficients[0]));
+    write(String.format("The polynomial %s has the roots:\n%s", toString(coefficients), res));
   }
 
   /**
@@ -29,14 +47,29 @@ public class aufgabe6_6 {
    * @return user input
    */
   private static double getDoubleInRange(double min, double max, String dialog) {
-    double input = MiniJava.readDouble(dialog);
+    double input = readDouble(dialog);
     if (input < min || input >= max) {
-      MiniJava.write(
+      write(
           String.format("The given number has to be in the range %10.2f <= x < %10.2f", min, max));
       return getDoubleInRange(min, max, dialog);
     }
     return input;
   }
+
+  private static int degree(double[] coefficients) {
+    for (int i = coefficients.length - 1; i >= 0; i--) {
+      if (coefficients[i] != 0) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  private static String toString(double[] coefficients) {
+    return String.format("%.0fx^3 %.0fx^2 %.0fx^1 %.0fx^0",
+        coefficients[3], coefficients[2], coefficients[1], coefficients[0]);
+  }
+
 
   public static int[] quadraticFormula(double[] coefficients) {
     double root = Math.pow(coefficients[1], 2) - 4 * coefficients[2] * coefficients[0];

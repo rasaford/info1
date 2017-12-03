@@ -3,12 +3,12 @@ public class aufgabe6_7 extends MiniJava {
   private static int base;
   private static int printWidth;
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
     base = getIntInRange(2, 37,
         "What base do you want to represent the numbers in?");
     int[] a = readNumber();
     int[] b = readNumber();
-    base = 16;
     printWidth = a.length + b.length + 2;
 
     System.out.printf("\\begin{tabular}{%s}\n", multiply("c", printWidth));
@@ -22,14 +22,26 @@ public class aufgabe6_7 extends MiniJava {
 
   public static int[] readNumber() {
     String number = MiniJava.readString(String.format("Enter the number in base %d", base));
-    int[] out = new int[number.length()];
+    int[] temp = new int[number.length()];
     for (int i = 0; i < number.length(); i++) {
       int index = number.length() - i - 1;
       int digit = atoi(number.charAt(i));
       if (digit > base - 1) {
         return readNumber();
       }
-      out[index] = digit;
+      temp[index] = digit;
+    }
+    // trim any leading zeros
+    int offset = 0;
+    for (int i = temp.length - 1; i >= 0; i--) {
+      if (temp[i] != 0) {
+        offset = temp.length - i - 1;
+        break;
+      }
+    }
+    int[] out = new int[temp.length - offset];
+    for (int i = 0; i < out.length; i++) {
+      out[i] = temp[i];
     }
     return out;
   }

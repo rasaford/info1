@@ -6,10 +6,8 @@ public class aufgabe6_5 extends Maze {
   public static void main(String[] args) {
     int size = getIntInRange(0, Integer.MAX_VALUE,
         "How large do you want the maze to be?");
-//    int size = 50;
     int maxDist = getIntInRange(0, Integer.MAX_VALUE,
         "How far are you willing to go from the start?");
-//    int maxDist = 200;
     init(size);
     int score = walk(1, 0, maxDist);
     MiniJava.write(String.format("DONE! Penguins saved: %d", score));
@@ -20,18 +18,18 @@ public class aufgabe6_5 extends Maze {
   }
 
   public static int[][] generateMaze(int size) {
-    return generateStandardPenguinMaze(size, size);
+    return generatePenguinMaze(size, size);
   }
 
   public static int walk(int x, int y, int maxDistance) {
-    int[][] validTiles = validTiles(x, y, maxDistance);
-    if (validTiles.length == 0) { // if tile is invalid
+    if (!nearWall(x, y) || maxDistance == 0) {
       return 0;
     }
     int score = score(x, y);
     maze[x][y] = PLAYER;
     draw(maze);
-    for (int[] tile : validTiles) {
+    int[][] validTiles = validTiles(x, y);
+    for (int[] tile : sort(validTiles)) {
       int newX = tile[0];
       int newY = tile[1];
       if (maze[newX][newY] != OLD_PATH_DONE) {
@@ -45,16 +43,13 @@ public class aufgabe6_5 extends Maze {
     return score;
   }
 
-  public static int[][] validTiles(int x, int y, int maxDistance) {
+  public static int[][] validTiles(int x, int y) {
     int[][] adjacent = new int[][]{
         {0, -1}, // topCenter
         {-1, 0}, // centerLeft
         {1, 0}, // centerRight
         {0, 1}, // bottomCenter
     };
-    if (maxDistance == 0 || !nearWall(x, y)) {
-      return new int[0][];
-    }
     int[][] validPositions = new int[0][];
     for (int[] pos : adjacent) {
       int absX = x + pos[0];
@@ -107,6 +102,31 @@ public class aufgabe6_5 extends Maze {
     return false;
   }
 
+  /**
+   * descending sort of the valid tiles array by score.
+   *
+   * @param array to be sorted
+   */
+  private static int[][] sort(int[][] array) {
+    for (int i = 0; i < array.length; i++) {
+      for (int j = 0; j < array.length; j++) {
+        if (score(array[i][0], array[i][1]) > score(array[j][0], array[j][1])) {
+          int[] temp = array[i];
+          array[i] = array[j];
+          array[j] = temp;
+        }
+      }
+    }
+    return array;
+  }
+
+
+  /**
+   * value function for tile evaluation.
+   *
+   * @param y /***
+   * @return value function for tile evaluation.
+   */
   private static int score(int x, int y) {
     return (maze[x][y] == PENGUIN) ? 1 : 0;
   }
