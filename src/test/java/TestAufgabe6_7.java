@@ -42,10 +42,7 @@ public class TestAufgabe6_7 {
 
   @Test
   public void mul1() {
-//    assertArrayEquals(new int[]{0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1},
-//        aufgabe6_7.mul(new int[]{0, 0, 1, 1, 0, 1, 0, 1, 0, 1},
-//            new int[]{1, 1, 1, 0, 0, 0, 1, 1}, 2));
-    assertArrayEquals(new int[]{4,11,3,1,2},
+    assertArrayEquals(new int[]{0,5,11,4,1},
         aufgabe6_7.mul(new int[]{12, 7},
             new int[]{12, 10, 2}, 16));
   }
