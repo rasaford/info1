@@ -1,20 +1,14 @@
 public class HilfPingu extends PenguinPen {
 
-  private static final int[][] penguinPen = generatePenguinPen(24, 17);
+  private static final int[][] penguinPen = generateStandardPenguinPen(24, 17);
 
   public static void move(int direction) {
     System.out.println(direction);
   }
 
-
-
-
-
-
-
-
   /*********************************************/
   /* Ab hier soll nichts mehr geändert werden! */
+
   /*********************************************/
 
   public static void main(String[] args) {
@@ -23,7 +17,7 @@ public class HilfPingu extends PenguinPen {
   }
 
   private static void handleUserInput() {
-    while(true) {
+    while (true) {
       try {
         Thread.sleep(10);
       } catch (InterruptedException ie) {
