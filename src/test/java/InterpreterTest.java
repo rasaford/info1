@@ -49,6 +49,41 @@ public class InterpreterTest {
   }
 
   @Test
+  public void testFak10() {
+    String textProgram = "LDI 10\n" +
+        "LDI fak\n" +
+        "CALL 1\n" +
+        "HALT\n" +
+        "\n" +
+        // 1 arg
+        "fak:\n" +
+        "ALLOC 1\n" +
+        "LDI 1\n" +
+        "STS 1\n" +
+        // x = 1
+        "LDS 0\n" +
+        "LDI 1\n" +
+        // abbruch ?
+        "JE end\n" +
+        // rekursiver Aufruf mit n - 1
+        "LDI 1\n" +
+        "LDS 0\n" +
+        "SUB\n" +
+        "LDI fak\n" +
+        "CALL 1\n" +
+        // n * fak(n -1)
+        "LDS 0\n" +
+        "MUL\n" +
+        "STS 1\n" +
+        "end:\n" +
+        "LDS 1\n" +
+        // arg freigeben
+        "RETURN 2";
+    int[] program = Interpreter.parse(textProgram);
+    int retVal = Interpreter.execute(program);
+    assertEquals(3628800, retVal);
+  }
+  @Test
   public void testFak6() {
     String textProgram = "LDI 6\n" +
         "LDI fak\n" +
@@ -83,6 +118,7 @@ public class InterpreterTest {
     int retVal = Interpreter.execute(program);
     assertEquals(720, retVal);
   }
+
   @Test
   public void testFak3() {
     String textProgram = "LDI 3\n" +
@@ -120,20 +156,22 @@ public class InterpreterTest {
   }
 
   @Test
-  public void smallExamle() {
+  public void smallExample() {
     String prog = "ALLOC 1\n"
         + "LDI 0\n"
         + "STS 1\n"
         + "from:\n"
         + "LDS 1\n"
-        + "OUT\n"
-        + "LDS 1\n"
         + "LDI 1\n"
         + "ADD\n"
         + "STS 1\n"
-        + "JUMP from";
+        + "LDI 10\n"
+        + "LDS 1\n"
+        + "JNE from\n"
+        + "HALT";
     int[] code = Interpreter.parse(prog);
-    assertNotNull(code);
+    int ret = Interpreter.execute(code);
+    assertEquals(10, ret);
   }
 
   @Test
@@ -183,5 +221,4 @@ public class InterpreterTest {
     int[] pr = Interpreter.parse(prog);
     assertEquals(0, Interpreter.execute(pr));
   }
-
 }

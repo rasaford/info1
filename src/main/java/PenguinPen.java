@@ -8,6 +8,7 @@ import java.awt.event.*;
 import java.io.File;
 
 public class PenguinPen extends JPanel {
+
   public static final int WALL = -3;
   public static final int FREE = -2;
   public static final int OUTSIDE = -1;
@@ -18,19 +19,23 @@ public class PenguinPen extends JPanel {
   public static final int PENGUIN_OII = 4;
   public static final int PENGUIN_IOO = 5;
 
-  public static final int MOVE_LEFT  = 0;
+  public static final int MOVE_LEFT = 0;
   public static final int MOVE_RIGHT = 1;
-  public static final int MOVE_UP    = 2;
-  public static final int MOVE_DOWN  = 3;
-  public static final int NO_MOVE    = -1;
+  public static final int MOVE_UP = 2;
+  public static final int MOVE_DOWN = 3;
+  public static final int NO_MOVE = -1;
 
   private class Field extends JPanel {
-    Point p; int x,y;
+
+    Point p;
+    int x, y;
+
     public Field(int x, int y) {
       this.x = x;
       this.y = y;
       p = getLocation();
     }
+
     public void paint(Graphics g) {
       super.paint(g);
       if (myState[x][y] == WALL) {
@@ -67,6 +72,7 @@ public class PenguinPen extends JPanel {
           break;
       }
     }
+
     private void paintSymbol(Graphics g, Color c) {
       GradientPaint gradient = new GradientPaint(15, 0, c, getWidth(), 0, Color.LIGHT_GRAY);
       ((Graphics2D) g).setPaint(gradient);
@@ -75,21 +81,32 @@ public class PenguinPen extends JPanel {
       g.fillOval((int) (getWidth() * 0.3), (int) (getHeight() * 0.3), (int) (getWidth() * 0.5),
           (int) (getHeight() * 0.5));
     }
+
     private void drawPeng(Graphics g, int index) {
       if (peng[index] == null) {
-        if (index == 0) paintSymbol(g, Color.YELLOW);
-        if (index == 1) paintSymbol(g, Color.BLUE);
-        if (index == 2) paintSymbol(g, Color.BLACK);
-        if (index == 3) paintSymbol(g, Color.MAGENTA);
-        if (index == 4) paintSymbol(g, Color.GREEN);
+        if (index == 0) {
+          paintSymbol(g, Color.YELLOW);
+        }
+        if (index == 1) {
+          paintSymbol(g, Color.BLUE);
+        }
+        if (index == 2) {
+          paintSymbol(g, Color.BLACK);
+        }
+        if (index == 3) {
+          paintSymbol(g, Color.MAGENTA);
+        }
+        if (index == 4) {
+          paintSymbol(g, Color.GREEN);
+        }
         return;
       }
       ((Graphics2D) g).drawImage
-       (peng[index], 0, 0,
-        getWidth(), getHeight(), 0, 0,
-        peng[index].getWidth(null),
-        peng[index].getHeight(null),
-        null);
+          (peng[index], 0, 0,
+              getWidth(), getHeight(), 0, 0,
+              peng[index].getWidth(null),
+              peng[index].getHeight(null),
+              null);
     }
   }
 
@@ -101,8 +118,8 @@ public class PenguinPen extends JPanel {
   public PenguinPen() {
     for (int i = 1; i <= 5; i++) {
       File f = new File("tux" + i + ".png");
-      if(f.exists() && !f.isDirectory()) { 
-         peng[i-1] = Toolkit.getDefaultToolkit().getImage(f.getAbsolutePath());
+      if (f.exists() && !f.isDirectory()) {
+        peng[i - 1] = Toolkit.getDefaultToolkit().getImage(f.getAbsolutePath());
       }
     }
   }
@@ -123,19 +140,50 @@ public class PenguinPen extends JPanel {
     fieldPanel.setLayout(new GridLayout(myState[0].length, myState.length));
     myFrame.getContentPane().add(fieldPanel);
     myFrame.setSize
-      ((int)(IWH * scale) * myState.length,
-       (int)(IWH * scale) * myState[0].length);
+        ((int) (IWH * scale) * myState.length,
+            (int) (IWH * scale) * myState[0].length);
     myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     myFrame.addComponentListener(new ComponentHandler());
     myFrame.addKeyListener(new KeyHandler());
+    // penguin killer:
+    myFrame.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        super.mouseClicked(e);
+        int[][] state;
+        try {
+          java.lang.reflect.Field f = HilfPingu.class.getDeclaredField("penguinPen");
+          f.setAccessible(true);
+          state = (int[][]) f.get(null);
+        } catch (NoSuchFieldException | IllegalAccessException ex) {
+          return;
+        }
+        double xCells = state.length;
+        double yCells = state[0].length;
+        double xSize = myFrame.getWidth() / xCells;
+        double ySize = myFrame.getHeight() / yCells;
+        int x = e.getX() / (int) xSize;
+        int y = e.getY() / (int) ySize;
+        int type = state[x][y];
+
+        if (1 <= type && type <= 5) {
+          state[x][y] = FREE;
+          System.out.printf("deleted penguin on (%d, %d)\n", x, y);
+          draw(state);
+        }
+      }
+    });
     myFrame.setVisible(true);
 
     update(state);
   }
+
   private void update(int[][] state) {
-    for (int x = 0; x < myState.length; x++)
-      for (int y = 0; y < myState[0].length; y++)
+    for (int x = 0; x < myState.length; x++) {
+      for (int y = 0; y < myState[0].length; y++) {
         myState[x][y] = state[x][y];
+      }
+    }
     fieldPanel.repaint();
   }
 
@@ -143,7 +191,7 @@ public class PenguinPen extends JPanel {
     if (myPenguinPen == null) {
       myPenguinPen = new PenguinPen(myState);
       try {
-         Thread.sleep(100);
+        Thread.sleep(100);
       } catch (InterruptedException ie) {
          /* Intentionally left blank */
       }
@@ -151,7 +199,8 @@ public class PenguinPen extends JPanel {
     while (myPenguinPen.pause) {
       try {
         Thread.sleep(50);
-      } catch (InterruptedException ie) {}
+      } catch (InterruptedException ie) {
+      }
     }
     myPenguinPen.update(myState);
     try {
@@ -162,12 +211,15 @@ public class PenguinPen extends JPanel {
   }
 
   private class ComponentHandler extends ComponentAdapter {
+
     @Override
     public void componentResized(ComponentEvent e) {
       repaint();
     }
   }
+
   private class KeyHandler extends KeyAdapter {
+
     @Override
     public void keyPressed(KeyEvent ke) {
       switch (ke.getKeyCode()) {
@@ -176,7 +228,7 @@ public class PenguinPen extends JPanel {
           break;
         case KeyEvent.VK_SPACE:
           pause = !pause;
-          System.out.println(pause?"break":"continue");
+          System.out.println(pause ? "break" : "continue");
           break;
         case KeyEvent.VK_LEFT:
           step(MOVE_LEFT);
@@ -205,24 +257,24 @@ public class PenguinPen extends JPanel {
   private static String moveQueue = "";
 
   private void step(int direction) {
-    synchronized(cLock) {
+    synchronized (cLock) {
       try {
         Thread.sleep(10);
       } catch (InterruptedException ie) {
         /* Intentionally left blank */
       }
-      moveQueue+=""+direction;
+      moveQueue += "" + direction;
     }
   }
 
   public static int nextStep() {
-    synchronized(cLock) {
-      if(moveQueue.length() == 0) {
+    synchronized (cLock) {
+      if (moveQueue.length() == 0) {
         return NO_MOVE;
       }
       char c = moveQueue.charAt(0);
-      moveQueue = moveQueue.substring(1,moveQueue.length());
-      return c-(int)'0';
+      moveQueue = moveQueue.substring(1, moveQueue.length());
+      return c - (int) '0';
     }
   }
 
@@ -264,33 +316,38 @@ public class PenguinPen extends JPanel {
       for (int j = 0; j < myState[i].length; j++) {
         if (random.nextInt(6) == 0) {
           myState[i][j] = WALL;
-    } } }
+        }
+      }
+    }
 
     // Random penguins:
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        if(WALL != myState[x][y]) {
+        if (WALL != myState[x][y]) {
           switch (random.nextInt(31)) {
-            case 0 :
+            case 0:
               myState[x][y] = PENGUIN_OOO;
               break;
-            case 1 :
+            case 1:
               myState[x][y] = PENGUIN_OOI;
               break;
-            case 2 :
+            case 2:
               myState[x][y] = PENGUIN_OIO;
               break;
-            case 3 :
+            case 3:
               myState[x][y] = PENGUIN_OII;
               break;
-            case 4 :
+            case 4:
               myState[x][y] = PENGUIN_IOO;
               break;
             default
-            :
-            break
-            ;
-     } } } }
+                :
+              break
+                  ;
+          }
+        }
+      }
+    }
 
     // Entrance
     myState[1][0] = ZOOKEEPER;

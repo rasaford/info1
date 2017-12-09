@@ -142,11 +142,7 @@ public class Interpreter extends MiniJava {
     String imm = command[1];
     int immediate = 0;
     try {
-      if (labels.containsKey(imm)) {
-        immediate = labels.get(imm);
-      } else {
-        immediate = Short.parseShort(imm);
-      }
+      immediate = labels.containsKey(imm) ? labels.get(imm) : Short.parseShort(imm);
     } catch (NumberFormatException e) {
       errorf("cannot parse immediate %s", imm);
     }
@@ -164,9 +160,7 @@ public class Interpreter extends MiniJava {
   }
 
   public static int pop() {
-    int res = stack[esp];
-    stack[esp--] = 0;
-    return res;
+    return stack[esp--];
   }
 
   public static void push(int value) {
