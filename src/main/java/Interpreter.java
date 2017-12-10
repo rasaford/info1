@@ -37,6 +37,12 @@ public class Interpreter extends MiniJava {
 
   public static void main(String[] args) {
     init();
+    System.out.println("Please enter the program code you want to execute");
+    String code = readProgramConsole();
+    int[] machineCode = parse(code);
+    int res = execute(machineCode);
+    System.out.println("DONE");
+    System.out.println("The result was: " + res);
   }
 
   public static void init() {
@@ -196,7 +202,6 @@ public class Interpreter extends MiniJava {
   }
 
   public static String readProgramConsole() {
-    @SuppressWarnings("resource")
     Scanner sin = new Scanner(System.in);
     StringBuilder builder = new StringBuilder();
     while (true) {
@@ -213,6 +218,7 @@ public class Interpreter extends MiniJava {
       builder.append(nextLine);
       builder.append('\n');
     }
+    sin.close();
     return builder.toString();
   }
 
