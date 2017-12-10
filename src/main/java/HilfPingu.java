@@ -15,10 +15,14 @@ public class HilfPingu extends PenguinPen {
       return;
     }
     feed(playerX, playerY);
+    draw(penguinPen);
     for (I.Penguin p : penguins) {
       p.move();
     }
-    draw(penguinPen);
+    if (penguins.size() == 0) {
+      System.out.println("congratulations, you won!");
+      System.exit(0);
+    }
   }
 
 
@@ -26,7 +30,7 @@ public class HilfPingu extends PenguinPen {
     int[] rel = dirToRel(dir);
     int x = playerX + rel[0];
     int y = playerY + rel[1];
-    if (x < 0 || y < 0 || penguinPen[x][y] == WALL) {
+    if (x < 0 || y < 0 || get(x, y) == WALL) {
       return false;
     }
     System.out.printf("(%d, %d) ==> (%d, %d) -- Spielschritt.\n", playerX, playerY, x, y);
@@ -54,7 +58,8 @@ public class HilfPingu extends PenguinPen {
 
 
   private static void feed(int x, int y) {
-    int[][] adjacent = new int[][]{{1, 1}, {0, 1}, {1, 1}, {-1, 0}, {1, 0}, {-1, -1}, {0, -1},
+    int[][] adjacent = new int[][]{{1, 1}, {0, 1}, {1, 1}, {-1, 0}, {0, 0}, {1, 0}, {-1, -1},
+        {0, -1},
         {1, -1}};
     for (int[] adj : adjacent) {
       int absX = x + adj[0];
@@ -71,6 +76,14 @@ public class HilfPingu extends PenguinPen {
     }
   }
 
+  private static int get(int x, int y) {
+    if (x < 0 || y < 0) {
+      return OUTSIDE;
+    }
+    return penguinPen[x][y];
+  }
+
+  // this is a dirty hack to allow polymorphism in a static context within a single file
   private static class I {
 
     private class Penguin {
@@ -117,6 +130,7 @@ public class HilfPingu extends PenguinPen {
 
       public int type = PENGUIN_OIO;
       private boolean hitWall = false;
+      private int[] oldDir = new int[]{0, -1}; // first move has to be up
 
       public Wechsulin(int x, int y) {
         super(x, y);
@@ -127,14 +141,67 @@ public class HilfPingu extends PenguinPen {
         if (!hitWall) {
           int newX = x + 1;
           int newY = y;
-          if (penguinPen[newX][newY] == FREE) {
+          if (get(newX, newY) == FREE) {
             movePenguin(type, newX, newY);
           }
-          if (penguinPen[newX][newY] != WALL) {
+          if (get(newX, newY) != WALL) {
             return;
           }
           hitWall = true;
         }
+        int[] newDir = moveAlongWall();
+        movePenguin(type, x + newDir[0], y + newDir[1]);
+        if (newDir[0] == 0 && newDir[1] == 0) {
+          return;
+        }
+        oldDir = newDir;
+      }
+
+      private int[] moveAlongWall() {
+        int[] rightDir = rightHandVector();
+        int ahead = get(x + oldDir[0], y + oldDir[1]);
+        int right = get(x + rightDir[0], y + rightDir[1]);
+        if (PENGUIN_OOO <= ahead && ahead <= PENGUIN_IOO ||
+            PENGUIN_OOO <= right && right <= PENGUIN_IOO) {
+          return new int[]{0, 0};
+        }
+        if (ahead == FREE && right == WALL) {
+          return oldDir;
+        }
+        if ((ahead == FREE || ahead == WALL) && right == FREE) {
+          return rightDir;
+        }
+        if (ahead == OUTSIDE) {
+          oldDir[0] *= -1;
+          oldDir[1] *= -1;
+          return oldDir;
+        }
+        if (ahead == WALL && right == WALL) {
+          rightDir[0] *= -1;
+          rightDir[1] *= -1;
+          right = get(x + rightDir[0], y + rightDir[1]);
+          if (right == FREE) {
+            return rightDir;
+          }
+          oldDir[0] *= -1;
+          oldDir[1] *= -1;
+          return oldDir;
+        }
+        return null; // for debugging to detect invalid configurations
+      }
+
+      private int[] rightHandVector() {
+        int[] right = new int[]{0, 0};
+        if (oldDir[0] == 0 && oldDir[1] == 1) {
+          right = new int[]{-1, 0};
+        } else if (oldDir[0] == -1 && oldDir[1] == 0) {
+          right = new int[]{0, -1};
+        } else if (oldDir[0] == 0 && oldDir[1] == -1) {
+          right = new int[]{1, 0};
+        } else if (oldDir[0] == 1 && oldDir[1] == 0) {
+          right = new int[]{0, 1};
+        }
+        return right;
       }
     }
 
@@ -163,7 +230,7 @@ public class HilfPingu extends PenguinPen {
           if (newX < 0 || newY < 0) {
             continue;
           }
-          if (penguinPen[newX][newY] == FREE) {
+          if (get(newX, newY) == FREE) {
             movePenguin(type, newX, newY);
             break;
           }
@@ -183,7 +250,7 @@ public class HilfPingu extends PenguinPen {
       public void move() {
         int randomX = (int) (Math.random() * penguinPen.length);
         int randomY = (int) (Math.random() * penguinPen[0].length);
-        if (penguinPen[randomX][randomY] != FREE) {
+        if (get(randomX, randomY) != FREE) {
           move();
           return;
         }
@@ -221,7 +288,7 @@ public class HilfPingu extends PenguinPen {
           if (newX < 0 || newY < 0) {
             continue;
           }
-          if (penguinPen[newX][newY] == FREE) {
+          if (get(newX, newY) == FREE) {
             movePenguin(type, newX, newY);
             return;
           }
@@ -237,23 +304,23 @@ public class HilfPingu extends PenguinPen {
   private static void init() {
     for (int x = 0; x < penguinPen.length; x++) {
       for (int y = 0; y < penguinPen[0].length; y++) {
-        int type = penguinPen[x][y];
+        int type = get(x, y);
         switch (type) {
-//          case PENGUIN_OOO:
-//            penguins.add(new I().new Fauluin(x, y));
-//            break;
-//          case PENGUIN_OOI:
-//            penguins.add(new I().new Zufullin(x, y));
-//            break;
+          case PENGUIN_OOO:
+            penguins.add(new I().new Fauluin(x, y));
+            break;
+          case PENGUIN_OOI:
+            penguins.add(new I().new Zufullin(x, y));
+            break;
           case PENGUIN_OIO:
             penguins.add(new I().new Wechsulin(x, y));
             break;
-//          case PENGUIN_OII:
-//            penguins.add(new I().new Springuin(x, y));
-//            break;
-//          case PENGUIN_IOO:
-//            penguins.add(new I().new Schlauin(x, y));
-//            break;
+          case PENGUIN_OII:
+            penguins.add(new I().new Springuin(x, y));
+            break;
+          case PENGUIN_IOO:
+            penguins.add(new I().new Schlauin(x, y));
+            break;
         }
       }
     }

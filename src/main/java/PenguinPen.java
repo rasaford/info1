@@ -340,10 +340,8 @@ public class PenguinPen extends JPanel {
             case 4:
               myState[x][y] = PENGUIN_IOO;
               break;
-            default
-                :
-              break
-                  ;
+            default:
+              break;
           }
         }
       }
