@@ -331,6 +331,7 @@ public class HilfPingu extends PenguinPen {
 
   /*********************************************/
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
     init();
     draw(penguinPen);

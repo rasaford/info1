@@ -35,6 +35,7 @@ public class Interpreter extends MiniJava {
   // instruction pointer
   private static int eip;
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
     init();
     System.out.println("Please enter the program code you want to execute");
