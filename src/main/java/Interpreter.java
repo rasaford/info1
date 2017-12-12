@@ -49,8 +49,7 @@ public class Interpreter extends MiniJava {
   public static void init() {
     stack = new int[128];
     esp = -1;
-    ebp = 0;
-    eip = 0;
+    ebp = eip = 0;
     tokens = new HashMap<>();
     tokens.put("NOP", new Token(NOP, false, (imm) -> {
     }));
