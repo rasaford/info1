@@ -10,7 +10,6 @@ public class HilfPingu extends PenguinPen {
   private static List<I.Penguin> penguins = new ArrayList<>();
 
   public static void move(int direction) {
-    draw(penguinPen);
     if (!movePlayer(direction)) {
       return;
     }
@@ -19,8 +18,9 @@ public class HilfPingu extends PenguinPen {
     for (I.Penguin p : penguins) {
       p.move();
     }
+    draw(penguinPen);
     if (penguins.size() == 0) {
-      System.out.println("congratulations, you won!");
+      MiniJava.write("congratulations, you won!");
       System.exit(0);
     }
   }

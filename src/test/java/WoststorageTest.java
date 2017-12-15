@@ -205,7 +205,7 @@ public class WoststorageTest {
         null, null, p3, p8}, getPs(w));
     assertArrayEquals(new int[]{1, 2, 2}, getCount(w));
 
-    Penguin p7 = new Penguin(8);
+    Penguin p7 = new Penguin(7);
     w.insert(p7);
     assertArrayEquals(new Penguin[]{p2,
         p1, p4,

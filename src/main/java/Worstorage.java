@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class Worstorage {
 
   private Penguin[] ps;
@@ -24,7 +22,7 @@ public class Worstorage {
       return;
     }
     ps[insertIndex] = penguin;
-    count[level(insertIndex)] += 1;
+    count[height(insertIndex)] += 1;
   }
 
   private void tableDouble() {
@@ -61,16 +59,33 @@ public class Worstorage {
   }
 
   /**
-   * restores the BST property for the subtree at the index
+   * Fix moves every node in the subtree at index up one level.
+   *
+   * @param index starting index of the subtree to fix
    */
-  public void delete(ArrayList<Penguin> p, int index) {
+  private void fix(int index) {
     if (!isValid(index) || ps[index] == null) {
       return;
     }
-    p.add(ps[index]);
-    delete(p, left(index));
-    delete(p, right(index));
+    ps[parent(index)] = ps[index];
+    count[height(parent(index))] += 1;
+    fix(left(index));
+    fix(right(index));
     ps[index] = null;
+    count[height(index)] -= 1;
+  }
+
+  private void removeLayer() {
+    int[] newCount = new int[count.length - 1];
+    for (int i = 0; i < newCount.length; i++) {
+      newCount[i] = count[i];
+    }
+    Penguin[] newPs = new Penguin[(ps.length - 1) / 2];
+    for (int i = 0; i < newPs.length; i++) {
+      newPs[i] = ps[i];
+    }
+    count = newCount;
+    ps = newPs;
   }
 
   public boolean find(Penguin penguin) {
@@ -92,22 +107,16 @@ public class Worstorage {
     if (!isValid(index) || !penguin.equals(ps[index])) {
       return;
     }
-    int maxRight = max(right(index));
-    ps[index] = ps[maxRight];
-    ps[maxRight] = null;
-    count[level(maxRight)] -= 1;
+    int leftMax = max(left(index));
+    ps[index] = ps[leftMax];
+    ps[leftMax] = null;
+    count[height(leftMax)] -= 1;
 
-    ArrayList<Penguin> penguins = new ArrayList<>();
-    delete(penguins, left(maxRight));
-    for (Penguin p : penguins) {
-      insert(p);
+    // The left subtree of the max might have to be moved up one to restore the BST property.
+    fix(left(leftMax));
+    if (count[count.length - 1] == 0) {
+      removeLayer();
     }
-  }
-
-  private void swap(Penguin[] array, int a, int b) {
-    Penguin temp = array[a];
-    array[a] = array[b];
-    array[b] = temp;
   }
 
 
@@ -122,19 +131,38 @@ public class Worstorage {
     return max(right);
   }
 
+  /**
+   * @return index of the parent
+   */
+  private int parent(int index) {
+    return ((index + 1) >> 1) - 1;
+  }
+
+  /**
+   * @return index of the left child
+   */
   private int left(int index) {
     return 2 * (index + 1) - 1;
   }
 
+  /**
+   * @return index of the right child
+   */
   private int right(int index) {
     return 2 * (index + 1);
   }
 
+  /**
+   * @return true if the index is less than the current height of the tree
+   */
   private boolean isValid(int index) {
     return index < (1 << count.length) - 1;
   }
 
-  private int level(int index) {
+  /**
+   * @return height of the index in the binary tree
+   */
+  private int height(int index) {
     index++;
     return index < 2 ? 0 : (int) (Math.log(index) / Math.log(2));
   }
