@@ -2,8 +2,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Stack;
 
 public class MiniJavaParser {
 
@@ -35,74 +37,71 @@ public class MiniJavaParser {
   }
 
   public static String[] lex(String program) {
-    ArrayList<String> tokens = new ArrayList<>();
-    Set<String> keywords = new HashSet<>(
-        Arrays.asList("int", "read", "write", "if", "else", "while", "true", "false"));
-    Set<String> binop = new HashSet<>(
-        Arrays.asList("-", "+", "*", "/", "%"));
-    Set<String> comp = new HashSet<>(
-        Arrays.asList("==", "!=", "<=", "<", ">=", ">"));
-    Set<String> bunop = new HashSet<>(
-        Arrays.asList("!"));
-    Set<String> bbinop = new HashSet<>(
-        Arrays.asList("&&", "|"));
-    Set<String> misc = new HashSet<>(
-        Arrays.asList("{", "}", "(", ")", ",", ";", "="));
-
-    String lastWord = "";
+    List<String> tokens = new ArrayList<>();
+    Set<String> keywords = new HashSet<>(Arrays.asList(
+        "int", "read", "write", "if", "else", "while", "true", "false",
+        "-", "+", "*", "/", "%",
+        "==", "!=", "<=", "<", ">=", ">",
+        "!",
+        "&&", "||",
+        "{", "}", "(", ")", ",", ";", "="));
+    program = program.replaceAll("\\s", "");
+    String last = "";
     for (int i = 0; i < program.length(); i++) {
-      char c = program.charAt(i);
-      if (c == ' ' || c == '\n') {
-        continue;
-      }
-      lastWord += c;
-      int match = matches(lastWord, keywords, binop, comp, bunop, bbinop, misc);
-
-      if (match == 1) {
-        tokens.add(lastWord);
-        lastWord = "";
-      } else if (match == 0) {
-        int len = lastWord.length();
-        tokens.add(lastWord.substring(0, len - 1));
-        tokens.add(lastWord.substring(len - 1, len));
-        lastWord = "";
+      String c = program.substring(i, i + 1);
+      if (isPrefix(c, keywords)) {
+        // match expansion
+        String match = c;
+        String lastMatch = c;
+        int lastIndex = i;
+        for (int j = i + 1; j < program.length() && isPrefix(match, keywords); j++) {
+          if (keywords.contains(match += program.substring(j, j + 1))) {
+            lastMatch = match;
+            lastIndex = j;
+          }
+        }
+        // match validation
+        if (!keywords.contains(lastMatch)) {
+          last += c;
+          continue;
+        }
+        if (!last.equals("")) {
+          tokens.add(last);
+          last = "";
+        }
+        tokens.add(lastMatch);
+        i = lastIndex;
+      } else {
+        last += c;
       }
     }
+    // padding of the lexed array to make parsing easier.
+    if (!last.equals("")) {
+      tokens.add(last);
+    }
+    tokens.add("");
     return tokens.toArray(new String[0]);
   }
 
-  /**
-   * Checks if the word matches any of the given collections.
-   *
-   * @param word String to find a match for
-   * @param ops Collections to match against
-   * @return 1 if a full match was found, 0 if the end matched, -1 if no match was found.
-   */
-  private static int matches(String word, Collection<String>... ops) {
-    for (Collection<String> op : ops) {
-      if (op.contains(word)) {
-        return 1;
-      }
-      for (String o : op) {
-        if (word.endsWith(o)) {
-          return 0;
-        }
+  private static boolean isPrefix(String prefix, Iterable<String> dict) {
+    for (String d : dict) {
+      if (d.startsWith(prefix)) {
+        return true;
       }
     }
-    return -1;
+    return false;
   }
-
 
   public static int parseNumber(String[] program, int from) {
     if (!valid(program, from)) {
-      return from;
+      return -1;
     }
     return program[from].matches("\\d+") ? from + 1 : -1;
   }
 
   public static int parseName(String[] program, int from) {
     if (!valid(program, from) || program[from].length() == 0) {
-      return from;
+      return -1;
     }
     return program[from].matches("^[a-zA-Z]([a-zA-Z]|\\d)*$") ?
         from + 1 : -1;
@@ -110,7 +109,7 @@ public class MiniJavaParser {
 
   public static int parseType(String[] program, int from) {
     if (!valid(program, from)) {
-      return from;
+      return -1;
     }
     return program[from].equals("int") ? from + 1 : -1;
   }
@@ -124,32 +123,34 @@ public class MiniJavaParser {
       }
       from = parseName(program, ++from);
     }
-    return valid(program, from) && program[from].equals(";") ?
-        from + 1 : -1;
+    return valid(program, from) && program[from].equals(";") ? from + 1 : -1;
   }
 
   public static int parseUnop(String[] program, int from) {
     if (!valid(program, from)) {
-      return from;
+      return -1;
     }
     return program[from].equals("-") ? from + 1 : -1;
   }
 
   public static int parseBinop(String[] program, int from) {
     if (!valid(program, from)) {
-      return from;
+      return -1;
     }
     return program[from].matches("[-\\+\\*/%]") ? from + 1 : -1;
   }
 
   public static int parseComp(String[] program, int from) {
     if (!valid(program, from)) {
-      return from;
+      return -1;
     }
     return program[from].matches("(==)|(!=)|(<=)|<|(>=)|>") ? from + 1 : -1;
   }
 
   public static int parseExpression(String[] program, int from) {
+    if (!valid(program, from)) {
+      return -1;
+    }
     // <number>
     int next = parseNumber(program, from);
     if (valid(program, next)) {
@@ -231,37 +232,37 @@ public class MiniJavaParser {
     if (!valid(program, from)) {
       return from;
     }
-    String t = program[from];
+    String first = program[from];
     int next = 0;
     // ;
-    if (t.equals(";")) {
+    if (first.equals(";")) {
       return from + 1;
     }
     // { <stmt>* }
-    if (t.equals("{")) {
+    if (first.equals("{")) {
       from = parseStatement(program, from + 1);
       return from + 1;
     }
     // <name> = <expr>;
     // <name> = read();
     next = parseName(program, from);
-    if (!valid(program, next) || !program[next].equals("=")) {
-      return -1;
-    }
-    int temp = parseExpression(program, next + 1);
-    if (valid(program, temp) && program[temp].equals(";")) {
-      return temp + 1;
-    }
-    if (program.length - next >= 4
-        && program[next].equals("read")
-        && program[next + 1].equals("(")
-        && program[next + 2].equals(")")
-        && program[next + 3].equals(";")) {
-      return next + 4;
+    if (valid(program, next) && program[next].equals("=")) {
+      next++;
+      int temp = parseExpression(program, next);
+      if (valid(program, temp) && program[temp].equals(";")) {
+        return temp + 1;
+      }
+      if (program.length - next >= 4
+          && program[next].equals("read")
+          && program[next + 1].equals("(")
+          && program[next + 2].equals(")")
+          && program[next + 3].equals(";")) {
+        return next + 4;
+      }
     }
     // write(<expr>);
     next = from + 1;
-    if (t.equals("write") && program[next].equals("(")) {
+    if (first.equals("write") && program[next].equals("(")) {
       next = parseExpression(program, next + 1);
       if (!valid(program, next) || !program[next].equals(")")) {
         return -1;
@@ -272,7 +273,7 @@ public class MiniJavaParser {
     // if (<cond>) <stmt> else <stmt>
     // if (<cond>) <stmt>
     next = from + 1;
-    if (t.equals("if") && valid(program, next) && program[next].equals(")")) {
+    if (first.equals("if") && valid(program, next) && program[next].equals("(")) {
       next = parseCondition(program, next + 1);
       if (!valid(program, next) || !program[next].equals(")")) {
         return -1;
@@ -285,14 +286,14 @@ public class MiniJavaParser {
     }
     // while ( <cond> ) <stmt>
     next = from + 1;
-    if (t.equals("while") && valid(program, next) && program[next].equals("(")) {
+    if (first.equals("while") && valid(program, next) && program[next].equals("(")) {
       next = parseCondition(program, next + 1);
       if (!valid(program, next) || !program[next].equals(")")) {
         return -1;
       }
-      return parseStatement(program, next);
+      return parseStatement(program, next + 1);
     }
-    return -1;
+    return from;
   }
 
 
@@ -306,8 +307,8 @@ public class MiniJavaParser {
       prevDecl = currentDecl;
       currentDecl = parseDecl(program, prevDecl);
     }
-    if (currentDecl == program.length) { // is the parse already done?
-      return currentDecl;
+    if (prevDecl == program.length - 1) { // is the parse already done?
+      return prevDecl;
     }
     int prevStmt = prevDecl;
     int currentStmt = prevDecl;
