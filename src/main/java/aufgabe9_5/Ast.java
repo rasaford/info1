@@ -4,5 +4,11 @@ public class Ast extends MultiObject {
 
   public Ast(int x, int y, int breite) {
     super(x, y, breite);
+    int left = x - breite / 2;
+    parts.add(new AstLinks(left++, y));
+    for (int i = 0; i < 2 * breite; i++) {
+      parts.add(new AstMitte(left++, y));
+    }
+    parts.add(new AstRechts(left++, y));
   }
 }

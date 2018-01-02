@@ -1,7 +1,7 @@
 package aufgabe9_5;
 
 
-public class Weihnachtsobjekt {
+public abstract class Weihnachtsobjekt {
 
   protected int x, y;
   protected boolean fallend = true;
@@ -12,42 +12,62 @@ public class Weihnachtsobjekt {
     this.y = y;
   }
 
-  public void addObjektToSpielfeld(int[][] spielfeld) {
-    spielfeld[x][y] = 1;
+  public abstract void addObjektToSpielfeld(int[][] spielfeld);
+
+  public void addObjectStatic(boolean[][] staticObjects) {
+    staticObjects[x][y] = !fallend;
   }
 
 
+  boolean tryDownMove(boolean[][] staticObjects) {
+    return y + 1 < staticObjects[0].length &&
+        !staticObjects[x][y + 1];
+  }
+
   public boolean moveDown(boolean[][] staticObjects) {
-    if (staticObjects[x][y]) {
+    if (!fallend) {
       return false;
     }
-    y--;
+    if (!tryDownMove(staticObjects)) {
+      fallend = false;
+      return false;
+    }
+    y++;
     return true;
   }
 
 
   public int moveLeft(boolean[][] staticObjects) {
-    if (staticObjects[x][y]) {
+    if (!fallend) {
+      return 0;
+    }
+    int left = x - 1;
+    if (left < 1) {
+      markedForDeath = true;
       return -1;
     }
-    if (x - 1 < 0) {
-      x--;
-    } else {
-      markedForDeath = true;
+    if (staticObjects[left][y]) {
+      return 0;
     }
+    x = left;
     return 1;
   }
 
 
   public int moveRight(boolean[][] staticObjects) {
-    if (staticObjects[x][y]) {
+    if (!fallend) {
+      return 0;
+    }
+    int right = x + 1;
+    if (right >= staticObjects.length - 1) {
+      markedForDeath = true;
       return -1;
     }
-    if (x + 1 < staticObjects.length) {
-      x++;
-    } else {
-      markedForDeath = true;
+    if (staticObjects[right][y]) {
+      return 0;
     }
+    x = right;
     return 1;
   }
+
 }
