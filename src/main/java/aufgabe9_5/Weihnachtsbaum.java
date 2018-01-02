@@ -1,14 +1,14 @@
 package aufgabe9_5;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Weihnachtsbaum extends BitteNichtAbgeben {
 
   private static final int[][] landscape = generateLandscape(30, 33);
-  private static List<Weihnachtsobjekt> objekte = new ArrayList<>();
+  private static ArrayList<Weihnachtsobjekt> objekte = new ArrayList<>();
   private static boolean[][] staticObjects = new boolean[30][33];
+  private static boolean[][] staticObjectsForeground = new boolean[30][33];
   private static boolean firstPhase = true;
 
   private static final int SPAWN_X = 13;
@@ -25,21 +25,22 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
         break;
       case KEY_UP:
         firstPhase = !firstPhase;
-        System.out.println("switched phase");
+        System.out.printf("switched to phase %s\n", firstPhase ? "one" : "two");
       case KEY_DOWN:
         if (firstPhase) {
-          firstPhase();
+          spawnXMasTree();
         } else {
-          secondPhase();
+          spawnDecoration();
         }
         moveDown();
         break;
     }
     WeihnachtsElfen.removeMarkedForDeath(objekte);
     update(objekte);
+    spawnSnow();
   }
 
-  public static void firstPhase() {
+  public static void spawnXMasTree() {
     WeihnachtsElfen.newRandomObject();
     int[] obj = WeihnachtsElfen.randomObjects[WeihnachtsElfen.currentRandomObject];
     if (obj[0] == WeihnachtsElfen.FALLING_TRUNK) {
@@ -53,26 +54,63 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
     }
   }
 
+  private static void spawnDecoration() {
+    int type = (int) (Math.random() * 9);
+    int xPos = (int) (Math.random() * 28) + 1;
+    switch (type) {
+      case 0:
+        objekte.add(new Schneeflocke(xPos, SPAWN_Y));
+        System.out.println("Snowflake added");
+        break;
+      case 1:
+        objekte.add(new Weihnachtskugel(xPos, SPAWN_Y));
+        System.out.println("Bauble added");
+        break;
+      case 2:
+        objekte.add(new Pinguin(xPos, SPAWN_Y));
+        System.out.println("penguin added");
+        break;
+    }
+  }
+
+  private static void spawnSnow() {
+    int randX = (int) (Math.random() * 28) + 1;
+    int randY = (int) (Math.random() * 31) + 1;
+    while ((landscape[randX][randY] & 0xFF) != FOREGROUND_EMPTY) {
+      randX = (int) (Math.random() * 28) + 1;
+      randY = (int) (Math.random() * 31) + 1;
+    }
+    objekte.add(new Schneeflocke(randX, randY));
+  }
 
   private static void moveDown() {
     for (Weihnachtsobjekt o : objekte) {
-      o.moveDown(staticObjects);
+      if (o instanceof Ast || o instanceof Baumstamm) {
+        o.moveDown(staticObjects);
+      } else {
+        o.moveDown(staticObjectsForeground);
+      }
     }
   }
 
   private static void moveLeft() {
     for (Weihnachtsobjekt o : objekte) {
-      o.moveLeft(staticObjects);
+      if (o instanceof Ast || o instanceof Baumstamm) {
+        o.moveLeft(staticObjects);
+      } else {
+        o.moveLeft(staticObjectsForeground);
+      }
     }
   }
 
   private static void moveRight() {
     for (Weihnachtsobjekt o : objekte) {
-      o.moveRight(staticObjects);
+      if (o instanceof Ast || o instanceof Baumstamm) {
+        o.moveRight(staticObjects);
+      } else {
+        o.moveRight(staticObjectsForeground);
+      }
     }
-  }
-
-  private static void secondPhase() {
   }
 
   /*********************************************/
@@ -85,7 +123,7 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
     handleUserInput();
   }
 
-  public static void update(List<Weihnachtsobjekt> objs) {
+  public static void update(ArrayList<Weihnachtsobjekt> objs) {
     // clear the board
     for (int i = 1; i < landscape.length - 1; i++) {
       for (int j = 1; j < landscape[i].length - 1; j++) {
@@ -95,17 +133,35 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
     // clear the static objects
     for (int i = 0; i < staticObjects.length; i++) {
       for (int j = 0; j < staticObjects[i].length; j++) {
-        staticObjects[i][j] = i == 0 ||
-            j == 0 ||
-            i == staticObjects.length - 1 ||
-            j == staticObjects[i].length - 1;
+        boolean val = i == 0 || j == 0 ||
+            i == staticObjects.length - 1 || j == staticObjects[i].length - 1;
+        staticObjects[i][j] = val;
+        staticObjectsForeground[i][j] = val;
       }
     }
     // redraw
-    for (Weihnachtsobjekt w : objs) {
-      w.addObjektToSpielfeld(landscape);
-      w.addObjectStatic(staticObjects);
-    }
+    objs.forEach(o -> o.addObjektToSpielfeld(landscape));
+    // redraw staticObjects for background
+    objs.stream()
+        .filter(o -> o instanceof Ast || o instanceof Baumstamm)
+        .forEach(o -> o.addObjectStatic(staticObjects));
+    // redraw staticObjects for foreground
+    objs.stream()
+        .filter(o -> o instanceof Ast)
+        .map(o -> (Ast) o)
+        .sorted(WeihnachtsElfen.WeihnachtsobjekteComparator)
+        .forEachOrdered(ast ->
+            ast.parts.forEach(a -> {
+              boolean occupied = false;
+              for (int i = a.y + 1; i < staticObjectsForeground[a.x].length - 1; i++) {
+                occupied |= staticObjectsForeground[a.x][i];
+              }
+              staticObjectsForeground[a.x][a.y + 1] = !occupied;
+            }));
+    objs.stream()
+        .filter(o -> o instanceof Decoration)
+        .forEach(o -> o.addObjectStatic(staticObjectsForeground));
+
     draw(landscape);
   }
 

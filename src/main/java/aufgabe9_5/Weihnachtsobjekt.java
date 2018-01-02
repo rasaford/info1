@@ -15,7 +15,7 @@ public abstract class Weihnachtsobjekt {
   public abstract void addObjektToSpielfeld(int[][] spielfeld);
 
   public void addObjectStatic(boolean[][] staticObjects) {
-    staticObjects[x][y] = !fallend;
+    staticObjects[x][y] |= !fallend;
   }
 
 
@@ -32,7 +32,10 @@ public abstract class Weihnachtsobjekt {
       fallend = false;
       return false;
     }
+    boolean prev = staticObjects[x][y];
+    staticObjects[x][y] = false;
     y++;
+    staticObjects[x][y] = prev;
     return true;
   }
 
@@ -49,7 +52,10 @@ public abstract class Weihnachtsobjekt {
     if (staticObjects[left][y]) {
       return 0;
     }
+    boolean prev = staticObjects[x][y];
+    staticObjects[x][y] = false;
     x = left;
+    staticObjects[left][y] = prev;
     return 1;
   }
 
@@ -66,7 +72,10 @@ public abstract class Weihnachtsobjekt {
     if (staticObjects[right][y]) {
       return 0;
     }
+    boolean prev = staticObjects[x][y];
+    staticObjects[x][y] = false;
     x = right;
+    staticObjects[right][y] = prev;
     return 1;
   }
 

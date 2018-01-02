@@ -18,11 +18,11 @@ public class BitteNichtAbgeben extends JPanel {
 
   public static final int BACKGROUND_EMPTY = 0;
   public static final int BACKGROUND_TRUNK_MIDDLE = 1 << 8;
-  public static final int BACKGROUND_TRUNK_LEFT   = 2 << 8;
-  public static final int BACKGROUND_TRUNK_RIGHT  = 3 << 8;
+  public static final int BACKGROUND_TRUNK_LEFT = 2 << 8;
+  public static final int BACKGROUND_TRUNK_RIGHT = 3 << 8;
   public static final int BACKGROUND_GREEN_MIDDLE = 4 << 8;
-  public static final int BACKGROUND_GREEN_LEFT   = 5 << 8;
-  public static final int BACKGROUND_GREEN_RIGHT  = 6 << 8;
+  public static final int BACKGROUND_GREEN_LEFT = 5 << 8;
+  public static final int BACKGROUND_GREEN_RIGHT = 6 << 8;
   public static final int BACKGROUND_SURROUNDING = 18 << 8;
 
   public static final int FOREGROUND_EMPTY = 0;
@@ -30,11 +30,11 @@ public class BitteNichtAbgeben extends JPanel {
   public static final int FOREGROUND_BAUBLE = 2;
   public static final int FOREGROUND_PENGUIN = 3;
 
-  public static final int KEY_LEFT  = 0;
+  public static final int KEY_LEFT = 0;
   public static final int KEY_RIGHT = 1;
-  public static final int KEY_UP    = 2;
-  public static final int KEY_DOWN  = 3;
-  public static final int NO_KEY    = -1;
+  public static final int KEY_UP = 2;
+  public static final int KEY_DOWN = 3;
+  public static final int NO_KEY = -1;
 
   private static Image[][][] myImage = load();
 
@@ -43,12 +43,16 @@ public class BitteNichtAbgeben extends JPanel {
   }
 
   private class Field extends JPanel {
-    Point p; int x,y;
+
+    Point p;
+    int x, y;
+
     public Field(int x, int y) {
       this.x = x;
       this.y = y;
       p = getLocation();
     }
+
     public void paint(Graphics g) {
       super.paint(g);
       int background = bgOf(myState[x][y]);
@@ -81,11 +85,11 @@ public class BitteNichtAbgeben extends JPanel {
         System.exit(-1);
       }
       ((Graphics2D) g).drawImage
-       (image[i1][i2][i3], 0, 0,
-        getWidth(), getHeight(), 0, 0,
-        image[i1][i2][i3].getWidth(null),
-        image[i1][i2][i3].getHeight(null),
-        null);
+          (image[i1][i2][i3], 0, 0,
+              getWidth(), getHeight(), 0, 0,
+              image[i1][i2][i3].getWidth(null),
+              image[i1][i2][i3].getHeight(null),
+              null);
     }
   }
 
@@ -101,15 +105,18 @@ public class BitteNichtAbgeben extends JPanel {
         for (int i3 = 0; i3 < image[0][0].length; i3++) {
           String iName = "./pics/" + _2(i1) + _2(i2) + _2(i3) + ".png";
           File f = new File(iName);
-          if(f.exists() && !f.isDirectory()) {
+          if (f.exists() && !f.isDirectory()) {
             //System.out.println("Loading image " + iName + ".");
             image[i1][i2][i3] = Toolkit.getDefaultToolkit().getImage(f.getAbsolutePath());
           } else if (i1 > 0) {
-            image[i1][i2][i3] = image[i1-1][i2][i3];
+            image[i1][i2][i3] = image[i1 - 1][i2][i3];
           } else {
             System.out.println("Fehlende Datei: " + iName);
             System.exit(-1);
-    } } } }
+          }
+        }
+      }
+    }
     return image;
   }
 
@@ -132,7 +139,7 @@ public class BitteNichtAbgeben extends JPanel {
     myFrame = new JFrame("Fröhliche Weihnachten!");
     fieldPanel.setLayout(new GridLayout(myState[0].length, myState.length));
     myFrame.getContentPane().add(fieldPanel);
-    myFrame.setSize (IWH * myState.length, IWH * myState[0].length);
+    myFrame.setSize(IWH * myState.length, IWH * myState[0].length);
     myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     myFrame.addComponentListener(new ComponentHandler());
     // myFrame.setExtendedState(myFrame.getExtendedState()|JFrame.MAXIMIZED_BOTH);
@@ -163,7 +170,8 @@ public class BitteNichtAbgeben extends JPanel {
     while (myBitteNichtAbgeben.pause) {
       try {
         Thread.sleep(50);
-      } catch (InterruptedException ie) {}
+      } catch (InterruptedException ie) {
+      }
     }
     myBitteNichtAbgeben.update(myState);
     try {
@@ -174,12 +182,15 @@ public class BitteNichtAbgeben extends JPanel {
   }
 
   private class ComponentHandler extends ComponentAdapter {
+
     @Override
     public void componentResized(ComponentEvent e) {
       repaint();
     }
   }
+
   private class KeyHandler extends KeyAdapter {
+
     @Override
     public void keyPressed(KeyEvent ke) {
       switch (ke.getKeyCode()) {
@@ -188,7 +199,7 @@ public class BitteNichtAbgeben extends JPanel {
           break;
         case KeyEvent.VK_SPACE:
           pause = !pause;
-          System.out.println(pause?"break":"continue");
+          System.out.println(pause ? "break" : "continue");
           break;
         case KeyEvent.VK_LEFT:
           step(KEY_LEFT);
@@ -204,7 +215,9 @@ public class BitteNichtAbgeben extends JPanel {
           break;
         default:
           break;
-  } } }
+      }
+    }
+  }
 
   private Image[][][] image;
   private boolean pause = false;
@@ -215,24 +228,24 @@ public class BitteNichtAbgeben extends JPanel {
   private static String moveQueue = "";
 
   private void step(int direction) {
-    synchronized(cLock) {
+    synchronized (cLock) {
       try {
         Thread.sleep(10);
       } catch (InterruptedException ie) {
         /* Intentionally left blank */
       }
-      moveQueue+=""+direction;
+      moveQueue += "" + direction;
     }
   }
 
   public static int nextStep() {
-    synchronized(cLock) {
-      if(moveQueue.length() == 0) {
+    synchronized (cLock) {
+      if (moveQueue.length() == 0) {
         return NO_KEY;
       }
       char c = moveQueue.charAt(0);
-      moveQueue = moveQueue.substring(1,moveQueue.length());
-      return c-(int)'0';
+      moveQueue = moveQueue.substring(1, moveQueue.length());
+      return c - (int) '0';
     }
   }
 
@@ -268,8 +281,10 @@ public class BitteNichtAbgeben extends JPanel {
   private static String toString(int arg) {
     String s = "";
     for (int i = 3; i >= 1; i--) {
-      s += _2(arg << (8 * (i-1)));
-      if(s.length()%2==1)s="0"+s;
+      s += _2(arg << (8 * (i - 1)));
+      if (s.length() % 2 == 1) {
+        s = "0" + s;
+      }
     }
     return s + ".png";
   }
@@ -277,24 +292,25 @@ public class BitteNichtAbgeben extends JPanel {
 
   private static void generateTree(int[][] a, int xo, int yo, int nr) {
     int y = yo;
-    int left = compose(ROTATE_0,BACKGROUND_GREEN_LEFT,FOREGROUND_EMPTY);
-    int right = compose(ROTATE_0,BACKGROUND_GREEN_RIGHT,FOREGROUND_EMPTY);
-    int middle = compose(ROTATE_0,BACKGROUND_GREEN_MIDDLE,FOREGROUND_EMPTY);
-    for (int i = nr+3; i >= 4; i--) {
-      for (int x = i; x >= i-4; x--) {
+    int left = compose(ROTATE_0, BACKGROUND_GREEN_LEFT, FOREGROUND_EMPTY);
+    int right = compose(ROTATE_0, BACKGROUND_GREEN_RIGHT, FOREGROUND_EMPTY);
+    int middle = compose(ROTATE_0, BACKGROUND_GREEN_MIDDLE, FOREGROUND_EMPTY);
+    for (int i = nr + 3; i >= 4; i--) {
+      for (int x = i; x >= i - 4; x--) {
         for (int j = 0; j <= x; j++) {
-          a[xo-j][y] = a[xo+j-1][y] = middle;
+          a[xo - j][y] = a[xo + j - 1][y] = middle;
         }
-        a[xo-(x+1)][y] = left;
-        a[xo+x][y] = right;
+        a[xo - (x + 1)][y] = left;
+        a[xo + x][y] = right;
         y--;
       }
     }
     for (int i = 1; i <= 3; i++) {
-      a[xo][yo+i] = a[xo-1][yo+i] = compose(ROTATE_0,BACKGROUND_TRUNK_MIDDLE,FOREGROUND_EMPTY);
+      a[xo][yo + i] = a[xo - 1][yo + i] = compose(ROTATE_0, BACKGROUND_TRUNK_MIDDLE,
+          FOREGROUND_EMPTY);
     }
-    a[xo-2][yo+3] = compose(ROTATE_0,BACKGROUND_TRUNK_LEFT,FOREGROUND_EMPTY);
-    a[xo+1][yo+3] = compose(ROTATE_0,BACKGROUND_TRUNK_RIGHT,FOREGROUND_EMPTY);
+    a[xo - 2][yo + 3] = compose(ROTATE_0, BACKGROUND_TRUNK_LEFT, FOREGROUND_EMPTY);
+    a[xo + 1][yo + 3] = compose(ROTATE_0, BACKGROUND_TRUNK_RIGHT, FOREGROUND_EMPTY);
   }
 
   public static void generateBorders(int[][] myState) {
@@ -317,17 +333,21 @@ public class BitteNichtAbgeben extends JPanel {
     Random random = new Random();
     for (int y = 0; y < myState[0].length; y++) {
       for (int x = 0; x < myState.length; x++) {
-        if(BACKGROUND_SURROUNDING != myState[x][y]) {
+        if (BACKGROUND_SURROUNDING != myState[x][y]) {
           if (random.nextInt(20) == 0) {
             myState[x][y] = compose(rtOf(myState[x][y]), bgOf(myState[x][y]), FOREGROUND_SNOWFLAKE);
           } else if (random.nextInt(20) == 0 && bgOf(myState[x][y]) == BACKGROUND_GREEN_MIDDLE) {
             myState[x][y] = compose(rtOf(myState[x][y]), bgOf(myState[x][y]), FOREGROUND_BAUBLE);
           } else if (random.nextInt(35) == 0
-            && (bgOf(myState[x][y]) == BACKGROUND_GREEN_LEFT
-               || bgOf(myState[x][y]) == BACKGROUND_GREEN_MIDDLE
-               || bgOf(myState[x][y]) == BACKGROUND_GREEN_RIGHT)) {
+              && (bgOf(myState[x][y]) == BACKGROUND_GREEN_LEFT
+              || bgOf(myState[x][y]) == BACKGROUND_GREEN_MIDDLE
+              || bgOf(myState[x][y]) == BACKGROUND_GREEN_RIGHT)) {
             myState[x][y] = compose(rtOf(myState[x][y]), bgOf(myState[x][y]), FOREGROUND_PENGUIN);
-  } } } } }
+          }
+        }
+      }
+    }
+  }
 
   public static int[][] generateLandscape(int width, int height) {
     int[][] myState = new int[width][height];

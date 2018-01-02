@@ -14,7 +14,7 @@ public class SingleObject extends Weihnachtsobjekt {
 
   @Override
   public void addObjektToSpielfeld(int[][] spielfeld) {
-    spielfeld[x][y] = foreground + background;
+    spielfeld[x][y] += foreground + background;
   }
 
 
