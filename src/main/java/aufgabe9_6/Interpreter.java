@@ -14,15 +14,27 @@ public class Interpreter extends MiniJava {
   public static final int LDS = 6;
   public static final int STS = 7;
   public static final int JUMP = 8;
+
+  // Deprecated
   public static final int JE = 9;
   public static final int JNE = 10;
   public static final int JLT = 11;
+
   public static final int IN = 12;
   public static final int OUT = 13;
   public static final int CALL = 14;
   public static final int RETURN = 15;
   public static final int HALT = 16;
   public static final int ALLOC = 17;
+
+  // New operations
+  public static final int DIV = 18;
+  public static final int AND = 19;
+  public static final int OR = 20;
+  public static final int NOT = 21;
+  public static final int EQ = 22;
+  public static final int LT = 23;
+  public static final int LE = 24;
 
 
   static void error(String message) {
@@ -50,14 +62,16 @@ public class Interpreter extends MiniJava {
     return builder.toString();
   }
 
-  public static String programToStirng(int[] program) {
+  public static String programToString(int[] program) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < program.length; i++) {
       int opCode = program[i] >> 16;
       String op = revLookup(opCode);
       int immediate = program[i] & 0xFF;
       String imm = immediate == 0 ? "" : Integer.toString(immediate);
-      sb.append(String.format("%d: %s %s\n", i, op, imm));
+      sb.append(immediate == 0 ?
+          String.format("%d: %s\n", i, op) :
+          String.format("%d: %s %s\n", i, op, imm));
     }
     return sb.toString();
   }
@@ -93,11 +107,29 @@ public class Interpreter extends MiniJava {
       case OUT:
         return "OUT";
       case CALL:
-        return "RETURN";
+        return "CALL";
       case HALT:
         return "HALT";
       case ALLOC:
         return "ALLOC";
+      case RETURN:
+        return "RETURN";
+
+      case DIV:
+        return "DIV";
+      case AND:
+        return "AND";
+      case OR:
+        return "OR";
+      case NOT:
+        return "NOT";
+      case EQ:
+        return "EQ";
+      case LT:
+        return "LT";
+      case LE:
+        return "LE";
+
       default:
         return "Invalid instruction";
     }
@@ -141,6 +173,22 @@ public class Interpreter extends MiniJava {
         return HALT;
       case "ALLOC":
         return ALLOC;
+
+      case "DIV":
+        return DIV;
+      case "AND":
+        return AND;
+      case "OR":
+        return OR;
+      case "NOT":
+        return NOT;
+      case "EQ":
+        return EQ;
+      case "LT":
+        return LT;
+      case "LE":
+        return LE;
+
       default:
         error("Invalid instruction: " + instruction);
     }
@@ -154,7 +202,10 @@ public class Interpreter extends MiniJava {
     if (stackPointer < 0 || stackPointer >= stack.length) {
       error("Invalid stack access");
     }
-    return stack[stackPointer--];
+    int val = stack[stackPointer];
+    stack[stackPointer] = 0;
+    stackPointer--;
+    return val;
   }
 
   public static void push(int value) {
@@ -217,6 +268,7 @@ public class Interpreter extends MiniJava {
   }
 
   public static int execute(int[] program) {
+    System.out.println(programToString(program));
     // Pointer zurücksetzen
     stackPointer = -1;
     int programCounter = 0;
@@ -285,7 +337,9 @@ public class Interpreter extends MiniJava {
           break;
         }
         case JUMP: {
-          programCounter = parameter;
+          if (pop() == -1) {
+            programCounter = parameter;
+          }
           break;
         }
         case JE: {
@@ -381,6 +435,41 @@ public class Interpreter extends MiniJava {
           stackPointer += parameter;
           break;
         }
+
+        case DIV:
+          push(pop() / pop());
+          break;
+        case AND:
+          push(pop() & pop());
+          break;
+        case OR:
+          push(pop() | pop());
+          break;
+        case NOT:
+          push(~pop());
+          break;
+        case EQ:
+          if (pop() == pop()) {
+            push(-1);
+          } else {
+            push(0);
+          }
+          break;
+        case LT:
+          if (pop() < pop()) {
+            push(-1);
+          } else {
+            push(0);
+          }
+          break;
+        case LE:
+          if (pop() <= pop()) {
+            push(-1);
+          } else {
+            push(0);
+          }
+          break;
+
         default: {
           error("Invalid instruction: " + nextCommand + ".");
         }

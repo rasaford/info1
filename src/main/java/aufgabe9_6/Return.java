@@ -9,7 +9,13 @@ public class Return extends Statement {
     this.expression = expression;
   }
 
+
   public Expression getExpression() {
     return expression;
+  }
+
+  @Override
+  public void accept(Visitor v) {
+    v.visit(this);
   }
 }

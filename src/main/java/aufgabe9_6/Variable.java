@@ -11,5 +11,10 @@ public class Variable extends Expression {
   public String getName() {
     return name;
   }
+
+  @Override
+  public void accept(Visitor v) {
+    v.visit(this);
+  }
 }
 
