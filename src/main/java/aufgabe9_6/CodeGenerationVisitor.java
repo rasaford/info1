@@ -10,27 +10,25 @@ public class CodeGenerationVisitor extends Visitor {
 
   private Code code = new Code();
   private List<String> variables = new ArrayList<>();
+  private int paramOffset = 0;
   private List<String> functions = new ArrayList<>();
 
   @Override
   public void visit(Function function) {
     functions.add(function.getName());
     code.appendlnf("%s:", function.getName());
+    paramOffset = -function.getParameters().length + 1;
     for (String p : function.getParameters()) {
       variables.add(p);
     }
     for (Declaration d : function.getDeclarations()) {
       d.accept(this);
     }
-    Statement[] stmts = function.getStatements();
-    for (int i = 0; i < stmts.length; i++) {
-      Statement s = stmts[i];
-//      if (i == stmts.length - 1 && !(s instanceof Return)) {
-//        errorf("function %s does not end in a return statement", function.getName());
-//      }
+    for (Statement s : function.getStatements()) {
       s.accept(this);
     }
     variables.clear();
+    paramOffset = 0;
   }
 
   @Override
@@ -46,6 +44,7 @@ public class CodeGenerationVisitor extends Visitor {
     functions.clear();
     code.clear();
     variables.clear();
+    paramOffset = 0;
     return machineCode;
   }
 
@@ -58,8 +57,8 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Binary binary) {
-    binary.getLhs().accept(this);
     binary.getRhs().accept(this);
+    binary.getLhs().accept(this);
     switch (binary.getOperator()) {
       case Minus:
         code.appendlnf("SUB");
@@ -86,11 +85,11 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Variable variable) {
-    int index = variables.indexOf(variable.getName());
-    if (index == -1) {
+    if (!variables.contains(variable.getName())) {
       errorf("local variable %s is not defined", variable.getName());
     }
-    code.appendlnf("LDS %d", index + 1);
+    int index = variables.indexOf(variable.getName()) + paramOffset;
+    code.appendlnf("LDS %d", index );
   }
 
   @Override
@@ -108,12 +107,12 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Assignment assignment) {
-    assignment.getExpression().accept(this);
-    int index = variables.indexOf(assignment.getName());
-    if (index == -1) {
+    if (!variables.contains(assignment.getName())) {
       errorf("local variable %s is not defined", assignment.getName());
     }
-    code.appendlnf("STS %d", index + 1);
+    assignment.getExpression().accept(this);
+    int index = variables.indexOf(assignment.getName()) + paramOffset;
+    code.appendlnf("STS %d", index);
   }
 
   @Override
@@ -130,8 +129,8 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(BinaryCondition binaryCondition) {
-    binaryCondition.getLhs().accept(this);
     binaryCondition.getRhs().accept(this);
+    binaryCondition.getLhs().accept(this);
     switch (binaryCondition.getOperator()) {
       case And:
         code.appendlnf("AND");
@@ -141,7 +140,6 @@ public class CodeGenerationVisitor extends Visitor {
         break;
     }
   }
-
 
   @Override
   public void visit(UnaryCondition unaryCondition) {
@@ -204,24 +202,22 @@ public class CodeGenerationVisitor extends Visitor {
     if (!variables.contains(read.getName())) {
       errorf("local variable %s is not defined", read.getName());
     }
-    int index = variables.indexOf(read.getName());
+    int index = variables.indexOf(read.getName()) + paramOffset;
     code.appendlnf("IN");
-    code.appendlnf("STS %d", index + 1);
+    code.appendlnf("STS %d", index);
   }
 
   @Override
   public void visit(While w) {
     int condLine = code.getLineCount();
     w.getCond().accept(this);
-    Code block = renderBlock(visitor -> w.getBody().accept(this));
-    code.appendlnf("LDI 0");
-    code.appendlnf("EQ");
-    code.appendlnf("JUMP %d", code.getLineCount() + block.getLineCount() + 2);
-    code.merge(block);
+    Code body = renderBlock(visitor -> w.getBody().accept(this));
+    code.appendlnf("NOT");
+    code.appendlnf("JUMP %d", code.getLineCount() + body.getLineCount() + 3);
+    code.merge(body);
     code.appendlnf("LDI -1");
     code.appendlnf("JUMP %d", condLine);
   }
-
 
   @Override
   public void visit(IfThen ifThen) {
@@ -229,7 +225,7 @@ public class CodeGenerationVisitor extends Visitor {
     Code then = renderBlock(visitor ->
         ifThen.getThenBranch().accept(visitor));
     code.appendlnf("NOT");
-    code.appendlnf("JUMP %d", code.getLineCount() + then.getLineCount());
+    code.appendlnf("JUMP %d", code.getLineCount() + then.getLineCount() + 1);
     code.merge(then);
   }
 
@@ -258,18 +254,15 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Program p) {
-    functions.add("main");
+    for (Function f : p.getFunctions()) {
+      functions.add(f.getName());
+    }
+    if (!functions.contains("main")) {
+      errorf("The program does not contain a main function");
+    }
     Call main = new Call("main", new Expression[0]);
     main.accept(this);
     code.appendlnf("HALT");
-
-    boolean containsMain = false;
-    for (Function f : p.getFunctions()) {
-      containsMain |= f.getName().equals("main");
-    }
-    if (!containsMain) {
-      errorf("The program does not contain a main function");
-    }
 
     for (Function f : p.getFunctions()) {
       f.accept(this);

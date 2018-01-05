@@ -60,6 +60,7 @@ public class CodeGeneratorTest {
   @Test
   public void testFak() {
     test(getFakProgram(3), 6);
+    test(getFakProgram(3), 6);
     test(getFakProgram(10), 3628800);
   }
 
@@ -84,59 +85,111 @@ public class CodeGeneratorTest {
 
   }
 
-  public void test(Condition condition, int expected) {
-    CodeGenerationVisitor cgv = new CodeGenerationVisitor();
+  @Test
+  public void testExpression() {
     Program p = new Program(new Function[]{
+        new Function("main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new Return(
+                new Unary(Unop.Minus, new Number(10))
+            )})
+    });
+    test(p, -10);
+    Program p2 = new Program(new Function[]{
+        new Function("main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new Return(
+                new Binary(new Number(13), Binop.Plus, new Number(10))
+            )})
+    });
+    test(p2, 23);
+    Program p3 = new Program(new Function[]{
+        new Function("main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new Return(
+                new Binary(new Number(13), Binop.MultiplicationOperator, new Number(10))
+            )})
+    });
+    test(p3, 130);
+    Program p4 = new Program(new Function[]{
+        new Function("main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new Return(
+                new Binary(
+                    new Binary(new Number(1), Binop.Plus, new Number(2)),
+                    Binop.Plus,
+                    new Binary(new Number(1), Binop.Plus, new Number(2)))
+            )})
+    });
+    test(p4, 6);
+  }
+
+  @Test
+  public void testCondition() {
+    Program p1 = new Program(new Function[]{
         new Function(
             "main",
             new String[0],
             new Declaration[0],
             new Statement[]{new IfThenElse(
-                condition,
+                new BinaryCondition(new True(), Bbinop.And, new False()),
                 new Return(new Number(-1)),
                 new Return(new Number(0))
             )})
     });
-    p.accept(cgv);
-    int retVal = Interpreter.execute(cgv.getProgram());
-    assertEquals(expected, retVal);
-  }
-
-  public void test(Statement e, int expected) {
-    CodeGenerationVisitor cgv = new CodeGenerationVisitor();
-    e.accept(cgv);
-    int retVal = Interpreter.execute(cgv.getProgram());
-    assertEquals(expected, retVal);
-  }
-
-
-  @Test
-  public void testExpression() {
-    Expression e1 = new Unary(Unop.Minus, new Number(10));
-    test(e1, -10);
-    Expression e2 = new Binary(new Number(13), Binop.Plus, new Number(10));
-    test(e2, 23);
-    Expression e3 = new Binary(new Number(13), Binop.MultiplicationOperator, new Number(10));
-    test(e3, 130);
-    Expression e4 = new Binary(
-        new Binary(new Number(1), Binop.Plus, new Number(2)),
-        Binop.Plus,
-        new Binary(new Number(1), Binop.Plus, new Number(2)));
-    test(e4, 6);
-  }
-
-  @Test
-  public void testCondition() {
-    Condition c1 = new BinaryCondition(new True(), Bbinop.And, new False());
-    test(c1, 0);
-    Condition c2 = new BinaryCondition(new True(), Bbinop.Or, new False());
-    test(c2, -1);
-    Condition c3 = new UnaryCondition(Bunop.Not, new False());
-    test(c3, -1);
-    Condition c4 = new Comparison(new Number(5), Comp.Less, new Number(10));
-    test(c4, -1);
-    Condition c5 = new Comparison(new Number(5), Comp.Greater, new Number(10));
-    test(c5, 0);
+    test(p1, 0);
+    Program p2 = new Program(new Function[]{
+        new Function(
+            "main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new IfThenElse(
+                new BinaryCondition(new True(), Bbinop.Or, new False()),
+                new Return(new Number(-1)),
+                new Return(new Number(0))
+            )})
+    });
+    test(p2, -1);
+    Program p3 = new Program(new Function[]{
+        new Function(
+            "main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new IfThenElse(
+                new UnaryCondition(Bunop.Not, new False()),
+                new Return(new Number(-1)),
+                new Return(new Number(0))
+            )})
+    });
+    test(p3, -1);
+    Program p4 = new Program(new Function[]{
+        new Function(
+            "main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new IfThenElse(
+                new Comparison(new Number(5), Comp.Less, new Number(10)),
+                new Return(new Number(-1)),
+                new Return(new Number(0))
+            )})
+    });
+    test(p4, -1);
+    Program p5 = new Program(new Function[]{
+        new Function(
+            "main",
+            new String[0],
+            new Declaration[0],
+            new Statement[]{new IfThenElse(
+                new Comparison(new Number(5), Comp.Greater, new Number(10)),
+                new Return(new Number(-1)),
+                new Return(new Number(0))
+            )})
+    });
+    test(p5, 0);
   }
 
   @Test
@@ -148,28 +201,6 @@ public class CodeGeneratorTest {
             new IfThen(
                 new True(),
                 new Assignment("test", new Number(12))
-            ),
-            new Return(new Variable("test"))
-        });
-    Function f2 = new Function("main",
-        new String[0],
-        new Declaration[]{new Declaration(new String[]{"test"})},
-        new Statement[]{
-            new IfThenElse(
-                new True(),
-                new Assignment("test", new Number(12)),
-                new Assignment("test", new Number(20))
-            ),
-            new Return(new Variable("test"))
-        });
-    Function f3 = new Function("main",
-        new String[0],
-        new Declaration[]{new Declaration(new String[]{"test"})},
-        new Statement[]{
-            new IfThenElse(
-                new False(),
-                new Assignment("test", new Number(12)),
-                new Assignment("test", new Number(20))
             ),
             new Return(new Variable("test"))
         });
@@ -213,5 +244,69 @@ public class CodeGeneratorTest {
             new Return(new Variable("test"))});
     Program p = new Program(new Function[]{f});
     test(p, 123);
+  }
+
+  @Test
+  public void testWhile() {
+    Function f = new Function("main", new String[0],
+        new Declaration[]{new Declaration(new String[]{"a", "b"})},
+        new Statement[]{new Assignment("a", new Number(5)),
+            new While(new Comparison(new Variable("a"), Comp.Greater, new Number(0)),
+                new Composite(new Statement[]{
+                    new Assignment("b", new Binary(new Variable("b"), Binop.Plus, new Number(5))),
+                    new Assignment("a", new Binary(new Variable("a"), Binop.Minus, new Number(1)))
+                })
+            ),
+            new Return(new Variable("b"))
+        });
+    Program p = new Program(new Function[]{f});
+    test(p, 25);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testVariableNotDeclared() {
+    Function f = new Function("main", new String[0],
+        new Declaration[0],
+        new Statement[]{new Assignment("a", new Number(5)),
+            new While(new Comparison(new Variable("a"), Comp.Greater, new Number(0)),
+                new Composite(new Statement[]{
+                    new Assignment("b", new Binary(new Variable("b"), Binop.Plus, new Number(5))),
+                })
+            ),
+            new Return(new Variable("b"))
+        });
+    Program p = new Program(new Function[]{f});
+    test(p, 25);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testFunctionNotDeclared() {
+    Function f = new Function("main", new String[0],
+        new Declaration[0],
+        new Statement[]{new Assignment("a", new Number(5)),
+            new While(new Comparison(new Variable("a"), Comp.Greater, new Number(0)),
+                new Composite(new Statement[]{
+                    new Assignment("b", new Call("undefined", new Expression[0])),
+                })
+            ),
+            new Return(new Variable("b"))
+        });
+    Program p = new Program(new Function[]{f});
+    test(p, 25);
+  }
+  @Test(expected = RuntimeException.class)
+  public void testNoMainFunction() {
+    Function f = new Function("test", new String[0],
+        new Declaration[0],
+        new Statement[]{new Assignment("a", new Number(5)),
+            new While(new Comparison(new Variable("a"), Comp.Greater, new Number(0)),
+                new Composite(new Statement[]{
+                    new Assignment("b", new Number(10)),
+                })
+            ),
+            new Return(new Variable("b"))
+        });
+    Program p = new Program(new Function[]{f});
+    test(p, 25);
   }
 }

@@ -14,7 +14,13 @@ public class While extends Statement {
     return cond;
   }
 
+
   public Statement getBody() {
     return body;
+  }
+
+  @Override
+  public void accept(Visitor v) {
+    v.visit(this);
   }
 }
