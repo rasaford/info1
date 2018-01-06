@@ -176,6 +176,7 @@ public class Worstorage {
     return sb.toString();
   }
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   // Zum Testen (Code sollte außerhalb der zu testenden Klasse liegen)
   public static void main(String[] args) {
     Test.main();

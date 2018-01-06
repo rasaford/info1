@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 
 public class Weihnachtsbaum extends BitteNichtAbgeben {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private static final int[][] landscape = generateLandscape(30, 33);
   private static ArrayList<Weihnachtsobjekt> objekte = new ArrayList<>();
@@ -16,6 +17,7 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
 
   public static void keyPressed(int key) {
     update(objekte);
+    spawnSnow();
     switch (key) {
       case KEY_LEFT:
         moveLeft();
@@ -37,7 +39,6 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
     }
     WeihnachtsElfen.removeMarkedForDeath(objekte);
     update(objekte);
-    spawnSnow();
   }
 
   public static void spawnXMasTree() {
@@ -60,15 +61,15 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
     switch (type) {
       case 0:
         objekte.add(new Schneeflocke(xPos, SPAWN_Y));
-        System.out.println("Snowflake added");
+        System.out.printf("Snowflake added on x:%d y:%d\n", xPos, SPAWN_Y);
         break;
       case 1:
         objekte.add(new Weihnachtskugel(xPos, SPAWN_Y));
-        System.out.println("Bauble added");
+        System.out.printf("Bauble added on x:%d y:%d\n", xPos, SPAWN_Y);
         break;
       case 2:
         objekte.add(new Pinguin(xPos, SPAWN_Y));
-        System.out.println("penguin added");
+        System.out.printf("Penguin added on x:%d y:%d\n", xPos, SPAWN_Y);
         break;
     }
   }
@@ -85,30 +86,30 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
 
   private static void moveDown() {
     for (Weihnachtsobjekt o : objekte) {
-      if (o instanceof Ast || o instanceof Baumstamm) {
-        o.moveDown(staticObjects);
-      } else {
+      if (o instanceof Decoration) {
         o.moveDown(staticObjectsForeground);
+      } else {
+        o.moveDown(staticObjects);
       }
     }
   }
 
   private static void moveLeft() {
     for (Weihnachtsobjekt o : objekte) {
-      if (o instanceof Ast || o instanceof Baumstamm) {
-        o.moveLeft(staticObjects);
-      } else {
+      if (o instanceof Decoration) {
         o.moveLeft(staticObjectsForeground);
+      } else {
+        o.moveLeft(staticObjects);
       }
     }
   }
 
   private static void moveRight() {
     for (Weihnachtsobjekt o : objekte) {
-      if (o instanceof Ast || o instanceof Baumstamm) {
-        o.moveRight(staticObjects);
-      } else {
+      if (o instanceof Decoration) {
         o.moveRight(staticObjectsForeground);
+      } else {
+        o.moveRight(staticObjects);
       }
     }
   }
@@ -149,6 +150,7 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
     objs.stream()
         .filter(o -> o instanceof Ast)
         .map(o -> (Ast) o)
+        .filter(ast -> !ast.fallend)
         .sorted(WeihnachtsElfen.WeihnachtsobjekteComparator)
         .forEachOrdered(ast ->
             ast.parts.forEach(a -> {
@@ -161,7 +163,6 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
     objs.stream()
         .filter(o -> o instanceof Decoration)
         .forEach(o -> o.addObjectStatic(staticObjectsForeground));
-
     draw(landscape);
   }
 
@@ -174,7 +175,20 @@ public class Weihnachtsbaum extends BitteNichtAbgeben {
       }
       int step = nextStep();
       if (step != NO_KEY) {
-        System.out.print(step + ",");
+        switch (step) {
+          case KEY_UP:
+            System.out.println("KEY UP");
+            break;
+          case KEY_DOWN:
+            System.out.println("KEY DOWN");
+            break;
+          case KEY_LEFT:
+            System.out.println("KEY LEFT");
+            break;
+          case KEY_RIGHT:
+            System.out.println("KEY RIGHT");
+            break;
+        }
         keyPressed(step);
       }
     }

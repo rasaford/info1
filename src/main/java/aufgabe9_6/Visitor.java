@@ -1,6 +1,7 @@
 package aufgabe9_6;
 
 public class Visitor {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public void visit(Program p) {
   }

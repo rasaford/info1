@@ -18,12 +18,18 @@ public class MiniJavaParser {
   private static Stack<Integer> prevFromExpr = new Stack<>();
   private static Stack<Integer> prevFromCond = new Stack<>();
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
     init();
     System.out.println("Enter a program:");
     String prog = readProgramConsole();
     String[] tokens = lex(prog);
-    System.out.println(parseProgram(tokens));
+    int res = parseProgram(tokens);
+    if (res == tokens.length - 1) {
+      System.out.println("the program could be parsed successfully");
+    } else {
+      System.out.println("the program could not be parsed successfully");
+    }
   }
 
   public static void init() {
@@ -323,7 +329,6 @@ public class MiniJavaParser {
     }
     return -1;
   }
-
 
   public static int parseProgram(String[] program) {
     if (program == null || program.length == 0) {

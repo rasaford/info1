@@ -1,6 +1,7 @@
 package aufgabe9_5;
 
 public class SingleObject extends Weihnachtsobjekt {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   // type of the object
   protected int background;
@@ -14,9 +15,9 @@ public class SingleObject extends Weihnachtsobjekt {
 
   @Override
   public void addObjektToSpielfeld(int[][] spielfeld) {
-    spielfeld[x][y] += foreground + background;
+    spielfeld[x][y] = foreground != 0 ? (spielfeld[x][y] & 0xFF00) + foreground : spielfeld[x][y];
+    spielfeld[x][y] =background != 0 ? (spielfeld[x][y] & 0xFF) + background : spielfeld[x][y];
   }
-
 
 
   @Override

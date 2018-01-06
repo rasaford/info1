@@ -5,6 +5,7 @@ public class Video {
   private String[] genres;
   private static int count;
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   Video(String titel) {
     this.titel = titel;
     id = count++;

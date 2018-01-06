@@ -1,6 +1,7 @@
 package aufgabe9_6;
 
 public class BinaryCondition extends Condition {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private Condition lhs;
   private Bbinop operator;

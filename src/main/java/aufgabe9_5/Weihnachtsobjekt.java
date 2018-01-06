@@ -2,6 +2,7 @@ package aufgabe9_5;
 
 
 public abstract class Weihnachtsobjekt {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   protected int x, y;
   protected boolean fallend = true;
@@ -17,7 +18,6 @@ public abstract class Weihnachtsobjekt {
   public void addObjectStatic(boolean[][] staticObjects) {
     staticObjects[x][y] |= !fallend;
   }
-
 
   boolean tryDownMove(boolean[][] staticObjects) {
     return y + 1 < staticObjects[0].length &&
@@ -39,26 +39,24 @@ public abstract class Weihnachtsobjekt {
     return true;
   }
 
-
   public int moveLeft(boolean[][] staticObjects) {
     if (!fallend) {
       return 0;
     }
     int left = x - 1;
     if (left < 1) {
-      markedForDeath = true;
+      delete();
       return -1;
     }
     if (staticObjects[left][y]) {
       return 0;
     }
-    boolean prev = staticObjects[x][y];
+//    boolean prev = staticObjects[x][y];
     staticObjects[x][y] = false;
     x = left;
-    staticObjects[left][y] = prev;
+    staticObjects[left][y] = !fallend;
     return 1;
   }
-
 
   public int moveRight(boolean[][] staticObjects) {
     if (!fallend) {
@@ -66,17 +64,20 @@ public abstract class Weihnachtsobjekt {
     }
     int right = x + 1;
     if (right >= staticObjects.length - 1) {
-      markedForDeath = true;
+      delete();
       return -1;
     }
     if (staticObjects[right][y]) {
       return 0;
     }
-    boolean prev = staticObjects[x][y];
+//    boolean prev = staticObjects[x][y];
     staticObjects[x][y] = false;
     x = right;
-    staticObjects[right][y] = prev;
+    staticObjects[right][y] = !fallend;
     return 1;
   }
 
+  void delete() {
+    markedForDeath = true;
+  }
 }

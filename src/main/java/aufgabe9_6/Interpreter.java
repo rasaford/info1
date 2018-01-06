@@ -4,6 +4,7 @@ import java.util.Hashtable;
 import java.util.Scanner;
 
 public class Interpreter extends MiniJava {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public static final int NOP = 0;
   public static final int ADD = 1;

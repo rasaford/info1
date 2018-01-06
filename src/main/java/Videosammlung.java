@@ -6,6 +6,7 @@ public class Videosammlung {
   private Video[] videos;
   private int verbleibende;
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   Videosammlung(int n) {
     videos = new Video[n];
     verbleibende = n;

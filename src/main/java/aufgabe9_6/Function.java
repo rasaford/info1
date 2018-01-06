@@ -1,6 +1,7 @@
 package aufgabe9_6;
 
 public class Function {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private String name;
   private String[] parameters;

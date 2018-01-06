@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class CodeGenerationVisitor extends Visitor {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private Code code = new Code();
   private List<String> variables = new ArrayList<>();

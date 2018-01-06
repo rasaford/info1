@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WeihnachtsElfen {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public static final int BACKGROUND_EMPTY = 0;
   // aufgabe9_5.Baumstamm:

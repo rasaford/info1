@@ -2,10 +2,9 @@ package aufgabe9_5;
 
 import java.util.LinkedList;
 import java.util.List;
-import javax.print.DocFlavor.STRING;
-import sun.management.jmxremote.SingleEntryRegistry;
 
 public class MultiObject extends Weihnachtsobjekt {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   protected List<SingleObject> parts;
   protected int breite;
@@ -40,13 +39,16 @@ public class MultiObject extends Weihnachtsobjekt {
       movable &= s.tryDownMove(staticObjects);
     }
     if (!movable) {
-      parts.forEach(o -> o.fallend = false);
+      for (SingleObject o : parts) {
+        o.fallend = false;
+      }
       fallend = false;
       return false;
     }
     for (SingleObject s : parts) {
       s.moveDown(staticObjects);
     }
+    super.moveDown(staticObjects);
     return true;
   }
 
@@ -60,10 +62,13 @@ public class MultiObject extends Weihnachtsobjekt {
       moveStatus = s.moveLeft(staticObjects);
     }
     if (moveStatus == -1) {
-      parts.forEach(o -> o.markedForDeath = true);
-      markedForDeath = true;
+      for (SingleObject o : parts) {
+        o.markedForDeath = true;
+      }
+      delete();
       return -1;
     }
+    super.moveLeft(staticObjects);
     return moveStatus;
   }
 
@@ -78,13 +83,21 @@ public class MultiObject extends Weihnachtsobjekt {
       moveStatus = s.moveRight(staticObjects);
     }
     if (moveStatus == -1) {
-      parts.forEach(o -> o.markedForDeath = true);
-      markedForDeath = true;
+      for (SingleObject o : parts) {
+        o.markedForDeath = true;
+      }
+      delete();
       return -1;
     }
+    super.moveRight(staticObjects);
     return moveStatus;
   }
 
+  @Override
+  void delete() {
+    super.delete();
+    System.out.printf("deleted %s on x:%d y:%d\n", this.getClass().getSimpleName(), x, y);
+  }
 
   @Override
   public String toString() {
