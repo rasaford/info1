@@ -9,10 +9,24 @@ import java.util.Stack;
 
 public class MiniJavaParser {
 
+  private final static Set<String> keywords = new HashSet<>(Arrays.asList(
+      "int", "read", "write", "if", "else", "while", "true", "false",
+      "-", "+", "*", "/", "%",
+      "==", "!=", "<=", "<", ">=", ">",
+      "!",
+      "&&", "||",
+      "{", "}", "(", ")", ",", ";", "="));
+  private static Stack<Integer> prevFrom = new Stack<>();
+
   public static void main(String[] args) {
+    init();
     String prog = readProgramConsole();
     String[] tokens = lex(prog);
     System.out.println(parseProgram(tokens));
+  }
+
+  public static void init() {
+    prevFrom.push(-1);
   }
 
   public static String readProgramConsole() {
@@ -38,13 +52,6 @@ public class MiniJavaParser {
 
   public static String[] lex(String program) {
     List<String> tokens = new ArrayList<>();
-    Set<String> keywords = new HashSet<>(Arrays.asList(
-        "int", "read", "write", "if", "else", "while", "true", "false",
-        "-", "+", "*", "/", "%",
-        "==", "!=", "<=", "<", ">=", ">",
-        "!",
-        "&&", "||",
-        "{", "}", "(", ")", ",", ";", "="));
     program = program.replaceAll("\\s", "");
     String last = "";
     for (int i = 0; i < program.length(); i++) {
@@ -103,8 +110,8 @@ public class MiniJavaParser {
     if (!valid(program, from) || program[from].length() == 0) {
       return -1;
     }
-    return program[from].matches("^[a-zA-Z]([a-zA-Z]|\\d)*$") ?
-        from + 1 : -1;
+    return program[from].matches("^[a-zA-Z]([a-zA-Z]|\\d)*$") &&
+        !keywords.contains(program[from]) ? from + 1 : -1;
   }
 
   public static int parseType(String[] program, int from) {
@@ -151,6 +158,21 @@ public class MiniJavaParser {
     if (!valid(program, from)) {
       return -1;
     }
+    // <expr> <binop> <expr>
+    if (prevFrom.peek() != from) {
+      prevFrom.push(from);
+      int next = parseExpression(program, from);
+      prevFrom.pop();
+
+      next = parseBinop(program, next);
+
+      prevFrom.push(next);
+      int last = parseExpression(program, next);
+      prevFrom.pop();
+      if (valid(program, next)) {
+        return last;
+      }
+    }
     // <number>
     int next = parseNumber(program, from);
     if (valid(program, next)) {
@@ -172,10 +194,7 @@ public class MiniJavaParser {
     if (valid(program, next)) {
       return next;
     }
-    // <expr> <binop> <expr>
-    next = parseExpression(program, from);
-    next = parseBinop(program, next);
-    return parseExpression(program, next);
+    return -1;
   }
 
   public static int parseBbinop(String[] program, int from) {
