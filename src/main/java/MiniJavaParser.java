@@ -16,7 +16,10 @@ public class MiniJavaParser {
       "!",
       "&&", "||",
       "{", "}", "(", ")", ",", ";", "="));
-  private static Stack<Integer> prevFrom = new Stack<>();
+  private static Stack<Integer> prevFromExpr = new Stack<>();
+  private static Stack<Integer> prevFromCond = new Stack<>();
+  private static int maxRecursionDepth = 5;
+  private static int currentRecursionDepth = 0;
 
   public static void main(String[] args) {
     init();
@@ -26,7 +29,8 @@ public class MiniJavaParser {
   }
 
   public static void init() {
-    prevFrom.push(-1);
+    prevFromExpr.push(-1);
+    prevFromCond.push(-1);
   }
 
   public static String readProgramConsole() {
@@ -159,18 +163,14 @@ public class MiniJavaParser {
       return -1;
     }
     // <expr> <binop> <expr>
-    if (prevFrom.peek() != from) {
-      prevFrom.push(from);
+    if (prevFromExpr.peek() != from) {
+      prevFromExpr.push(from);
       int next = parseExpression(program, from);
-      prevFrom.pop();
+      prevFromExpr.pop();
 
       next = parseBinop(program, next);
-
-      prevFrom.push(next);
-      int last = parseExpression(program, next);
-      prevFrom.pop();
       if (valid(program, next)) {
-        return last;
+        return parseExpression(program, next);
       }
     }
     // <number>
@@ -215,6 +215,17 @@ public class MiniJavaParser {
     if (!valid(program, from)) {
       return from;
     }
+    // <cond> <bbinop> <cond>
+    if (prevFromCond.peek() != from) {
+      prevFromCond.push(from);
+      int next = parseCondition(program, from);
+      prevFromCond.pop();
+
+      next = parseBbinop(program, next);
+      if (valid(program, next)) {
+        return parseCondition(program, next);
+      }
+    }
     // true | false
     if (program[from].matches("(true)|(false)")) {
       return from + 1;
@@ -240,11 +251,7 @@ public class MiniJavaParser {
     if (valid(program, next) && program[next].equals(")")) {
       return next + 1;
     }
-    // <cond> <bbunop> <cond>
-    next = parseExpression(program, from);
-    next = parseBinop(program, next);
-    next = parseExpression(program, next);
-    return next;
+    return -1;
   }
 
   public static int parseStatement(String[] program, int from) {
@@ -259,8 +266,13 @@ public class MiniJavaParser {
     }
     // { <stmt>* }
     if (first.equals("{")) {
-      from = parseStatement(program, from + 1);
-      return from + 1;
+      int current = from + 1;
+      int prev = 0;
+      while (valid(program, current) && !(current == prev)) {
+        prev = current;
+        current = parseStatement(program, current);
+      }
+      return valid(program, prev) && program[prev].equals("}") ? prev + 1 : -1;
     }
     // <name> = <expr>;
     // <name> = read();
@@ -286,8 +298,7 @@ public class MiniJavaParser {
       if (!valid(program, next) || !program[next].equals(")")) {
         return -1;
       }
-      next = parseStatement(program, next + 1);
-      return next + 1;
+      return parseStatement(program, next + 1);
     }
     // if (<cond>) <stmt> else <stmt>
     // if (<cond>) <stmt>
@@ -333,7 +344,9 @@ public class MiniJavaParser {
     int currentStmt = prevDecl;
     while (valid(program, currentStmt)) {
       prevStmt = currentStmt;
-      currentStmt = parseStatement(program, prevStmt);
+      if ((currentStmt = parseStatement(program, prevStmt)) == prevStmt) {
+        break;
+      }
     }
     return prevDecl == 0 && prevStmt == prevDecl ? -1 : prevStmt;
   }

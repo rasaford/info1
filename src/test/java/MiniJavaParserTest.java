@@ -33,7 +33,7 @@ public class MiniJavaParserTest {
     String[] lexed = MiniJavaParser.lex(program);
     System.out.println(Arrays.toString(lexed));
     int res = MiniJavaParser.parseProgram(lexed);
-    assertEquals(lexed.length, res);
+    assertEquals(lexed.length -1, res);
   }
 
   @Test
@@ -171,319 +171,6 @@ public class MiniJavaParserTest {
         "if", "(", "i", "%", "3", "==", "0", "||",
         "i", "%", "7", "==", "0", ")", ""}, lexed);
   }
-
-  @Test
-  public void testParseNumber() {
-    String[] lexed = MiniJavaParser.lex("123455");
-    assertEquals(1, MiniJavaParser.parseNumber(lexed, 0));
-  }
-
-  @Test
-  public void testParseNumber2() {
-    String[] lexed = MiniJavaParser.lex("a123123");
-    assertEquals(-1, MiniJavaParser.parseNumber(lexed, 0));
-  }
-
-  @Test
-  public void testParseNumber3() {
-    String[] lexed = MiniJavaParser.lex("1");
-    assertEquals(1, MiniJavaParser.parseNumber(lexed, 0));
-  }
-
-  @Test
-  public void testParseNumber4() {
-    String[] lexed = MiniJavaParser.lex("");
-    assertEquals(-1, MiniJavaParser.parseNumber(lexed, 0));
-  }
-
-  @Test
-  public void parseName1() {
-    String[] lexed = MiniJavaParser.lex("a123");
-    assertEquals(1, MiniJavaParser.parseName(lexed, 0));
-  }
-
-  @Test
-  public void parseName2() {
-    String[] lexed = MiniJavaParser.lex("a");
-    assertEquals(1, MiniJavaParser.parseName(lexed, 0));
-  }
-
-  @Test
-  public void parseName3() {
-    String[] lexed = MiniJavaParser.lex("132");
-    assertEquals(-1, MiniJavaParser.parseName(lexed, 0));
-  }
-
-  @Test
-  public void parseName4() {
-    String[] lexed = MiniJavaParser.lex("");
-    assertEquals(-1, MiniJavaParser.parseName(lexed, 0));
-  }
-
-
-  @Test
-  public void parseType1() {
-    String[] lexed = MiniJavaParser.lex("int");
-    assertEquals(1, MiniJavaParser.parseType(lexed, 0));
-  }
-
-  @Test
-  public void parseType2() {
-    String[] lexed = MiniJavaParser.lex("it");
-    assertEquals(-1, MiniJavaParser.parseType(lexed, 0));
-  }
-
-  @Test
-  public void parseType3() {
-    String[] lexed = MiniJavaParser.lex("");
-    assertEquals(-1, MiniJavaParser.parseType(lexed, 0));
-  }
-
-  @Test
-  public void parseDecl1() {
-    String[] lexed = MiniJavaParser.lex("int n;");
-    assertEquals(3, MiniJavaParser.parseDecl(lexed, 0));
-  }
-
-  @Test
-  public void parseDecl2() {
-    String[] lexed = MiniJavaParser.lex("int n, i;");
-    assertEquals(5, MiniJavaParser.parseDecl(lexed, 0));
-  }
-
-  @Test
-  public void parseDecl3() {
-    String[] lexed = MiniJavaParser.lex("int n, i");
-    assertEquals(-1, MiniJavaParser.parseDecl(lexed, 0));
-  }
-
-  @Test
-  public void parseDecl4() {
-    String[] lexed = MiniJavaParser.lex("int n i;");
-    assertEquals(3, MiniJavaParser.parseDecl(lexed, 0));
-  }
-
-  @Test
-  public void parseDecl5() {
-    String[] lexed = MiniJavaParser.lex("int");
-    assertEquals(-1, MiniJavaParser.parseDecl(lexed, 0));
-  }
-
-  @Test
-  public void parseUnop1() {
-    String[] lexed = MiniJavaParser.lex("-");
-    assertEquals(1, MiniJavaParser.parseUnop(lexed, 0));
-  }
-
-  @Test
-  public void parseUnop2() {
-    String[] lexed = new String[]{"--"};
-    assertEquals(-1, MiniJavaParser.parseUnop(lexed, 0));
-  }
-
-  @Test
-  public void parseUnop3() {
-    String[] lexed = MiniJavaParser.lex("");
-    assertEquals(-1, MiniJavaParser.parseUnop(lexed, 0));
-  }
-
-  @Test
-  public void parseBinop1() {
-    String[] lexed = MiniJavaParser.lex("-");
-    assertEquals(1, MiniJavaParser.parseBinop(lexed, 0));
-  }
-
-  @Test
-  public void parseBinop2() {
-    String[] lexed = MiniJavaParser.lex("+");
-    assertEquals(1, MiniJavaParser.parseBinop(lexed, 0));
-  }
-
-  @Test
-  public void parseBinop3() {
-    String[] lexed = MiniJavaParser.lex("*");
-    assertEquals(1, MiniJavaParser.parseBinop(lexed, 0));
-  }
-
-  @Test
-  public void parseBinop4() {
-    String[] lexed = MiniJavaParser.lex("/");
-    assertEquals(1, MiniJavaParser.parseBinop(lexed, 0));
-  }
-
-  @Test
-  public void parseBinop5() {
-    String[] lexed = MiniJavaParser.lex("");
-    assertEquals(-1, MiniJavaParser.parseBinop(lexed, 0));
-  }
-
-  @Test
-  public void parseComp1() {
-    String[] lexed = MiniJavaParser.lex("==");
-    assertEquals(1, MiniJavaParser.parseComp(lexed, 0));
-  }
-
-  @Test
-  public void parseComp2() {
-    String[] lexed = MiniJavaParser.lex("!=");
-    assertEquals(1, MiniJavaParser.parseComp(lexed, 0));
-  }
-
-  @Test
-  public void parseComp3() {
-    String[] lexed = MiniJavaParser.lex("<=");
-    assertEquals(1, MiniJavaParser.parseComp(lexed, 0));
-  }
-
-  @Test
-  public void parseComp4() {
-    String[] lexed = MiniJavaParser.lex("<");
-    assertEquals(1, MiniJavaParser.parseComp(lexed, 0));
-  }
-
-  @Test
-  public void parseComp5() {
-    String[] lexed = MiniJavaParser.lex(">=");
-    assertEquals(1, MiniJavaParser.parseComp(lexed, 0));
-  }
-
-  @Test
-  public void parseComp6() {
-    String[] lexed = MiniJavaParser.lex(">");
-    assertEquals(1, MiniJavaParser.parseComp(lexed, 0));
-  }
-
-  @Test
-  public void parseComp7() {
-    String[] lexed = MiniJavaParser.lex("");
-    assertEquals(-1, MiniJavaParser.parseComp(lexed, 0));
-  }
-
-  @Test
-  public void parseExpression1() {
-    String[] lexed = MiniJavaParser.lex("1234");
-    assertEquals(1, MiniJavaParser.parseExpression(lexed, 0));
-  }
-
-  @Test
-  public void parseExpression2() {
-    String[] lexed = MiniJavaParser.lex("testProgram");
-    assertEquals(1, MiniJavaParser.parseExpression(lexed, 0));
-  }
-
-  @Test
-  public void parseExpression3() {
-    String[] lexed = MiniJavaParser.lex("(testProgram)");
-    assertEquals(3, MiniJavaParser.parseExpression(lexed, 0));
-  }
-
-  @Test
-  public void parseExpression4() {
-    String[] lexed = MiniJavaParser.lex("((123)testProgram)");
-    assertEquals(-1, MiniJavaParser.parseExpression(lexed, 0));
-  }
-
-  @Test
-  public void parseExpression5() {
-    String[] lexed = MiniJavaParser.lex("-123");
-    assertEquals(2, MiniJavaParser.parseExpression(lexed, 0));
-  }
-
-  @Test
-  public void parseExpression6() {
-    String[] lexed = MiniJavaParser.lex("123*testProgram");
-    assertEquals(3, MiniJavaParser.parseExpression(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement1() {
-    String[] lexed = MiniJavaParser.lex("{}");
-    assertEquals(2, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement2() {
-    String[] lexed = MiniJavaParser.lex(";");
-    assertEquals(1, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement3() {
-    String[] lexed = MiniJavaParser.lex("testProgram = 123;");
-    assertEquals(4, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement4() {
-    String[] lexed = MiniJavaParser.lex("testProgram = read();");
-    assertEquals(6, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement5() {
-    String[] lexed = MiniJavaParser.lex("write(12345);");
-    assertEquals(6, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement6() {
-    String[] lexed = MiniJavaParser.lex("if (true) "
-        + "{ testProgram = 2; }");
-    assertEquals(10, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement7() {
-    String[] lexed = MiniJavaParser.lex("if (true) "
-        + "{ testProgram = 2; }"
-        + "else"
-        + "{ testProgram = 3; }");
-    assertEquals(17, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseStatement8() {
-    String[] lexed = MiniJavaParser.lex("while (true) "
-        + "{ testProgram = 3; }");
-    assertEquals(10, MiniJavaParser.parseStatement(lexed, 0));
-  }
-
-  @Test
-  public void parseCondition1() {
-    String[] lexed = MiniJavaParser.lex("true");
-    assertEquals(1, MiniJavaParser.parseCondition(lexed, 0));
-  }
-
-  @Test
-  public void parseCondition2() {
-    String[] lexed = MiniJavaParser.lex("false");
-    assertEquals(1, MiniJavaParser.parseCondition(lexed, 0));
-  }
-
-  @Test
-  public void parseCondition3() {
-    String[] lexed = MiniJavaParser.lex("(true)");
-    assertEquals(3, MiniJavaParser.parseCondition(lexed, 0));
-  }
-
-  @Test
-  public void parseCondition4() {
-    String[] lexed = MiniJavaParser.lex("123 == 123");
-    assertEquals(3, MiniJavaParser.parseCondition(lexed, 0));
-  }
-
-  @Test
-  public void parseCondition5() {
-    String[] lexed = MiniJavaParser.lex("!(true)");
-    assertEquals(3, MiniJavaParser.parseCondition(lexed, 0));
-  }
-
-  @Test
-  public void parseCondition6() {
-    String[] lexed = MiniJavaParser.lex("true && true");
-    assertEquals(3, MiniJavaParser.parseCondition(lexed, 0));
-  }
-
 
   @Test
   public void lex() {
@@ -708,12 +395,12 @@ public class MiniJavaParserTest {
     // <expr> ::= <number> | <name> | ( <expr> ) | <unop> <expr> | <expr> <binop> <expr>
     // TODO: extend test cases
     String[][] valid = {{"2345", ""},
-//        {"dsfg23", ""},
-//        {"(", "235", ")", ""},
-//        {"-", "234", ""},
-//        {"321", "+", "33", ""},
-//        {"321", "+", "(", "name", ")", ""},
-//        MiniJavaParser.lex("(b-c)"),
+        {"dsfg23", ""},
+        {"(", "235", ")", ""},
+        {"-", "234", ""},
+        {"321", "+", "33", ""},
+        {"321", "+", "(", "name", ")", ""},
+        MiniJavaParser.lex("(b-c)"),
         MiniJavaParser.lex("(a+(b-c)+23)"),
         MiniJavaParser.lex("(-a+(b-c)+(23))"),
     };
@@ -761,15 +448,17 @@ public class MiniJavaParserTest {
     // true | false | ( <cond> ) | <expr> <comp> <expr> | <bunop> <cond> | <cond> <bbinop> <cond>
     String[][] valid = {
         MiniJavaParser.lex("b==c"),
-        {"true"},
-        {"false"},
-        {"!", "(", "b", "==", "c", ")"},
-        {"(", "!", "(", "b", ">=", "4", ")", ")"},
-        {"a", ">", "b"},
-        {"a", ">", "b", "&&", "true"},
+        {"true", ""},
+        {"false", ""},
+        {"!", "(", "false", ")", ""},
+        {"!", "(", "b", "==", "c", ")", ""},
+        {"(", "!", "(", "b", ">=", "4", ")", ")", ""},
+        {"a", ">", "b", ""},
+        {"a", ">", "b", "&&", "true", ""},
+        MiniJavaParser.lex("(i % 3 == 0 || i % 7 == 0)")
     };
     for (String[] aValid : valid) {
-      assertEquals(aValid.length, MiniJavaParser.parseCondition(aValid, 0));
+      assertEquals(aValid.length - 1, MiniJavaParser.parseCondition(aValid, 0));
     }
     String[][] invalid = {{"23a45"},
         {">", "true"},
@@ -797,30 +486,37 @@ public class MiniJavaParserTest {
         MiniJavaParser.lex("while (a==b) ;"),
     };
     for (String[] validStatement : validStatements) {
-      assertEquals(validStatement.length, MiniJavaParser.parseStatement(validStatement, 0));
+      assertEquals(validStatement.length - 1, MiniJavaParser.parseStatement(validStatement, 0));
     }
   }
 
   @Test
   public void parseProgram() {
     String[] goodPrograms =
-        {"int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
+        {
+//            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
+
             "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
                 + "sum = 0;\n" + "i = 0;\n" + "while (i < n) {\n" + "{\n"
                 + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
                 + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
                 + "sum = 99;\n" + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
+
             "int prod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
                 + "while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
                 + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
+
             "int a, b, c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
                 + "if (c < a) {\n" + "b=b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
+
             "int a, b;" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
                 + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
                 + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
+
             "int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
                 + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
                 + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
+
             "int x;\n"
                 + "x = read();\n"
                 + "if (x == 0)\n"
@@ -894,116 +590,116 @@ public class MiniJavaParserTest {
         };
     for (String goodProgram : goodPrograms) {
       String[] token = MiniJavaParser.lex(goodProgram);
-      assertEquals(token.length, MiniJavaParser.parseProgram(token));
+      assertEquals(token.length - 1, MiniJavaParser.parseProgram(token));
     }
-    String[] badPrograms =
-        {"int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-            + "b = read();\n"
-            + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
-            + "write(a);\n" + "", // misssing } at end
-            "int sum, n, i;\n" + "n = read()\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
-            // missing semicolon after read()
-            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
-                + "sum = 0;\n" + "i = 0;\n" + "wile (i < n) {\n" + "{\n"
-                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
-                + "if (i % 3 == 0 | | i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
-                + "sum = 99;\n" // | | instead of ||
-                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
-            "int prod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
-                + "do while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
-                // do while instead of while
-                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
-            "int a, b c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
-                + "if (c < a) {\n" + "b=b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
-            // don't know any more
-            "int a, b;" + "a = 0;\n" + "while (b == 0 && (a == 0) {\n" + "a = read();\n" + "}\n"
-                // missing )
-                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
-                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
-            "int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-                + "b = read();\n"
-                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "\n"
-                + "write(a);\n" + "}", // missing }?
-            "Int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
-            // Int
-            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
-                + "1sum = 0;\n" + "i = 0;\n" + "while (i < n) {\n" + "{\n"
-                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
-                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
-                + "sum = 99;\n"
-                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
-            "int p?rod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
-                // invalid character in name pr?od
-                + "while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
-                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
-            "int a, b, c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
-                // b == b-a
-                + "if (c < a) {\n" + "b==b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
-            "int a, b;" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-                + "b <= read();\n" // b <= read()
-                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
-                + "write(a);\n" + "}",
-            "int a, int;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-                // variable named int
-                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
-                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
-            "    int number, lastNumber; \n" // meier game, invalid because of strings
-                + "    int firstDraw, secondDraw; \n"
-                + "    int playerNumber; \n"
-                + "    int output;\n"
-                + "\n"
-                + "    lastNumber = playerNumber = 0;\n"
-                + "\n"
-                + "    number = 1;\n"
-                + "    while (number > lastNumber) {\n"
-                + "      lastNumber = number;\n"
-                + "\n"
-                + "      \n"
-                + "      firstDraw = dice();\n"
-                + "      secondDraw = dice();\n"
-                + "\n"
-                + "     \n"
-                + "      if (firstDraw > secondDraw) {\n"
-                + "        number = firstDraw * 10 + secondDraw;\n"
-                + "      } else if (secondDraw > firstDraw) {\n"
-                + "        number = firstDraw + secondDraw * 10;\n"
-                + "      } else {\n"
-                + "\n"
-                + "        number = firstDraw * 100 + secondDraw * 10;\n"
-                + "      }\n"
-                + "\n"
-                + "\n"
-                + "\n"
-                + "      if (number == 21) {\n"
-                + "\n"
-                + "        number = number * 1000;\n"
-                + "      }\n"
-                + "\n"
-                + "      output = number;\n"
-                + "      while (output > 100) {\n"
-                + "        output = output / 10;\n"
-                + "      }\n"
-                + "      if (playerNumber == 0) {\n"
-                + "        write(\"Du wuerfelst \" + output);\n"
-                + "      } else {\n"
-                + "        write(\"Computer wuerfelt \" + output);\n"
-                + "      }\n"
-                + "\n"
-                + "      playerNumber = 1 - playerNumber;\n"
-                + "    }\n"
-                + "    if (playerNumber == 0) {\n"
-                + "      write(\"Du hast gewonnen\");\n"
-                + "    } else {\n"
-                + "      write(\"Computer hat gewonnen\");\n"
-                + "    }\n"
-                + "  }\n",
-            "if(x == 5 5 5) { x = 2; }", // https://piazza.com/class/j7hxt8rsfjy1gk?cid=2303
-            "int a", // missing semicolon
-            "a = b; int a;" // decl after stmt
-        };
-    for (String badProgram : badPrograms) {
-      String[] token = MiniJavaParser.lex(badProgram);
-      assertEquals(-1, MiniJavaParser.parseProgram(token));
-    }
+//    String[] badPrograms =
+//        {"int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+//            + "b = read();\n"
+//            + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
+//            + "write(a);\n" + "", // misssing } at end
+//            "int sum, n, i;\n" + "n = read()\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
+//            // missing semicolon after read()
+//            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
+//                + "sum = 0;\n" + "i = 0;\n" + "wile (i < n) {\n" + "{\n"
+//                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
+//                + "if (i % 3 == 0 | | i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
+//                + "sum = 99;\n" // | | instead of ||
+//                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
+//            "int prod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
+//                + "do while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
+//                // do while instead of while
+//                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
+//            "int a, b c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
+//                + "if (c < a) {\n" + "b=b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
+//            // don't know any more
+//            "int a, b;" + "a = 0;\n" + "while (b == 0 && (a == 0) {\n" + "a = read();\n" + "}\n"
+//                // missing )
+//                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
+//                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
+//            "int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+//                + "b = read();\n"
+//                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "\n"
+//                + "write(a);\n" + "}", // missing }?
+//            "Int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
+//            // Int
+//            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
+//                + "1sum = 0;\n" + "i = 0;\n" + "while (i < n) {\n" + "{\n"
+//                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
+//                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
+//                + "sum = 99;\n"
+//                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
+//            "int p?rod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
+//                // invalid character in name pr?od
+//                + "while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
+//                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
+//            "int a, b, c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
+//                // b == b-a
+//                + "if (c < a) {\n" + "b==b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
+//            "int a, b;" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+//                + "b <= read();\n" // b <= read()
+//                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
+//                + "write(a);\n" + "}",
+//            "int a, int;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+//                // variable named int
+//                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
+//                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
+//            "    int number, lastNumber; \n" // meier game, invalid because of strings
+//                + "    int firstDraw, secondDraw; \n"
+//                + "    int playerNumber; \n"
+//                + "    int output;\n"
+//                + "\n"
+//                + "    lastNumber = playerNumber = 0;\n"
+//                + "\n"
+//                + "    number = 1;\n"
+//                + "    while (number > lastNumber) {\n"
+//                + "      lastNumber = number;\n"
+//                + "\n"
+//                + "      \n"
+//                + "      firstDraw = dice();\n"
+//                + "      secondDraw = dice();\n"
+//                + "\n"
+//                + "     \n"
+//                + "      if (firstDraw > secondDraw) {\n"
+//                + "        number = firstDraw * 10 + secondDraw;\n"
+//                + "      } else if (secondDraw > firstDraw) {\n"
+//                + "        number = firstDraw + secondDraw * 10;\n"
+//                + "      } else {\n"
+//                + "\n"
+//                + "        number = firstDraw * 100 + secondDraw * 10;\n"
+//                + "      }\n"
+//                + "\n"
+//                + "\n"
+//                + "\n"
+//                + "      if (number == 21) {\n"
+//                + "\n"
+//                + "        number = number * 1000;\n"
+//                + "      }\n"
+//                + "\n"
+//                + "      output = number;\n"
+//                + "      while (output > 100) {\n"
+//                + "        output = output / 10;\n"
+//                + "      }\n"
+//                + "      if (playerNumber == 0) {\n"
+//                + "        write(\"Du wuerfelst \" + output);\n"
+//                + "      } else {\n"
+//                + "        write(\"Computer wuerfelt \" + output);\n"
+//                + "      }\n"
+//                + "\n"
+//                + "      playerNumber = 1 - playerNumber;\n"
+//                + "    }\n"
+//                + "    if (playerNumber == 0) {\n"
+//                + "      write(\"Du hast gewonnen\");\n"
+//                + "    } else {\n"
+//                + "      write(\"Computer hat gewonnen\");\n"
+//                + "    }\n"
+//                + "  }\n",
+//            "if(x == 5 5 5) { x = 2; }", // https://piazza.com/class/j7hxt8rsfjy1gk?cid=2303
+//            "int a", // missing semicolon
+//            "a = b; int a;" // decl after stmt
+//        };
+//    for (String badProgram : badPrograms) {
+//      String[] token = MiniJavaParser.lex(badProgram);
+//      assertEquals(-1, MiniJavaParser.parseProgram(token));
+//    }
   }
 }
