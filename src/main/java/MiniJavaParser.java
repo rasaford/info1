@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -18,11 +17,10 @@ public class MiniJavaParser {
       "{", "}", "(", ")", ",", ";", "="));
   private static Stack<Integer> prevFromExpr = new Stack<>();
   private static Stack<Integer> prevFromCond = new Stack<>();
-  private static int maxRecursionDepth = 5;
-  private static int currentRecursionDepth = 0;
 
   public static void main(String[] args) {
     init();
+    System.out.println("Enter a program:");
     String prog = readProgramConsole();
     String[] tokens = lex(prog);
     System.out.println(parseProgram(tokens));
@@ -255,7 +253,7 @@ public class MiniJavaParser {
   }
 
   public static int parseStatement(String[] program, int from) {
-    if (!valid(program, from)) {
+    if (!valid(program, from) || program[from].isEmpty()) {
       return from;
     }
     String first = program[from];
@@ -323,7 +321,7 @@ public class MiniJavaParser {
       }
       return parseStatement(program, next + 1);
     }
-    return from;
+    return -1;
   }
 
 
@@ -348,7 +346,8 @@ public class MiniJavaParser {
         break;
       }
     }
-    return prevDecl == 0 && prevStmt == prevDecl ? -1 : prevStmt;
+    return currentStmt == -1 ||
+        (prevDecl == 0 && prevStmt == prevDecl) ? -1 : prevStmt;
   }
 
   private static boolean valid(String[] program, int from) {

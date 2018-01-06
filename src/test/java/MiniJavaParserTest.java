@@ -33,7 +33,7 @@ public class MiniJavaParserTest {
     String[] lexed = MiniJavaParser.lex(program);
     System.out.println(Arrays.toString(lexed));
     int res = MiniJavaParser.parseProgram(lexed);
-    assertEquals(lexed.length -1, res);
+    assertEquals(lexed.length - 1, res);
   }
 
   @Test
@@ -494,7 +494,7 @@ public class MiniJavaParserTest {
   public void parseProgram() {
     String[] goodPrograms =
         {
-//            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
+            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
 
             "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
                 + "sum = 0;\n" + "i = 0;\n" + "while (i < n) {\n" + "{\n"
@@ -592,114 +592,120 @@ public class MiniJavaParserTest {
       String[] token = MiniJavaParser.lex(goodProgram);
       assertEquals(token.length - 1, MiniJavaParser.parseProgram(token));
     }
-//    String[] badPrograms =
-//        {"int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-//            + "b = read();\n"
-//            + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
-//            + "write(a);\n" + "", // misssing } at end
-//            "int sum, n, i;\n" + "n = read()\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
-//            // missing semicolon after read()
-//            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
-//                + "sum = 0;\n" + "i = 0;\n" + "wile (i < n) {\n" + "{\n"
-//                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
-//                + "if (i % 3 == 0 | | i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
-//                + "sum = 99;\n" // | | instead of ||
-//                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
-//            "int prod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
-//                + "do while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
-//                // do while instead of while
-//                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
-//            "int a, b c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
-//                + "if (c < a) {\n" + "b=b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
-//            // don't know any more
-//            "int a, b;" + "a = 0;\n" + "while (b == 0 && (a == 0) {\n" + "a = read();\n" + "}\n"
-//                // missing )
-//                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
-//                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
-//            "int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-//                + "b = read();\n"
-//                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "\n"
-//                + "write(a);\n" + "}", // missing }?
-//            "Int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
-//            // Int
-//            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
-//                + "1sum = 0;\n" + "i = 0;\n" + "while (i < n) {\n" + "{\n"
-//                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
-//                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
-//                + "sum = 99;\n"
-//                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
-//            "int p?rod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
-//                // invalid character in name pr?od
-//                + "while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
-//                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
-//            "int a, b, c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
-//                // b == b-a
-//                + "if (c < a) {\n" + "b==b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
-//            "int a, b;" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-//                + "b <= read();\n" // b <= read()
-//                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
-//                + "write(a);\n" + "}",
-//            "int a, int;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
-//                // variable named int
-//                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
-//                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
-//            "    int number, lastNumber; \n" // meier game, invalid because of strings
-//                + "    int firstDraw, secondDraw; \n"
-//                + "    int playerNumber; \n"
-//                + "    int output;\n"
-//                + "\n"
-//                + "    lastNumber = playerNumber = 0;\n"
-//                + "\n"
-//                + "    number = 1;\n"
-//                + "    while (number > lastNumber) {\n"
-//                + "      lastNumber = number;\n"
-//                + "\n"
-//                + "      \n"
-//                + "      firstDraw = dice();\n"
-//                + "      secondDraw = dice();\n"
-//                + "\n"
-//                + "     \n"
-//                + "      if (firstDraw > secondDraw) {\n"
-//                + "        number = firstDraw * 10 + secondDraw;\n"
-//                + "      } else if (secondDraw > firstDraw) {\n"
-//                + "        number = firstDraw + secondDraw * 10;\n"
-//                + "      } else {\n"
-//                + "\n"
-//                + "        number = firstDraw * 100 + secondDraw * 10;\n"
-//                + "      }\n"
-//                + "\n"
-//                + "\n"
-//                + "\n"
-//                + "      if (number == 21) {\n"
-//                + "\n"
-//                + "        number = number * 1000;\n"
-//                + "      }\n"
-//                + "\n"
-//                + "      output = number;\n"
-//                + "      while (output > 100) {\n"
-//                + "        output = output / 10;\n"
-//                + "      }\n"
-//                + "      if (playerNumber == 0) {\n"
-//                + "        write(\"Du wuerfelst \" + output);\n"
-//                + "      } else {\n"
-//                + "        write(\"Computer wuerfelt \" + output);\n"
-//                + "      }\n"
-//                + "\n"
-//                + "      playerNumber = 1 - playerNumber;\n"
-//                + "    }\n"
-//                + "    if (playerNumber == 0) {\n"
-//                + "      write(\"Du hast gewonnen\");\n"
-//                + "    } else {\n"
-//                + "      write(\"Computer hat gewonnen\");\n"
-//                + "    }\n"
-//                + "  }\n",
-//            "if(x == 5 5 5) { x = 2; }", // https://piazza.com/class/j7hxt8rsfjy1gk?cid=2303
-//            "int a", // missing semicolon
-//            "a = b; int a;" // decl after stmt
-//        };
-//    for (String badProgram : badPrograms) {
-//      String[] token = MiniJavaParser.lex(badProgram);
-//      assertEquals(-1, MiniJavaParser.parseProgram(token));
-//    }
+  }
+
+  @Test
+  public void parseBadPrograms() {
+    String[] badPrograms =
+        {
+            "int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+            + "b = read();\n"
+            + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
+            + "write(a);\n" + "", // misssing } at end
+
+            "int sum, n, i;\n" + "n = read()\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
+            // missing semicolon after read()
+
+            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
+                + "sum = 0;\n" + "i = 0;\n" + "wile (i < n) {\n" + "{\n"
+                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
+                + "if (i % 3 == 0 | | i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
+                + "sum = 99;\n" // | | instead of ||
+                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
+
+            "int prod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
+                + "do while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
+                // do while instead of while
+                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
+
+
+            "int a, b;" + "a = 0;\n" + "while (b == 0 && (a == 0) {\n" + "a = read();\n" + "}\n"
+                // missing )
+                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
+                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
+            "int a, b;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+                + "b = read();\n"
+                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "\n"
+                + "write(a);\n" + "}", // missing }?
+            "Int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}",
+
+            "int sum, n, i;\n" + "n = read();\n" + "while (n < 0) {\n" + "n = read();\n" + "}\n"
+                + "1sum = 0;\n" + "i = 0;\n" + "while (i < n) {\n" + "{\n"
+                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n"
+                + "if (i % 3 == 0 || i % 7 == 0) {\n" + "sum = sum + i;\n" + "} else\n"
+                + "sum = 99;\n"
+                + "}\n" + "i = i + 1;\n" + "}\n" + "}\n" + "write(sum);",
+            "int p?rod, x, n;\n" + "x = read();\n" + "if (0 < x) {\n" + "prod = 1;\n" + "n = 0;\n"
+                // invalid character in name pr?od
+                + "while (prod <= x) {\n" + "n = n + 1;\n" + "prod = prod * (-n);\n" + "}\n"
+                + "write(prod);\n" + "} else {\n" + "write(n);\n" + "}",
+            "int a, b, c;\n" + "a = 42;\n" + "while (a > 10) {\n" + "b = 2*a;\n" + "c = b / 2;\n"
+                // b == b-a
+                + "if (c < a) {\n" + "b==b-a;\n" + "}\n" + "a = a - 4;\n" + "}",
+            "int a, b;" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+                + "b <= read();\n" // b <= read()
+                + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n" + "b = b - a;\n" + "}\n"
+                + "write(a);\n" + "}",
+            "int a, int;\n" + "a = 0;\n" + "while (a == 0) {\n" + "a = read();\n" + "}\n"
+                // variable named int
+                + "b = read();\n" + "if (b > a) {\n" + "while (b > a) {\n" + "write(b);\n"
+                + "b = b - a;\n" + "}\n" + "write(a);\n" + "}",
+            "    int number, lastNumber; \n" // meier game, invalid because of strings
+                + "    int firstDraw, secondDraw; \n"
+                + "    int playerNumber; \n"
+                + "    int output;\n"
+                + "\n"
+                + "    lastNumber = playerNumber = 0;\n"
+                + "\n"
+                + "    number = 1;\n"
+                + "    while (number > lastNumber) {\n"
+                + "      lastNumber = number;\n"
+                + "\n"
+                + "      \n"
+                + "      firstDraw = dice();\n"
+                + "      secondDraw = dice();\n"
+                + "\n"
+                + "     \n"
+                + "      if (firstDraw > secondDraw) {\n"
+                + "        number = firstDraw * 10 + secondDraw;\n"
+                + "      } else if (secondDraw > firstDraw) {\n"
+                + "        number = firstDraw + secondDraw * 10;\n"
+                + "      } else {\n"
+                + "\n"
+                + "        number = firstDraw * 100 + secondDraw * 10;\n"
+                + "      }\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "      if (number == 21) {\n"
+                + "\n"
+                + "        number = number * 1000;\n"
+                + "      }\n"
+                + "\n"
+                + "      output = number;\n"
+                + "      while (output > 100) {\n"
+                + "        output = output / 10;\n"
+                + "      }\n"
+                + "      if (playerNumber == 0) {\n"
+                + "        write(\"Du wuerfelst \" + output);\n"
+                + "      } else {\n"
+                + "        write(\"Computer wuerfelt \" + output);\n"
+                + "      }\n"
+                + "\n"
+                + "      playerNumber = 1 - playerNumber;\n"
+                + "    }\n"
+                + "    if (playerNumber == 0) {\n"
+                + "      write(\"Du hast gewonnen\");\n"
+                + "    } else {\n"
+                + "      write(\"Computer hat gewonnen\");\n"
+                + "    }\n"
+                + "  }\n",
+            "int a", // missing semicolon
+            "a = b; int a;" // decl after stmt
+        };
+    for (String badProgram : badPrograms) {
+      String[] token = MiniJavaParser.lex(badProgram);
+      assertEquals(-1, MiniJavaParser.parseProgram(token));
+    }
   }
 }
