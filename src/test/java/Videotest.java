@@ -57,7 +57,7 @@ public class Videotest extends MiniJava {
     // }
 
     // Testen der Videosammlunng Klasse
-    // test ob ich die korrekte Anzahl einfügen kann
+    // testProgram ob ich die korrekte Anzahl einfügen kann
     Videosammlung vhs = new Videosammlung(20);
     for (int i = 0; i < 20; i++) {
       Video v = new Video("titel-" + i);
@@ -89,7 +89,7 @@ public class Videotest extends MiniJava {
     }
 
     v = new Video("Darf nicht reinpassen");
-    v.addGenre("genre-test");
+    v.addGenre("genre-testProgram");
     result = vhs.addVideo(v);
     if (result != -1) {
       fehler("Das 21. Video wurde aufgenommen, ob wohl kein Platz mehr sein sollte.");

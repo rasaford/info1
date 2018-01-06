@@ -35,6 +35,8 @@ public class Interpreter extends MiniJava {
   public static final int EQ = 22;
   public static final int LT = 23;
   public static final int LE = 24;
+  // Bonus operations
+  public static final int SHL = 25;
 
 
   static void error(String message) {
@@ -67,8 +69,8 @@ public class Interpreter extends MiniJava {
     for (int i = 0; i < program.length; i++) {
       int opCode = program[i] >> 16;
       String op = revLookup(opCode);
-      int immediate = program[i] & 0xFF;
-      String imm = immediate == 0 ? "" : Integer.toString(immediate);
+      short immediate = (short) (program[i] & 0xFFFF);
+      String imm = immediate == 0 ? "" : Short.toString(immediate);
       sb.append(immediate == 0 ?
           String.format("%d: %s\n", i, op) :
           String.format("%d: %s %s\n", i, op, imm));
@@ -130,6 +132,8 @@ public class Interpreter extends MiniJava {
       case LE:
         return "LE";
 
+      case SHL:
+        return "SHL";
       default:
         return "Invalid instruction";
     }
@@ -189,6 +193,8 @@ public class Interpreter extends MiniJava {
       case "LE":
         return LE;
 
+      case "SHL":
+        return SHL;
       default:
         error("Invalid instruction: " + instruction);
     }
@@ -470,6 +476,9 @@ public class Interpreter extends MiniJava {
           }
           break;
 
+        case SHL:
+          push(pop() << parameter);
+          break;
         default: {
           error("Invalid instruction: " + nextCommand + ".");
         }

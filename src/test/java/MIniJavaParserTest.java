@@ -361,19 +361,19 @@ public class MIniJavaParserTest {
 
   @Test
   public void parseExpression2() {
-    String[] lexed = MiniJavaParser.lex("test");
+    String[] lexed = MiniJavaParser.lex("testProgram");
     assertEquals(1, MiniJavaParser.parseExpression(lexed, 0));
   }
 
   @Test
   public void parseExpression3() {
-    String[] lexed = MiniJavaParser.lex("(test)");
+    String[] lexed = MiniJavaParser.lex("(testProgram)");
     assertEquals(3, MiniJavaParser.parseExpression(lexed, 0));
   }
 
   @Test
   public void parseExpression4() {
-    String[] lexed = MiniJavaParser.lex("((123)test)");
+    String[] lexed = MiniJavaParser.lex("((123)testProgram)");
     assertEquals(-1, MiniJavaParser.parseExpression(lexed, 0));
   }
 
@@ -385,7 +385,7 @@ public class MIniJavaParserTest {
 
   @Test
   public void parseExpression6() {
-    String[] lexed = MiniJavaParser.lex("123*test");
+    String[] lexed = MiniJavaParser.lex("123*testProgram");
     assertEquals(3, MiniJavaParser.parseExpression(lexed, 0));
   }
 
@@ -403,13 +403,13 @@ public class MIniJavaParserTest {
 
   @Test
   public void parseStatement3() {
-    String[] lexed = MiniJavaParser.lex("test = 123;");
+    String[] lexed = MiniJavaParser.lex("testProgram = 123;");
     assertEquals(4, MiniJavaParser.parseStatement(lexed, 0));
   }
 
   @Test
   public void parseStatement4() {
-    String[] lexed = MiniJavaParser.lex("test = read();");
+    String[] lexed = MiniJavaParser.lex("testProgram = read();");
     assertEquals(6, MiniJavaParser.parseStatement(lexed, 0));
   }
 
@@ -422,23 +422,23 @@ public class MIniJavaParserTest {
   @Test
   public void parseStatement6() {
     String[] lexed = MiniJavaParser.lex("if (true) "
-        + "{ test = 2; }");
+        + "{ testProgram = 2; }");
     assertEquals(10, MiniJavaParser.parseStatement(lexed, 0));
   }
 
   @Test
   public void parseStatement7() {
     String[] lexed = MiniJavaParser.lex("if (true) "
-        + "{ test = 2; }"
+        + "{ testProgram = 2; }"
         + "else"
-        + "{ test = 3; }");
+        + "{ testProgram = 3; }");
     assertEquals(17, MiniJavaParser.parseStatement(lexed, 0));
   }
 
   @Test
   public void parseStatement8() {
     String[] lexed = MiniJavaParser.lex("while (true) "
-        + "{ test = 3; }");
+        + "{ testProgram = 3; }");
     assertEquals(10, MiniJavaParser.parseStatement(lexed, 0));
   }
 

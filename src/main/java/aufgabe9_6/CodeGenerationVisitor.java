@@ -1,9 +1,7 @@
 package aufgabe9_6;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class CodeGenerationVisitor extends Visitor {
@@ -80,7 +78,23 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Number number) {
-    code.appendlnf("LDI %d", number.getValue());
+    int val = number.getValue();
+    if (val < Short.MIN_VALUE || val > Short.MAX_VALUE) {
+      // pushing 4 bytes onto the stack then merging to avoid the
+      // automatic sign extension.
+      code.appendlnf("LDI %d", val >> 24);
+      code.appendlnf("SHL %d", 24);
+      code.appendlnf("LDI %d", (val & 0xFF0000) >> 16);
+      code.appendlnf("SHL %d", 16);
+      code.appendlnf("LDI %d", (val & 0xFF00) >> 8);
+      code.appendlnf("SHL %d", 8);
+      code.appendlnf("LDI %d", (val & 0xFF));
+      code.appendlnf("OR");
+      code.appendlnf("OR");
+      code.appendlnf("OR");
+    } else {
+      code.appendlnf("LDI %d", val);
+    }
   }
 
   @Override
@@ -89,7 +103,7 @@ public class CodeGenerationVisitor extends Visitor {
       errorf("local variable %s is not defined", variable.getName());
     }
     int index = variables.indexOf(variable.getName()) + paramOffset;
-    code.appendlnf("LDS %d", index );
+    code.appendlnf("LDS %d", index);
   }
 
   @Override
