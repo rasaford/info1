@@ -9,6 +9,7 @@ public class CodeGenerationVisitor extends Visitor {
 
   private Code code = new Code();
   private List<String> variables = new ArrayList<>();
+  private List<String> definedVariables = new ArrayList<>();
   private int paramOffset = 0;
   private List<String> functions = new ArrayList<>();
 
@@ -19,6 +20,7 @@ public class CodeGenerationVisitor extends Visitor {
     paramOffset = -function.getParameters().length + 1;
     for (String p : function.getParameters()) {
       variables.add(p);
+      definedVariables.add(p);
     }
     for (Declaration d : function.getDeclarations()) {
       d.accept(this);
@@ -27,6 +29,7 @@ public class CodeGenerationVisitor extends Visitor {
       s.accept(this);
     }
     variables.clear();
+    definedVariables.clear();
     paramOffset = 0;
   }
 
@@ -43,6 +46,7 @@ public class CodeGenerationVisitor extends Visitor {
     functions.clear();
     code.clear();
     variables.clear();
+    definedVariables.clear();
     paramOffset = 0;
     return machineCode;
   }
@@ -79,6 +83,9 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Number number) {
+    if (number.getValue() < 0) {
+      errorf("number %d cannot be negative use unary instead", number.getValue());
+    }
     int val = number.getValue();
     if (val < Short.MIN_VALUE || val > Short.MAX_VALUE) {
       // pushing 4 bytes onto the stack then merging to avoid the
@@ -101,6 +108,9 @@ public class CodeGenerationVisitor extends Visitor {
   @Override
   public void visit(Variable variable) {
     if (!variables.contains(variable.getName())) {
+      errorf("local variable %s is not declared", variable.getName());
+    }
+    if (!definedVariables.contains(variable.getName())) {
       errorf("local variable %s is not defined", variable.getName());
     }
     int index = variables.indexOf(variable.getName()) + paramOffset;
@@ -123,9 +133,10 @@ public class CodeGenerationVisitor extends Visitor {
   @Override
   public void visit(Assignment assignment) {
     if (!variables.contains(assignment.getName())) {
-      errorf("local variable %s is not defined", assignment.getName());
+      errorf("local variable %s is not declared", assignment.getName());
     }
     assignment.getExpression().accept(this);
+    definedVariables.add(assignment.getName());
     int index = variables.indexOf(assignment.getName()) + paramOffset;
     code.appendlnf("STS %d", index);
   }
@@ -218,6 +229,7 @@ public class CodeGenerationVisitor extends Visitor {
       errorf("local variable %s is not defined", read.getName());
     }
     int index = variables.indexOf(read.getName()) + paramOffset;
+    definedVariables.add(read.getName());
     code.appendlnf("IN");
     code.appendlnf("STS %d", index);
   }

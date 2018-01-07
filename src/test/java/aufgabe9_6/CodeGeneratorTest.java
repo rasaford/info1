@@ -2,6 +2,7 @@ package aufgabe9_6;
 
 import static org.junit.Assert.assertEquals;
 
+import com.sun.xml.internal.xsom.impl.UName;
 import org.junit.Test;
 
 public class CodeGeneratorTest {
@@ -122,7 +123,7 @@ public class CodeGeneratorTest {
             new Declaration[0],
             new Statement[]{new IfThenElse(
                 new BinaryCondition(new True(), Bbinop.And, new False()),
-                new Return(new Number(-1)),
+                new Return(new Unary(Unop.Minus, new Number(1))),
                 new Return(new Number(0))
             )})
     });
@@ -134,7 +135,7 @@ public class CodeGeneratorTest {
             new Declaration[0],
             new Statement[]{new IfThenElse(
                 new BinaryCondition(new True(), Bbinop.Or, new False()),
-                new Return(new Number(-1)),
+                new Return(new Unary(Unop.Minus, new Number(1))),
                 new Return(new Number(0))
             )})
     });
@@ -146,7 +147,7 @@ public class CodeGeneratorTest {
             new Declaration[0],
             new Statement[]{new IfThenElse(
                 new UnaryCondition(Bunop.Not, new False()),
-                new Return(new Number(-1)),
+                new Return(new Unary(Unop.Minus, new Number(1))),
                 new Return(new Number(0))
             )})
     });
@@ -158,7 +159,7 @@ public class CodeGeneratorTest {
             new Declaration[0],
             new Statement[]{new IfThenElse(
                 new Comparison(new Number(5), Comp.Less, new Number(10)),
-                new Return(new Number(-1)),
+                new Return(new Unary(Unop.Minus, new Number(1))),
                 new Return(new Number(0))
             )})
     });
@@ -170,7 +171,7 @@ public class CodeGeneratorTest {
             new Declaration[0],
             new Statement[]{new IfThenElse(
                 new Comparison(new Number(5), Comp.Greater, new Number(10)),
-                new Return(new Number(-1)),
+                new Return(new Unary(Unop.Minus, new Number(1))),
                 new Return(new Number(0))
             )})
     });
@@ -235,7 +236,9 @@ public class CodeGeneratorTest {
   public void testWhile() {
     Function f = new Function("main", new String[0],
         new Declaration[]{new Declaration(new String[]{"a", "b"})},
-        new Statement[]{new Assignment("a", new Number(5)),
+        new Statement[]{
+            new Assignment("a", new Number(5)),
+            new Assignment("b", new Number(0)),
             new While(new Comparison(new Variable("a"), Comp.Greater, new Number(0)),
                 new Composite(new Statement[]{
                     new Assignment("b", new Binary(new Variable("b"), Binop.Plus, new Number(5))),
@@ -262,6 +265,33 @@ public class CodeGeneratorTest {
         });
     Program p = new Program(new Function[]{f});
     testProgram(p, 25);
+  }
+
+  /*
+    @Test(expected = RuntimeException.class)
+    public void testVariableNotDefined() {
+      Function f = new Function("main",
+          new String[0],
+          new Declaration[]{new Declaration(new String[]{"a"})},
+          new Statement[]{
+              new Return(new Variable("a"))
+          });
+      Program p = new Program(new Function[]{f});
+      testProgram(p, 25);
+    }
+  */
+
+  @Test(expected = RuntimeException.class)
+  public void testNegativeNumber() {
+    Function f = new Function("main",
+        new String[0],
+        new Declaration[]{new Declaration(new String[]{"a"})},
+        new Statement[]{
+            new Assignment("a", new Number(-1)),
+            new Return(new Variable("a"))
+        });
+    Program p = new Program(new Function[]{f});
+    testProgram(p, 0);
   }
 
   @Test(expected = RuntimeException.class)
