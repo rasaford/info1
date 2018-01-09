@@ -1,0 +1,43 @@
+\documentclass[a4paper, 10pt]{article}
+    \usepackage[ngerman]{babel}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage{hyphenat}
+    \hyphenation{Mathe-matik wieder-gewinnen}
+    \usepackage{amsmath}
+    \usepackage{amssymb}
+    \usepackage{hyperref}
+    \usepackage{svg}
+    \usepackage{graphicx}
+    \usepackage{rotating}
+
+    \title{Praktikum Grundlagen der Programmierung Hausaufgaben Blatt 10}
+    \author{Maximilian Frühauf}
+\begin{document}
+\maketitle
+\begin{itemize}
+	\item Welches Statement kompiliert nicht? Wieso kompiliert es nicht?
+	      \begin{itemize}
+		      \item[] Antwort:
+		      \item[] Alle Statements kompilieren.
+	      \end{itemize}
+	\item Welches Statement kompiliert und wirft eine Exception zur Laufzeit? Wieso wird hier eine Exception geworfen?
+	      \begin{itemize}
+		      \item[] Antwort:
+		      \item[] Statement 7 wirft eine java.lang.ClassCastException zur Laufzeit, da ein Objekt vom
+		            Typ \( A \) zu dem spezifischeren Typ \( B \) gecasted wird, dies aber keine Instanz dessen,
+		            oder eines Untertypen ist.
+	      \end{itemize}
+	\item Ausgaben der Statements:
+	      \begin{enumerate}
+		      \item A.A+
+		      \item A.B+
+		      \item A.C+
+		      \item B.A+
+		      \item B.A+
+		      \item B.A+
+		      \item wirft eine java.lang.ClassCastException
+		      \item B.C+
+	      \end{enumerate}
+\end{itemize}
+\end{document}
