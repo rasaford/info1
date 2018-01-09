@@ -297,7 +297,7 @@ public class CodeGeneratorTest {
   @Test(expected = RuntimeException.class)
   public void testFunctionNotDeclared() {
     Function f = new Function("main", new String[0],
-        new Declaration[0],
+        new Declaration[]{new Declaration(new String[]{"a", "b"})},
         new Statement[]{new Assignment("a", new Number(5)),
             new While(new Comparison(new Variable("a"), Comp.Greater, new Number(0)),
                 new Composite(new Statement[]{
@@ -313,7 +313,7 @@ public class CodeGeneratorTest {
   @Test(expected = RuntimeException.class)
   public void testNoMainFunction() {
     Function f = new Function("testProgram", new String[0],
-        new Declaration[0],
+        new Declaration[]{new Declaration(new String[]{"a", "b"})},
         new Statement[]{new Assignment("a", new Number(5)),
             new While(new Comparison(new Variable("a"), Comp.Greater, new Number(0)),
                 new Composite(new Statement[]{

@@ -163,3 +163,4 @@ Temporary Items
 *.fls
 *.fdb_latexmk
 *.sta
+.vscode
