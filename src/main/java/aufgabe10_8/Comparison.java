@@ -1,4 +1,4 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class Comparison extends Condition {
   private Expression lhs;
@@ -8,7 +8,7 @@ public class Comparison extends Condition {
   }
   
   private Comp operator;
-  
+
   public Comp getOpeator() {
     return operator;
   }

@@ -1,4 +1,4 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public abstract class Visitor {
   public abstract void visit(Number number);

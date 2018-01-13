@@ -1,8 +1,8 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class Unary extends Expression {
   private Unop operator;
-  
+
   public Unop getOperator() {
     return operator;
   }

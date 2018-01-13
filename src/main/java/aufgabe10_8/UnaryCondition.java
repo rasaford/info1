@@ -1,8 +1,8 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class UnaryCondition extends Condition {
   private Bunop operator;
-  
+
   public Bunop getOperator() {
     return operator;
   }

@@ -1,11 +1,11 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 class OpCodeCounter {
   public static int opCodeCounter = 0;
 }
 
 public enum SteckOperation {
-  NOP(OpCodeCounter.opCodeCounter++, ImmediateType.None),
+  NOP(OpCodeCounter.opCodeCounter++, ImmediateType.Unsigned),
   ADD(OpCodeCounter.opCodeCounter++, ImmediateType.None),
   SUB(OpCodeCounter.opCodeCounter++, ImmediateType.None),
   MUL(OpCodeCounter.opCodeCounter++, ImmediateType.None),
@@ -36,7 +36,7 @@ public enum SteckOperation {
   }
 
   private ImmediateType immediateType;
-  
+
   public ImmediateType getImmediateType() {
     return immediateType;
   }

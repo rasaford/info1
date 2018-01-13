@@ -1,4 +1,4 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 //import static org.junit.Assert.assertEquals;
 //import org.junit.Test;

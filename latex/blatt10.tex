@@ -15,6 +15,7 @@
     \author{Maximilian Frühauf}
 \begin{document}
 \maketitle
+\section{Aufgabe 10.5}
 \begin{itemize}
 	\item Welches Statement kompiliert nicht? Wieso kompiliert es nicht?
 	      \begin{itemize}
@@ -39,5 +40,23 @@
 		      \item wirft eine java.lang.ClassCastException
 		      \item B.C+
 	      \end{enumerate}
+\end{itemize}
+\section{Aufgabe 10.8}
+\begin{itemize}
+	\item Wäre es einfacher bzw. besser gewesen, die Optimierung
+	      direkt in der Code Generierung zu machen?
+	      Welches Problem tritt dabei auf?
+	      \begin{itemize}
+		      \item[] Antwort:
+		      \item[] Es wäre auch nicht wesentlich einfacher gewesen,
+		            die Optimierungen in der Code Generierung zu tätigen, da dort
+		            erkannt werden müsste, ob die Return Expression ein einfacher function call zu der momentanen Funktion ist.
+		            Ebenfalls müsste die Zeile, an der diese Funktion beginnt bekannt sein.
+	      \end{itemize}
+	\item Welche dritte Möglichkeit hätte es gegeben?
+	      \begin{itemize}
+		      \item[] Antwort:
+		      \item[] Die Optimierung hätte auch zur Laufzeit im Interpreter implementiert werden können.
+	      \end{itemize}
 \end{itemize}
 \end{document}

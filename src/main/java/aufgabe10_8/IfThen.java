@@ -1,14 +1,14 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class IfThen extends Statement {
   private Condition cond;
-  
+
   public Condition getCond() {
     return cond;
   }
-  
+
   private Statement thenBranch;
-  
+
   public Statement getThenBranch() {
     return thenBranch;
   }

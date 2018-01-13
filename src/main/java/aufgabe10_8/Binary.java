@@ -1,4 +1,4 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class Binary extends Expression {
   private Expression lhs;
@@ -8,7 +8,7 @@ public class Binary extends Expression {
   }
   
   private Binop operator;
-  
+
   public Binop getOperator() {
     return operator;
   }

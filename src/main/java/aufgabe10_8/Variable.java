@@ -1,4 +1,4 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class Variable extends Expression {
   private String name;

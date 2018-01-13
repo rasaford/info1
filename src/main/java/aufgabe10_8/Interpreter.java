@@ -1,12 +1,13 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
-import static aufgabe10_7.SteckOperation.ADD;
-import static aufgabe10_7.SteckOperation.NOP;
+import static aufgabe10_8.SteckOperation.ADD;
+import static aufgabe10_8.SteckOperation.NOP;
 
 import java.util.Hashtable;
 import java.util.Scanner;
 
 public class Interpreter extends MiniJava {
+
   public static SteckOperation getOperationByString(String instruction) {
     try {
       return SteckOperation.valueOf(instruction);
@@ -24,11 +25,13 @@ public class Interpreter extends MiniJava {
       String nextLine = sin.nextLine();
       if (nextLine.equals("")) {
         nextLine = sin.nextLine();
-        if (nextLine.equals(""))
+        if (nextLine.equals("")) {
           break;
+        }
       }
-      if (nextLine.startsWith("//"))
+      if (nextLine.startsWith("//")) {
         continue;
+      }
       builder.append(nextLine);
       builder.append('\n');
     }
@@ -38,8 +41,9 @@ public class Interpreter extends MiniJava {
   public static String programToString(int[] program) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < program.length; i++) {
-      if (i > 0)
+      if (i > 0) {
         sb.append('\n');
+      }
       sb.append(i + ": ");
       sb.append(SteckInstruction.decode(program[i]));
     }
@@ -58,22 +62,24 @@ public class Interpreter extends MiniJava {
     throw new RuntimeException(message);
   }
 
-  private int[] stack = new int[128];
+  private int[] stack = new int[2048];
   private int stackPointer = -1;
 
   public int pop() {
-    if (stackPointer < 0 || stackPointer >= stack.length)
+    if (stackPointer < 0 || stackPointer >= stack.length) {
       error("Invalid stack access");
+    }
     return stack[stackPointer--];
   }
 
   public void push(int value) {
     stackPointer++;
-    if (stackPointer < 0 || stackPointer >= stack.length)
-      error("Invalid stack access");
+    if (stackPointer < 0 || stackPointer >= stack.length) {
+      error(String.format("Invalid stack access %d", stackPointer));
+    }
     stack[stackPointer] = value;
   }
-  
+
   public static int execute(int[] program) {
     return new Interpreter().executeHelp(program);
   }
@@ -81,10 +87,12 @@ public class Interpreter extends MiniJava {
   private int executeHelp(int[] program) {
     int programCounter = 0;
     int framePointer = 0;
-    execution: while (true) {
+    execution:
+    while (true) {
       SteckInstruction insn = SteckInstruction.decode(program[programCounter]);
-      if (insn == null)
+      if (insn == null) {
         error("Invalid instruction at " + programCounter + ": " + program[programCounter] + ".");
+      }
       int parameter = insn.getImmediate();
       programCounter++;
       switch (insn.getOperation()) {
@@ -148,52 +156,59 @@ public class Interpreter extends MiniJava {
         }
         case LDS: {
           int stackAddress = framePointer + parameter;
-          if (stackAddress < 0 || stackAddress >= stack.length)
+          if (stackAddress < 0 || stackAddress >= stack.length) {
             error("Invalid stack access");
+          }
           push(stack[stackAddress]);
           break;
         }
         case STS: {
           int stackAddress = framePointer + parameter;
-          if (stackAddress < 0 || stackAddress >= stack.length)
+          if (stackAddress < 0 || stackAddress >= stack.length) {
             error("Invalid stack access");
+          }
           int value = pop();
           stack[stackAddress] = value;
           break;
         }
         case JUMP: {
-          if (parameter < 0 || parameter > program.length)
+          if (parameter < 0 || parameter > program.length) {
             error("Invalid jump destionation address");
+          }
           int cond = pop();
-          if (cond == -1)
+          if (cond == -1) {
             programCounter = parameter;
+          }
           break;
         }
         case EQ: {
           int a = pop();
           int b = pop();
-          if (a == b)
+          if (a == b) {
             push(true_());
-          else
+          } else {
             push(false_());
+          }
           break;
         }
         case LT: {
           int a = pop();
           int b = pop();
-          if (a < b)
+          if (a < b) {
             push(true_());
-          else
+          } else {
             push(0);
+          }
           break;
         }
         case LE: {
           int a = pop();
           int b = pop();
-          if (a <= b)
+          if (a <= b) {
             push(true_());
-          else
+          } else {
             push(false_());
+          }
           break;
         }
         case IN: {
@@ -207,34 +222,42 @@ public class Interpreter extends MiniJava {
           break;
         }
         case CALL: {
-          if (parameter < 0)
+          if (parameter < 0) {
             error("Invalid function argument count");
+          }
           int functionAddress = pop();
-          if (functionAddress < 0 || functionAddress > program.length)
+          if (functionAddress < 0 || functionAddress > program.length) {
             error("Invalid function address");
+          }
           int[] arguments = new int[parameter];
-          for (int i = 0; i < arguments.length; i++)
+          for (int i = 0; i < arguments.length; i++) {
             arguments[i] = pop();
+          }
           push(framePointer);
           push(programCounter);
-          for (int i = 0; i < arguments.length; i++)
+          for (int i = 0; i < arguments.length; i++) {
             push(arguments[arguments.length - 1 - i]);
+          }
           framePointer = stackPointer;
           programCounter = functionAddress;
           break;
         }
         case RETURN: {
-          if (parameter < 0)
+          if (parameter < 0) {
             error("Invalid stack frame size");
+          }
           int retVal = pop();
-          for (int i = 0; i < parameter; i++)
+          for (int i = 0; i < parameter; i++) {
             pop();
+          }
           programCounter = pop();
-          if (programCounter < 0 || programCounter >= program.length)
+          if (programCounter < 0 || programCounter >= program.length) {
             error("Invalid return address on stack; the stack has been destroyed by the program.");
+          }
           framePointer = pop();
-          if (framePointer < -1 || framePointer >= stack.length)
+          if (framePointer < -1 || framePointer >= stack.length) {
             error("Invalid frame pointer on stack; the stack has been destroyed by the program.");
+          }
           push(retVal);
           break;
         }
@@ -242,16 +265,18 @@ public class Interpreter extends MiniJava {
           break execution;
         }
         case ALLOC: {
-          if (parameter < 0)
+          if (parameter < 0) {
             error("Invalid stack allocation");
+          }
           stackPointer += parameter;
           break;
         }
       }
     }
     int retVal = pop();
-    if(stackPointer >= 0)
+    if (stackPointer >= 0) {
       error("Stack is tainted" + stackPointer);
+    }
     return retVal;
   }
 
@@ -279,21 +304,26 @@ public class Interpreter extends MiniJava {
         continue;
       }
       String[] cmdParam = trimmed.split(" ");
-      if (cmdParam.length > 2)
+      if (cmdParam.length > 2) {
         error("Unable to parse input");
+      }
       int parameter = 0;
       if (cmdParam.length > 1) {
         // Es gibt einen Parameter
         if (labels.containsKey(cmdParam[1]))
-          // Der Parameter wurde irgendwo als Label definiert
+        // Der Parameter wurde irgendwo als Label definiert
+        {
           parameter = labels.get(cmdParam[1]);
-        else
-          // Der Parameter wurde nicht als Label definiert, ist also eine Zahl
+        } else
+        // Der Parameter wurde nicht als Label definiert, ist also eine Zahl
+        {
           parameter = Integer.parseInt(cmdParam[1]);
+        }
       }
       program[i] = getOperationByString(cmdParam[0]).encode();
-      if(parameter < Short.MIN_VALUE || parameter > Short.MAX_VALUE)
+      if (parameter < Short.MIN_VALUE || parameter > Short.MAX_VALUE) {
         error("Parameter out of range");
+      }
       program[i] |= parameter & 0xffff;
     }
     return program;

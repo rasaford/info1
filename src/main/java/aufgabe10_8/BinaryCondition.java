@@ -1,4 +1,4 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class BinaryCondition extends Condition {
   private Condition lhs;
@@ -8,7 +8,7 @@ public class BinaryCondition extends Condition {
   }
   
   private Bbinop operator;
-  
+
   public Bbinop getOperator() {
     return operator;
   }

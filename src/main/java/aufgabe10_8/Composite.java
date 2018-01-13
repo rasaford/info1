@@ -1,12 +1,12 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class Composite extends Statement {
   private Statement[] statements;
-  
+
   public Statement[] getStatements() {
     return statements;
   }
-  
+
   public Composite(Statement[] statements) {
     super();
     this.statements = statements;
@@ -15,7 +15,7 @@ public class Composite extends Statement {
   public Composite(Statement s) {
     this.statements = new Statement[] { s };
   }
-  
+
   public Composite(Statement s1, Statement s2) {
     this.statements = new Statement[] { s1, s2 };
   }

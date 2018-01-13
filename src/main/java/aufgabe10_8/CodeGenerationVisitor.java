@@ -1,6 +1,28 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
-import static aufgabe10_7.SteckOperation.*;
+import static aufgabe10_8.SteckOperation.ADD;
+import static aufgabe10_8.SteckOperation.ALLOC;
+import static aufgabe10_8.SteckOperation.AND;
+import static aufgabe10_8.SteckOperation.CALL;
+import static aufgabe10_8.SteckOperation.DIV;
+import static aufgabe10_8.SteckOperation.EQ;
+import static aufgabe10_8.SteckOperation.HALT;
+import static aufgabe10_8.SteckOperation.IN;
+import static aufgabe10_8.SteckOperation.JUMP;
+import static aufgabe10_8.SteckOperation.LDI;
+import static aufgabe10_8.SteckOperation.LDS;
+import static aufgabe10_8.SteckOperation.LE;
+import static aufgabe10_8.SteckOperation.LT;
+import static aufgabe10_8.SteckOperation.MOD;
+import static aufgabe10_8.SteckOperation.MUL;
+import static aufgabe10_8.SteckOperation.NOP;
+import static aufgabe10_8.SteckOperation.NOT;
+import static aufgabe10_8.SteckOperation.OR;
+import static aufgabe10_8.SteckOperation.OUT;
+import static aufgabe10_8.SteckOperation.RETURN;
+import static aufgabe10_8.SteckOperation.SHL;
+import static aufgabe10_8.SteckOperation.STS;
+import static aufgabe10_8.SteckOperation.SUB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -225,12 +247,16 @@ public class CodeGenerationVisitor extends Visitor {
   public void visit(Return return_) {
     return_.getExpression().accept(this);
     add(RETURN.encode(frameCells));
+    // add NOPs for tail recursion
+    for (int i = 0; i < frameCells + 1; i++) {
+     add(NOP.encode());
+    }
   }
 
   @Override
   public void visit(EmptyStatement emptyStatement) {
   }
-  
+
   /*
    * Condition
    */
@@ -298,7 +324,7 @@ public class CodeGenerationVisitor extends Visitor {
         break;
     }
   }
-  
+
   /*
    * Rest
    */
@@ -320,6 +346,8 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Function function) {
+    // allows the beginning of a function to be found
+    instructions.add(NOP.encode(0xABCD));
     int declarations = 0;
     for (Declaration d : function.getDeclarations()) {
       declarations += d.getNames().length;

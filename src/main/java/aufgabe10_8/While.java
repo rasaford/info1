@@ -1,14 +1,14 @@
-package aufgabe10_7;
+package aufgabe10_8;
 
 public class While extends Statement {
   private Condition cond;
-  
+
   public Condition getCond() {
     return cond;
   }
-  
+
   private Statement body;
-  
+
   public Statement getBody() {
     return body;
   }
