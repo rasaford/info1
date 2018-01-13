@@ -10,6 +10,10 @@ public class TestAufgabe6_6 {
         aufgabe6_6.quadraticFormula(
             new double[]{38.5, -9, 0.5}
         ));
+    assertArrayEquals(new int[]{-1, -3},
+        aufgabe6_6.quadraticFormula(
+            new double[]{1,4,3}
+        ));
   }
 
   @Test

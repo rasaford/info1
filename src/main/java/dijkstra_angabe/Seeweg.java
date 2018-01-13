@@ -8,6 +8,9 @@ public class Seeweg {
 
 
   public Seeweg(int distance, Eisscholle from, Eisscholle to) {
+    if (distance < 0) {
+      throw new RuntimeException("distance cannot be negative");
+    }
     this.distance = distance;
     this.from = from;
     this.to = to;
@@ -18,6 +21,9 @@ public class Seeweg {
   }
 
   public void setDistance(int distance) {
+    if (distance < 0) {
+      throw new RuntimeException("distance cannot be negative");
+    }
     this.distance = distance;
   }
 
@@ -32,7 +38,6 @@ public class Seeweg {
   public void setTo(Eisscholle to) {
     this.to = to;
   }
-
 
   public Eisscholle getFrom() {
     return this.from;

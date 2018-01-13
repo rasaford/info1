@@ -1,14 +1,14 @@
 package dijkstra_angabe;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.stream.Collectors;
+import sun.security.util.ECKeySizeParameterSpec;
 
 public class Seerettung {
 
+  // WTF Why is this a global variable?
   private static PriorityQueue<Eisscholle> nachbarschollen;
 
   public static List<Eisscholle> findeWeg(Eisscholle[] eisschollen, List<Seeweg> seewege,
@@ -19,7 +19,6 @@ public class Seerettung {
       return null;
     }
     nachbarschollen = new PriorityQueue<>(new EisschollenComparator());
-    Set<Eisscholle> bekannt = new HashSet<>();
 
     // init
     Eisscholle e0 = eisschollen[startIndex];
@@ -30,13 +29,13 @@ public class Seerettung {
       }
       e.setDistance(Integer.MAX_VALUE);
       e.setVorgaenger(null);
+      e.setState(Eisscholle.UNBEKANNT);
     }
     nachbarschollen.add(e0);
 
     // algorithm
     while (!nachbarschollen.isEmpty()) {
       Eisscholle min = nachbarschollen.poll();
-      bekannt.add(min);
       min.setState(Eisscholle.BEKANNT);
       int currentDist = min.getDistance();
       for (Seeweg edge : findSeewegeFromEisscholle(seewege, min)) {
@@ -45,21 +44,26 @@ public class Seerettung {
         if (newDist < neighbour.getDistance()) {
           neighbour.setVorgaenger(min);
           neighbour.setDistance(newDist);
+          neighbour.setState(Eisscholle.VERMUTET);
+        }
+        if (neighbour.getState() != Eisscholle.BEKANNT) {
           nachbarschollen.add(neighbour);
         }
       }
     }
+    // path reconstruction
     LinkedList<Eisscholle> path = new LinkedList<>();
     Eisscholle current = eisschollen[endIndex];
     while (!current.equals(eisschollen[startIndex])) {
       path.addFirst(current);
       current = current.getVorgaenger();
+      if (current == null) {
+        return null;
+      }
     }
     path.addFirst(eisschollen[startIndex]);
-    System.out.println(path);
     return path;
   }
-
 
   private static List<Seeweg> findSeewegeFromEisscholle(List<Seeweg> seewege,
       Eisscholle eisscholle) {

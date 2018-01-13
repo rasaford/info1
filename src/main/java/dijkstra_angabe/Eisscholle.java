@@ -15,11 +15,13 @@ public class Eisscholle {
 
   public Eisscholle(String name) {
     this.name = name;
+    this.state = UNBEKANNT;
   }
 
   public int getDistance() {
     return distance;
   }
+
 
   public void setDistance(int distance) {
     this.distance = distance < 0 ? Integer.MAX_VALUE : distance;
@@ -58,8 +60,7 @@ public class Eisscholle {
 
   @Override
   public String toString() {
-//    return String.format("%s: name = %s, distance = %d, state = %d",
-//        this.getClass().getName(), name, distance, state);
-    return name;
+    return String.format("%s, d=%d, %s", name, distance,
+        state == UNBEKANNT ? "UNBEKANNT" : state == VERMUTET ? "VERMUTET" : "BEKANNT");
   }
 }

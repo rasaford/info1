@@ -1,13 +1,12 @@
+package aufgabe10_7;
 import static org.junit.Assert.assertEquals;
-
-//import compiler.TailCallOptimization;
-//import org.junit.Test;
-//import compiler.Compiler;
+import org.junit.Test;
+//import aufgabe10_7.compiler.Compiler;
 //import aufgabe10_7.interpreter.Interpreter;
 
 public class TailCallTest {
-  // Stack-Größe auf 32 anpassen!
-
+    // Stack-Größe auf 32 anpassen!
+//
 //  private static final String fakEndRecCode = "int fak(int n, int acc) {\n" +
 //      "  if(n == 0)\n" +
 //      "    return acc;\n" +
