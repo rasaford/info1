@@ -2,25 +2,25 @@ package aufgabe10_7.codegen;
 
 import static org.junit.Assert.*;
 
-import aufgabe10_7.codegen.Assignment;
-import aufgabe10_7.codegen.Binary;
-import aufgabe10_7.codegen.Binop;
-import aufgabe10_7.codegen.Call;
-import aufgabe10_7.codegen.CodeGenerationVisitor;
-import aufgabe10_7.codegen.Comp;
-import aufgabe10_7.codegen.Comparison;
-import aufgabe10_7.codegen.Composite;
-import aufgabe10_7.codegen.Declaration;
-import aufgabe10_7.codegen.Expression;
-import aufgabe10_7.codegen.Function;
-import aufgabe10_7.codegen.IfThen;
-import aufgabe10_7.codegen.Number;
-import aufgabe10_7.codegen.Program;
-import aufgabe10_7.codegen.Return;
-import aufgabe10_7.codegen.Statement;
-import aufgabe10_7.codegen.Variable;
-import aufgabe10_7.codegen.While;
-import aufgabe10_7.interpreter.Interpreter;
+import aufgabe10_7.Assignment;
+import aufgabe10_7.Binary;
+import aufgabe10_7.Binop;
+import aufgabe10_7.Call;
+import aufgabe10_7.CodeGenerationVisitor;
+import aufgabe10_7.Comp;
+import aufgabe10_7.Comparison;
+import aufgabe10_7.Composite;
+import aufgabe10_7.Declaration;
+import aufgabe10_7.Expression;
+import aufgabe10_7.Function;
+import aufgabe10_7.IfThen;
+import aufgabe10_7.Number;
+import aufgabe10_7.Program;
+import aufgabe10_7.Return;
+import aufgabe10_7.Statement;
+import aufgabe10_7.Variable;
+import aufgabe10_7.While;
+import aufgabe10_7.Interpreter;
 import org.junit.Test;
 
 public class CodeGeneratorTest {

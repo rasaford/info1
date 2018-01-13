@@ -3,7 +3,6 @@ package aufgabe10_7;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import aufgabe10_7.interpreter.Interpreter;
 
 public class CompilerTest {
 

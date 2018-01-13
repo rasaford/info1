@@ -3,7 +3,7 @@ import static org.junit.Assert.assertEquals;
 //import compiler.TailCallOptimization;
 //import org.junit.Test;
 //import compiler.Compiler;
-//import aufgabe10_7.interpreter.Interpreter;
+//import aufgabe10_7.Interpreter;
 
 public class TailCallTest {
   // Stack-Größe auf 32 anpassen!
