@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2016-06-25T11:18:02Z"/>
+
+  <bounds minlat="48.2581" minlon="11.6562" maxlat="48.2716" maxlon="11.6823"/>
+
+ 
+  <node id="4258202487" lat="48.2829449" lon="11.6632453" version="1" timestamp="2016-06-22T07:27:56Z" changeset="40197724" uid="1198074" user="DoubleA"/>
+  <node id="4258202488" lat="48.2832745" lon="11.6634557" version="1" timestamp="2016-06-22T07:27:56Z" changeset="40197724" uid="1198074" user="DoubleA"/>
+  <node id="4258202489" lat="48.2833258" lon="11.6632906" version="1" timestamp="2016-06-22T07:27:56Z" changeset="40197724" uid="1198074" user="DoubleA"/>
+   <node id="252445839" lat="48.2667929" lon="11.6713574" version="7" timestamp="2016-04-05T07:26:24Z" changeset="38310006" uid="32371" user="Sir2B">
+    <tag k="crossing" v="uncontrolled"/>
+    <tag k="crossing_ref" v="zebra"/>
+    <tag k="highway" v="crossing"/>
+  </node>
+  <way id="4045985" version="13" timestamp="2015-01-27T12:35:37Z" changeset="28441239" uid="115042" user="Filius Martii">
+    <nd ref="427220"/>
+    <nd ref="277698543"/>
+    <nd ref="307868708"/>
+    <nd ref="307870264"/>
+    <nd ref="427225"/>
+    <nd ref="307868441"/>
+    <tag k="highway" v="service"/>
+    <tag k="name" v="Am Coulombwall"/>
+  </way>
+</osm>
