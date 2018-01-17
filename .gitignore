@@ -165,3 +165,6 @@ Temporary Items
 .vscode
 .project
 .settings
+/bin
+*.osm
+*.gpx

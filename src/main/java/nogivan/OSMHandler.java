@@ -8,7 +8,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class OSMHandler extends DefaultHandler {
 
-  private Node node;
+  private OSMNode node;
   private Way way;
   private MapGraph graph;
 
@@ -21,16 +21,13 @@ public class OSMHandler extends DefaultHandler {
       throws SAXException {
     if (qName.equals("node")) {
       parseNode(attributes);
-    } else if (node != null) {
-      if (qName.equals("tag")) {
-        node.addTag(attributes.getValue(0));
-      }
     } else if (qName.equals("way")) {
       parseWay(attributes);
     } else if (way != null) {
       if (qName.equals("tag")) {
+        way.addTag(attributes.getValue("k"), attributes.getValue("v"));
       } else if (qName.equals("nd")) {
-//        way.addRef(attributes.getValue(0));
+        way.addNd("ref", attributes.getValue("ref"));
       }
     }
   }
@@ -47,7 +44,7 @@ public class OSMHandler extends DefaultHandler {
       System.err.printf("could not parse node id:%d\n", id);
       return;
     }
-    node = new Node(id, new OSMNode(id, lat, lon));
+    node = new OSMNode(id, lat, lon);
   }
 
 
@@ -64,20 +61,18 @@ public class OSMHandler extends DefaultHandler {
 
   @Override
   public void endElement(String uri, String localName, String qName) throws SAXException {
-    if (qName.equals("node") && node != null) {
-      if (node.isValid()) {
-        graph.addNode(node.getId(), node.getOSMNode());
-        System.out.println("added node");
-      }
+    if (qName.equals("node")) {
+      graph.addNode(node.getId(), node);
       node = null;
     } else if (qName.equals("way") && way != null) {
-      OSMWay newWay = new OSMWay(
-          way.getId(),
-          way.getRefs().toArray(new Long[0]),
-          way.isOneWay(),
-          way.getName()
-      );
-      graph.addEdge(way.getId(), new MapEdge(way.getId(), newWay));
+      if (way.isValid()) {
+        graph.addEdges(new OSMWay(
+            way.getId(),
+            way.getRefs().toArray(new Long[0]),
+            way.isOneWay(),
+            way.getName()
+        ));
+      }
       way = null;
     }
   }
@@ -87,43 +82,11 @@ public class OSMHandler extends DefaultHandler {
     return graph;
   }
 
-  class Node {
-
-    private boolean valid;
-    private boolean hasTags;
-    private long id;
-    private OSMNode osmNode;
-
-    public Node(long id, OSMNode osmNode) {
-      this.id = id;
-      this.osmNode = osmNode;
-    }
-
-    public OSMNode getOSMNode() {
-      return osmNode;
-    }
-
-    public long getId() {
-      return id;
-    }
-
-    /**
-     * a valid node can either have 0 tags or has to have at least one of the following: - highway
-     */
-    public void addTag(String tag) {
-      hasTags = true;
-      valid |= tag.matches("highway");
-    }
-
-    public boolean isValid() {
-      return !hasTags || valid;
-    }
-  }
-
-  class Way {
+  private class Way {
 
     private long id;
     private boolean oneWay;
+    private boolean valid;
     private String name;
     private List<Long> refs;
 
@@ -140,16 +103,37 @@ public class OSMHandler extends DefaultHandler {
       return name;
     }
 
-    public void addRef(long ref) {
-      refs.add(ref);
-    }
-
     public List<Long> getRefs() {
       return refs;
     }
 
-    public void setOneWay() {
-      oneWay = true;
+    public void addNd(String key, String value) {
+      if (value == null) {
+        return;
+      }
+      switch (key) {
+        case "ref":
+          try {
+            refs.add(Long.parseLong(value));
+          } catch (NumberFormatException e) {
+            System.err.printf("unable to parse Long %s\n", value);
+          }
+          break;
+      }
+    }
+
+    public void addTag(String key, String value) {
+      if (value == null) {
+        return;
+      }
+      switch (key) {
+        case "highway":
+          valid = !(value.equals("construction") || value.equals("proposed"));
+          break;
+        case "oneway":
+          oneWay = value.equalsIgnoreCase("yes");
+          break;
+      }
     }
 
     public boolean isOneWay() {
@@ -158,6 +142,10 @@ public class OSMHandler extends DefaultHandler {
 
     public long getId() {
       return id;
+    }
+
+    public boolean isValid() {
+      return valid;
     }
   }
 }

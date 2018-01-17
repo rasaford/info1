@@ -23,6 +23,7 @@ public class OSMNode implements Comparable<OSMNode> {
     return location;
   }
 
+
   public OSMNode(long id, double lat, double lon) {
     this.id = id;
     this.location = new MapPoint(lat, lon);
@@ -35,6 +36,6 @@ public class OSMNode implements Comparable<OSMNode> {
 
   @Override
   public int compareTo(OSMNode o) {
-    return ((Long) id).compareTo(o.getId());
+    return ((Long)id).compareTo(o.getId());
   }
 }
