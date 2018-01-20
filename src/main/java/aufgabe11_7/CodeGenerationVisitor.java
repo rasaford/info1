@@ -57,13 +57,13 @@ public class CodeGenerationVisitor extends Visitor {
    * Liste für die generierten Instruktionen. Eine ArrayList verhält
    * sich wie ein Array, welches wachsen kann.
    */
-  private ArrayList<Integer> instructions = new ArrayList<>();
+  private ArrayList<Integer> instructions = new ArrayList<Integer>();
   /*
    * HashMap für lokale Variablen. Man beachte, dass es lokale Variablen
    * nur als Funktionsparameter und am Anfang von Funktionen gibt; daher
    * gibt es nur genau einen Scope.
    */
-  private HashMap<String, Integer> locals = new HashMap<>();
+  private HashMap<String, Integer> locals = new HashMap<String, Integer>();
   /*
    * Frame-Zellen der aktuellen Funktion. Wird für den Rücksprung benötigt.
    */
@@ -98,7 +98,7 @@ public class CodeGenerationVisitor extends Visitor {
   private int addDummy() {
     return add(0);
   }
-  
+
   /*
    * Expression
    */
@@ -172,9 +172,13 @@ public class CodeGenerationVisitor extends Visitor {
     // Funktion wird evtl. erst später assembliert.
     patchLocations
         .add(new PatchLocation(call.getFunctionName(), call.getArguments().length, patchLocation));
+    // Padding for the tail call optimization
+    for (int i = 0; i < call.getArguments().length; i++) {
+      add(NOP.encode());
+    }
     add(CALL.encode(call.getArguments().length));
   }
-  
+
   /*
    * Statement
    */
@@ -195,7 +199,10 @@ public class CodeGenerationVisitor extends Visitor {
   @Override
   public void visit(Assignment assignment) {
     assignment.getExpression().accept(this);
-    int location = locals.get(assignment.getName());
+    Integer location = locals.get(assignment.getName());
+    if (location == null) {
+      throw new RuntimeException("Unknown variable " + assignment.getName());
+    }
     add(STS.encode(location));
   }
 
@@ -247,15 +254,8 @@ public class CodeGenerationVisitor extends Visitor {
   public void visit(Return return_) {
     return_.getExpression().accept(this);
     add(RETURN.encode(frameCells));
-    // add NOPs for tail recursion
-    for (int i = 0; i < frameCells + 1; i++) {
-      add(NOP.encode());
-    }
   }
 
-  @Override
-  public void visit(EmptyStatement emptyStatement) {
-  }
 
   /*
    * Condition
@@ -264,7 +264,7 @@ public class CodeGenerationVisitor extends Visitor {
   @Override
   public void visit(True true_) {
     add(LDI.encode(0));
-    add(NOT.encode(0));
+    add(NOT.encode());
   }
 
   @Override
@@ -346,8 +346,8 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Function function) {
-    // allows the beginning of a function to be found
-    instructions.add(NOP.encode(0xABCD));
+    // Wir müssen den Funktionsanfang für die Schwanzrufoptimierung markieren
+    add(ALLOC.encode(0));
     int declarations = 0;
     for (Declaration d : function.getDeclarations()) {
       declarations += d.getNames().length;
@@ -393,11 +393,18 @@ public class CodeGenerationVisitor extends Visitor {
     // Funktionsadressen laden.
     for (PatchLocation pl : patchLocations) {
       FunctionDesc fDesc = functions.get(pl.functionName);
+      if (fDesc == null) {
+        throw new RuntimeException("Unknown function " + pl.functionName);
+      }
       if (fDesc.argumentCount != pl.argumentCount) {
         throw new RuntimeException("Invalid number of function arguments");
       }
       instructions.set(pl.ldiLocation, LDI.encode(fDesc.functionIndex));
     }
+  }
+
+  @Override
+  public void visit(EmptyStatement emptyStatement) {
   }
 
   @Override
@@ -420,3 +427,4 @@ public class CodeGenerationVisitor extends Visitor {
 
   }
 }
+

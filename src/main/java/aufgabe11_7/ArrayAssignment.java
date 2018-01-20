@@ -3,12 +3,12 @@ package aufgabe11_7;
 public class ArrayAssignment extends Statement {
 
   private String name;
-  private Expression array;
+  private Expression index;
   private Expression value;
 
-  public ArrayAssignment(String name, Expression array, Expression value) {
+  public ArrayAssignment(String name, Expression index, Expression value) {
     this.name = name;
-    this.array = array;
+    this.index = index;
     this.value = value;
   }
 
@@ -16,8 +16,8 @@ public class ArrayAssignment extends Statement {
     return name;
   }
 
-  public Expression getArray() {
-    return array;
+  public Expression getIndex() {
+    return index;
   }
 
   public Expression getValue() {

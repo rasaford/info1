@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class MiniJavaParserTest {
+public class ParserTest {
 
   @Before
   public void before() {

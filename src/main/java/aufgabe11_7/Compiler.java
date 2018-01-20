@@ -1,9 +1,12 @@
 package aufgabe11_7;
 
+import sun.plugin.util.ProgressMonitorAdapter;
+
 public class Compiler {
 
   public static int[] compile(String code) {
-    Program syntaxTree = new MiniJavaParser(code).parse();
+    String[] tokens = Parser.lex(code);
+    Program syntaxTree = new Parser(tokens).parse();
     if (syntaxTree == null) {
       throw new RuntimeException("code could not be parsed");
     }

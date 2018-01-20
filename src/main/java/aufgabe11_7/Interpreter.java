@@ -2,6 +2,7 @@ package aufgabe11_7;
 
 import static aufgabe11_7.SteckOperation.ADD;
 import static aufgabe11_7.SteckOperation.NOP;
+import static java.lang.Enum.valueOf;
 
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -79,6 +80,9 @@ public class Interpreter extends MiniJava {
     }
     stack[stackPointer] = value;
   }
+
+  private static int[] heap = new int[128];
+  private static int heapFreeSpace = 127;
 
   public static int execute(int[] program) {
     return new Interpreter().executeHelp(program);
@@ -269,6 +273,56 @@ public class Interpreter extends MiniJava {
             error("Invalid stack allocation");
           }
           stackPointer += parameter;
+          break;
+        }
+        case LDH: {
+          int heapPointer = pop();
+          int heapOffset = pop();
+          if (heapPointer < 0 || heapPointer > heap.length) {
+            error("heap pointer out of bounds");
+          }
+          int header = heap[heapPointer];
+          int from = header & 0xFFFF;
+          int to = header >>> 16;
+          if (heapOffset > to - from) {
+            error("heap offset out of bounds");
+          }
+          push(heap[to + heapOffset]);
+          break;
+        }
+        case STH: {
+          int heapPointer = pop();
+          int heapOffset = pop();
+          int value = pop();
+          if (heapPointer < 0 || heapPointer > heap.length) {
+            error("heap pointer out of bounds");
+          }
+          int header = heap[heapPointer];
+          int from = header & 0xFFFF;
+          int to = header >>> 16;
+          if (heapOffset > to - from) {
+            error("heap offset out of bounds");
+          }
+          heap[to + heapOffset] = value;
+          break;
+        }
+        case ALLOCH: {
+          int size = pop();
+          if (size <= 0) {
+            error("invalid heap allocation size");
+          }
+          if (heapFreeSpace - size - 1 < 0) {
+            error("heap is full! Cannot allocate more space");
+          }
+          int prevHeader = heap[heap.length - 1];
+          int prevTo = prevHeader >>> 16;
+
+          int from = prevTo + 1;
+          int to = from + size;
+          heap[heap.length - 1]--;
+          heap[heap.length - 1] = (to << 16) | (from &= 0xFFFF);
+          heapFreeSpace -= size + 1;
+          push(heap[heap.length - 1]);
           break;
         }
       }

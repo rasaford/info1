@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 class OpCodeCounter {
+
   public static int opCodeCounter = 0;
 }
 
@@ -27,7 +28,11 @@ public enum SteckOperation {
   CALL(OpCodeCounter.opCodeCounter++, ImmediateType.Unsigned),
   RETURN(OpCodeCounter.opCodeCounter++, ImmediateType.Unsigned),
   HALT(OpCodeCounter.opCodeCounter++, ImmediateType.None),
-  ALLOC(OpCodeCounter.opCodeCounter++, ImmediateType.Unsigned);
+  ALLOC(OpCodeCounter.opCodeCounter++, ImmediateType.Unsigned),
+
+  LDH(OpCodeCounter.opCodeCounter++, ImmediateType.None),
+  STH(OpCodeCounter.opCodeCounter++, ImmediateType.None),
+  ALLOCH(OpCodeCounter.opCodeCounter++, ImmediateType.None);
 
   private int opCode;
 
@@ -45,7 +50,7 @@ public enum SteckOperation {
     this.opCode = opCode;
     this.immediateType = immediateType;
   }
-  
+
   public int encode(int immediate) {
     return (getOpCode() << 16) | (immediate & 0xffff);
   }
@@ -53,7 +58,7 @@ public enum SteckOperation {
   public int encode() {
     return (getOpCode() << 16);
   }
-  
+
   private static SteckOperation[] operationByOpcode;
 
   public static SteckOperation getOperationbyOpcode(int opCode) {
@@ -65,9 +70,10 @@ public enum SteckOperation {
         operationByOpcode[insn.getOpCode()] = insn;
       }
     }
-    if (opCode < 0 || opCode >= operationByOpcode.length)
+    if (opCode < 0 || opCode >= operationByOpcode.length) {
       return null;
-    else
+    } else {
       return operationByOpcode[opCode];
+    }
   }
 }
