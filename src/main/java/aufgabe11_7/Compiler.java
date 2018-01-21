@@ -1,7 +1,5 @@
 package aufgabe11_7;
 
-import sun.plugin.util.ProgressMonitorAdapter;
-
 public class Compiler {
 
   public static int[] compile(String code) {

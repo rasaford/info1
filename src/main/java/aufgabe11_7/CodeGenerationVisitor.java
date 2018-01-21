@@ -1,31 +1,10 @@
 package aufgabe11_7;
 
-import static aufgabe10_8.SteckOperation.ADD;
-import static aufgabe10_8.SteckOperation.ALLOC;
-import static aufgabe10_8.SteckOperation.AND;
-import static aufgabe10_8.SteckOperation.CALL;
-import static aufgabe10_8.SteckOperation.DIV;
-import static aufgabe10_8.SteckOperation.EQ;
-import static aufgabe10_8.SteckOperation.HALT;
-import static aufgabe10_8.SteckOperation.IN;
-import static aufgabe10_8.SteckOperation.JUMP;
-import static aufgabe10_8.SteckOperation.LDI;
-import static aufgabe10_8.SteckOperation.LDS;
-import static aufgabe10_8.SteckOperation.LE;
-import static aufgabe10_8.SteckOperation.LT;
-import static aufgabe10_8.SteckOperation.MOD;
-import static aufgabe10_8.SteckOperation.MUL;
-import static aufgabe10_8.SteckOperation.NOP;
-import static aufgabe10_8.SteckOperation.NOT;
-import static aufgabe10_8.SteckOperation.OR;
-import static aufgabe10_8.SteckOperation.OUT;
-import static aufgabe10_8.SteckOperation.RETURN;
-import static aufgabe10_8.SteckOperation.SHL;
-import static aufgabe10_8.SteckOperation.STS;
-import static aufgabe10_8.SteckOperation.SUB;
+import static aufgabe11_7.SteckOperation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 class PatchLocation {
 
@@ -57,13 +36,14 @@ public class CodeGenerationVisitor extends Visitor {
    * Liste für die generierten Instruktionen. Eine ArrayList verhält
    * sich wie ein Array, welches wachsen kann.
    */
-  private ArrayList<Integer> instructions = new ArrayList<Integer>();
+  private ArrayList<Integer> instructions = new ArrayList<>();
   /*
    * HashMap für lokale Variablen. Man beachte, dass es lokale Variablen
    * nur als Funktionsparameter und am Anfang von Funktionen gibt; daher
    * gibt es nur genau einen Scope.
    */
-  private HashMap<String, Integer> locals = new HashMap<String, Integer>();
+  private HashMap<String, Integer> locals = new HashMap<>();
+  private Map<String, Type> types = new HashMap<>();
   /*
    * Frame-Zellen der aktuellen Funktion. Wird für den Rücksprung benötigt.
    */
@@ -405,26 +385,39 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(EmptyStatement emptyStatement) {
+
   }
 
   @Override
   public void visit(ArrayInitializer initializer) {
-
+    initializer.getSize().accept(this);
+    add(ALLOCH.encode());
   }
 
   @Override
   public void visit(ArrayAccess arrayAccess) {
-
+    arrayAccess.getIndex().accept(this);
+    arrayAccess.getArray().accept(this);
+    add(LDH.encode());
   }
 
   @Override
   public void visit(ArrayLength length) {
-
+    add(LDI.encode(0xFFFF));
+    length.getArray().accept(this);
+    add(LDH.encode());
   }
 
   @Override
   public void visit(ArrayAssignment assignment) {
-
+    if (!locals.containsKey(assignment.getName())) {
+      throw new RuntimeException("array " + assignment.getName() + " is undefined");
+    }
+    assignment.getValue().accept(this);
+    assignment.getIndex().accept(this);
+    Integer arrayPointer = locals.get(assignment.getName());
+    add(LDS.encode(arrayPointer));
+    add(STH.encode());
   }
 }
 
