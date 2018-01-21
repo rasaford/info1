@@ -4,6 +4,7 @@ package nogivan;
  * Diese Klasse repräsentiert einen OSM-Weg.
  */
 public class OSMWay {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   /**
    * Die ID des Weges
    */

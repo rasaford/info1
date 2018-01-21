@@ -14,6 +14,7 @@ import org.xml.sax.SAXException;
  * dazu einen XML-Parser.
  */
 public class MapParser {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public static MapGraph parseFile(String fileName) {
     File inputFile = new File(fileName);

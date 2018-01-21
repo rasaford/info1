@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public enum Comp {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   LessEqual(7),
   Less(7),
   GreaterEqual(7),

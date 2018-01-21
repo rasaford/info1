@@ -4,6 +4,7 @@ package nogivan;
  * Diese Klasse implementiert einen OSM-Knoten.
  */
 public class OSMNode implements Comparable<OSMNode> {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   /**
    * Die ID des Knotens.

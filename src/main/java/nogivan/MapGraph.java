@@ -14,6 +14,7 @@ import java.util.Set;
  * Diese Klasse repräsentiert den Graphen der Straßen und Wege aus OpenStreetMap.
  */
 public class MapGraph {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private Map<Long, OSMNode> nodes;
   private Map<Long, Set<MapEdge>> edges;

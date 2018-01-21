@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public class Compiler {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public static int[] compile(String code) {
     String[] tokens = Parser.lex(code);

@@ -5,6 +5,7 @@ package nogivan;
  * Länge- und Breitengrades.
  */
 public class MapPoint {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   /**
    * Der Breitengrad

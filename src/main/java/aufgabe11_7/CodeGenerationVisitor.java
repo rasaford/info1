@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 class PatchLocation {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public final String functionName;
   public final int argumentCount;

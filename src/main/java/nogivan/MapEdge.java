@@ -5,6 +5,7 @@ package nogivan;
  *
  */
 class MapEdge implements Comparable<MapEdge> {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   private long to;
 
   public long getTo() {

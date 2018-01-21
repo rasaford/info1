@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public class TailCallOptimization {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public static void optimize(int[] program) {
     // detect all functions

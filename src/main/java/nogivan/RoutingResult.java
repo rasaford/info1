@@ -5,6 +5,7 @@ package nogivan;
  * Suche nach einem kürzeste Weg.
  */
 public class RoutingResult {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   /**
    * Der gefundene Weg
    */

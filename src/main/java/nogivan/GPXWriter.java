@@ -9,6 +9,7 @@ import java.util.Set;
 import nogivan.MapGraph.Node;
 
 public class GPXWriter {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private PrintWriter writer;
 

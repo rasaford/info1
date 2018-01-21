@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import java.util.Scanner;
 
 public class Interpreter extends MiniJava {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private int[] stack = new int[2048];
   private int stackPointer = -1;

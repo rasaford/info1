@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public class Main {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   public static void main(String[] args) {
 //    Statement ggtSwap =

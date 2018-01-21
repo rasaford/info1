@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public class ArrayAccess extends Expression {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private Expression index;
   private Expression array;

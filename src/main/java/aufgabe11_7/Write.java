@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public class Write extends Statement {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private Expression expression;
 

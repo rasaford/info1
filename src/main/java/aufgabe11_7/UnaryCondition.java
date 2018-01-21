@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public class UnaryCondition extends Condition {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 
   private Bunop operator;
   private Condition operand;

@@ -1,6 +1,7 @@
 package aufgabe11_7;
 
 public enum SteckOperation {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   NOP(OpCodeCounter.opCodeCounter++, ImmediateType.Unsigned),
   ADD(OpCodeCounter.opCodeCounter++, ImmediateType.None),
   SUB(OpCodeCounter.opCodeCounter++, ImmediateType.None),
