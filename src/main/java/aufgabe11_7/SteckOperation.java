@@ -1,10 +1,5 @@
 package aufgabe11_7;
 
-class OpCodeCounter {
-
-  public static int opCodeCounter = 0;
-}
-
 public enum SteckOperation {
   NOP(OpCodeCounter.opCodeCounter++, ImmediateType.Unsigned),
   ADD(OpCodeCounter.opCodeCounter++, ImmediateType.None),
@@ -34,32 +29,14 @@ public enum SteckOperation {
   STH(OpCodeCounter.opCodeCounter++, ImmediateType.None),
   ALLOCH(OpCodeCounter.opCodeCounter++, ImmediateType.None);
 
+  private static SteckOperation[] operationByOpcode;
   private int opCode;
-
-  public int getOpCode() {
-    return opCode;
-  }
-
   private ImmediateType immediateType;
-
-  public ImmediateType getImmediateType() {
-    return immediateType;
-  }
 
   private SteckOperation(int opCode, ImmediateType immediateType) {
     this.opCode = opCode;
     this.immediateType = immediateType;
   }
-
-  public int encode(int immediate) {
-    return (getOpCode() << 16) | (immediate & 0xffff);
-  }
-
-  public int encode() {
-    return (getOpCode() << 16);
-  }
-
-  private static SteckOperation[] operationByOpcode;
 
   public static SteckOperation getOperationbyOpcode(int opCode) {
     if (operationByOpcode == null) {
@@ -76,4 +53,25 @@ public enum SteckOperation {
       return operationByOpcode[opCode];
     }
   }
+
+  public int getOpCode() {
+    return opCode;
+  }
+
+  public ImmediateType getImmediateType() {
+    return immediateType;
+  }
+
+  public int encode(int immediate) {
+    return (getOpCode() << 16) | (immediate & 0xffff);
+  }
+
+  public int encode() {
+    return (getOpCode() << 16);
+  }
+}
+
+class OpCodeCounter {
+
+  public static int opCodeCounter = 0;
 }

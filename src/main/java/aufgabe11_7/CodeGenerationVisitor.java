@@ -1,6 +1,31 @@
 package aufgabe11_7;
 
-import static aufgabe11_7.SteckOperation.*;
+import static aufgabe11_7.SteckOperation.ADD;
+import static aufgabe11_7.SteckOperation.ALLOC;
+import static aufgabe11_7.SteckOperation.ALLOCH;
+import static aufgabe11_7.SteckOperation.AND;
+import static aufgabe11_7.SteckOperation.CALL;
+import static aufgabe11_7.SteckOperation.DIV;
+import static aufgabe11_7.SteckOperation.EQ;
+import static aufgabe11_7.SteckOperation.HALT;
+import static aufgabe11_7.SteckOperation.IN;
+import static aufgabe11_7.SteckOperation.JUMP;
+import static aufgabe11_7.SteckOperation.LDH;
+import static aufgabe11_7.SteckOperation.LDI;
+import static aufgabe11_7.SteckOperation.LDS;
+import static aufgabe11_7.SteckOperation.LE;
+import static aufgabe11_7.SteckOperation.LT;
+import static aufgabe11_7.SteckOperation.MOD;
+import static aufgabe11_7.SteckOperation.MUL;
+import static aufgabe11_7.SteckOperation.NOP;
+import static aufgabe11_7.SteckOperation.NOT;
+import static aufgabe11_7.SteckOperation.OR;
+import static aufgabe11_7.SteckOperation.OUT;
+import static aufgabe11_7.SteckOperation.RETURN;
+import static aufgabe11_7.SteckOperation.SHL;
+import static aufgabe11_7.SteckOperation.STH;
+import static aufgabe11_7.SteckOperation.STS;
+import static aufgabe11_7.SteckOperation.SUB;
 
 import java.util.ArrayList;
 import java.util.HashMap;

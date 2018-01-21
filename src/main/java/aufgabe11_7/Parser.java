@@ -2,12 +2,16 @@ package aufgabe11_7;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class Parser {
 
   private static final int PADDING = 3;
+  private String[] tokens;
+  private int from;
+
+  public Parser(String[] tokens) {
+    this.tokens = tokens;
+  }
 
   public static String[] lex(String input) {
     ArrayList<String> tokens = new ArrayList<>();
@@ -79,24 +83,6 @@ public class Parser {
     return tokens.toArray(new String[0]);
   }
 
-  private String[] tokens;
-
-  private int from;
-
-  public Parser(String[] tokens) {
-    this.tokens = tokens;
-  }
-
-  public Number parseNumber(String[] program) {
-    for (int i = 0; i < program[from].length(); i++) {
-      char next = program[from].charAt(i);
-      if (!(next >= '0' && next <= '9')) {
-        return null;
-      }
-    }
-    return new Number(Integer.parseInt(program[from++]));
-  }
-
   private static boolean isKeyword(String token) {
     switch (token) {
       case "true":
@@ -111,6 +97,16 @@ public class Parser {
       default:
         return false;
     }
+  }
+
+  public Number parseNumber(String[] program) {
+    for (int i = 0; i < program[from].length(); i++) {
+      char next = program[from].charAt(i);
+      if (!(next >= '0' && next <= '9')) {
+        return null;
+      }
+    }
+    return new Number(Integer.parseInt(program[from++]));
   }
 
   private String parseName() {

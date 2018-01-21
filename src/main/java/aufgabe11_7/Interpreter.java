@@ -2,12 +2,16 @@ package aufgabe11_7;
 
 import static aufgabe11_7.SteckOperation.ADD;
 import static aufgabe11_7.SteckOperation.NOP;
-import static java.lang.Enum.valueOf;
 
 import java.util.Hashtable;
 import java.util.Scanner;
 
 public class Interpreter extends MiniJava {
+
+  private int[] stack = new int[2048];
+  private int stackPointer = -1;
+  private int[] heap = new int[128];
+  private int heapFreeSpace = 127;
 
   public static SteckOperation getOperationByString(String instruction) {
     try {
@@ -63,8 +67,58 @@ public class Interpreter extends MiniJava {
     throw new RuntimeException(message);
   }
 
-  private int[] stack = new int[2048];
-  private int stackPointer = -1;
+  public static int execute(int[] program) {
+    return new Interpreter().executeHelp(program);
+  }
+
+  public static int[] parse(String textProgram) {
+    String[] lines = textProgram.split("\n");
+    int[] program = new int[lines.length];
+    // Man kann auch z.B. ein mehrdimensionales String-Array verwenden,
+    // das ist aber mühsam und unschön, daher hier die Hashtabelle
+    Hashtable<String, Integer> labels = new Hashtable<>();
+    for (int i = 0; i < lines.length; i++) {
+      String trimmed = lines[i].trim().replaceAll("\\s+", " ");
+      if (trimmed.endsWith(":")) {
+        labels.put(trimmed.substring(0, trimmed.length() - 1), i);
+        continue;
+      }
+    }
+    for (int i = 0; i < lines.length; i++) {
+      if (lines[i].length() == 0) {
+        program[i] = NOP.encode();
+        continue;
+      }
+      String trimmed = lines[i].trim().replaceAll("\\s+", " ");
+      if (trimmed.endsWith(":")) {
+        program[i] = NOP.encode();
+        continue;
+      }
+      String[] cmdParam = trimmed.split(" ");
+      if (cmdParam.length > 2) {
+        error("Unable to parse input");
+      }
+      int parameter = 0;
+      if (cmdParam.length > 1) {
+        // Es gibt einen Parameter
+        if (labels.containsKey(cmdParam[1]))
+        // Der Parameter wurde irgendwo als Label definiert
+        {
+          parameter = labels.get(cmdParam[1]);
+        } else
+        // Der Parameter wurde nicht als Label definiert, ist also eine Zahl
+        {
+          parameter = Integer.parseInt(cmdParam[1]);
+        }
+      }
+      program[i] = getOperationByString(cmdParam[0]).encode();
+      if (parameter < Short.MIN_VALUE || parameter > Short.MAX_VALUE) {
+        error("Parameter out of range");
+      }
+      program[i] |= parameter & 0xffff;
+    }
+    return program;
+  }
 
   public int pop() {
     if (stackPointer < 0 || stackPointer >= stack.length) {
@@ -81,15 +135,8 @@ public class Interpreter extends MiniJava {
     stack[stackPointer] = value;
   }
 
-  private int[] heap = new int[128];
-  private int heapFreeSpace = 127;
-
   private void initializeHeap() {
     heap[heap.length - 1] = heap.length - 1;
-  }
-
-  public static int execute(int[] program) {
-    return new Interpreter().executeHelp(program);
   }
 
   private int executeHelp(int[] program) {
@@ -344,54 +391,5 @@ public class Interpreter extends MiniJava {
       error("Stack is tainted" + stackPointer);
     }
     return retVal;
-  }
-
-  public static int[] parse(String textProgram) {
-    String[] lines = textProgram.split("\n");
-    int[] program = new int[lines.length];
-    // Man kann auch z.B. ein mehrdimensionales String-Array verwenden,
-    // das ist aber mühsam und unschön, daher hier die Hashtabelle
-    Hashtable<String, Integer> labels = new Hashtable<>();
-    for (int i = 0; i < lines.length; i++) {
-      String trimmed = lines[i].trim().replaceAll("\\s+", " ");
-      if (trimmed.endsWith(":")) {
-        labels.put(trimmed.substring(0, trimmed.length() - 1), i);
-        continue;
-      }
-    }
-    for (int i = 0; i < lines.length; i++) {
-      if (lines[i].length() == 0) {
-        program[i] = NOP.encode();
-        continue;
-      }
-      String trimmed = lines[i].trim().replaceAll("\\s+", " ");
-      if (trimmed.endsWith(":")) {
-        program[i] = NOP.encode();
-        continue;
-      }
-      String[] cmdParam = trimmed.split(" ");
-      if (cmdParam.length > 2) {
-        error("Unable to parse input");
-      }
-      int parameter = 0;
-      if (cmdParam.length > 1) {
-        // Es gibt einen Parameter
-        if (labels.containsKey(cmdParam[1]))
-        // Der Parameter wurde irgendwo als Label definiert
-        {
-          parameter = labels.get(cmdParam[1]);
-        } else
-        // Der Parameter wurde nicht als Label definiert, ist also eine Zahl
-        {
-          parameter = Integer.parseInt(cmdParam[1]);
-        }
-      }
-      program[i] = getOperationByString(cmdParam[0]).encode();
-      if (parameter < Short.MIN_VALUE || parameter > Short.MAX_VALUE) {
-        error("Parameter out of range");
-      }
-      program[i] |= parameter & 0xffff;
-    }
-    return program;
   }
 }

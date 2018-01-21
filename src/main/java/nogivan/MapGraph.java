@@ -121,6 +121,7 @@ public class MapGraph {
         .orElse(null);
   }
 
+
   /**
    * Diese Methode sucht zu zwei Kartenpunkten den kürzesten Weg durch das Straßen/Weg-Netz von
    * OpenStreetMap.
@@ -133,54 +134,61 @@ public class MapGraph {
    */
   public RoutingResult route(MapPoint from, MapPoint to) {
     BinomialHeap<Node> heap = new BinomialHeap<>();
-    Map<Long, Node> nodesDist = new HashMap<>();
+    Map<Long, Long> previous = new HashMap<>();
+    Map<Long, Object> handles = new HashMap<>();
+
+    Map<Long, Long> knownDist = new HashMap<>();
     Set<Long> known = new HashSet<>();
+    Set<Long> unknown = new HashSet<>();
 
     OSMNode first = closest(from);
-    Node start = new Node(first, 0L);
+    OSMNode last = closest(to);
+    Node start = new Node(first, first.distance(last));
     Object h = heap.insert(start);
-    known.add(first.getId());
-    nodesDist.put(first.getId(), start);
-    for (Map.Entry<Long, OSMNode> nodeEntry : nodes.entrySet()) {
-      if (nodeEntry.getKey().equals(first.getId())) {
-        continue;
-      }
-      Node node = new Node(nodeEntry.getValue(), Long.MAX_VALUE);
-      nodesDist.put(nodeEntry.getKey(), node);
-    }
+    handles.put(first.getId(), h);
+    unknown.add(first.getId());
+    knownDist.put(first.getId(), 0L);
 
-    while (heap.getSize() != 0) {
-      Node min = heap.poll();
-      min = nodesDist.get(min.getValue().getId());
-      OSMNode minOSM = min.getValue();
-      Set<MapEdge> neighbours = edges.get(minOSM.getId());
-      for (MapEdge edge : neighbours) {
-        Node neighbour = nodesDist.get(edge.getTo());
-        if (neighbour == null) {
+    while (!unknown.isEmpty()) {
+      OSMNode min = heap.poll().getValue();
+      if (min.equals(last)) {
+        break;
+      }
+      unknown.remove(min.getId());
+      known.add(min.getId());
+      for (MapEdge edge : edges.get(min.getId())) {
+        OSMNode neighbour = nodes.get(edge.getTo());
+        if (neighbour == null || known.contains(neighbour.getId())) {
           continue;
         }
-
-        OSMNode osm = neighbour.getValue();
-        long newDist = min.getDistance() + minOSM.getLocation().distance(osm.getLocation());
-        if (newDist < neighbour.getDistance()) {
-          neighbour.setPrevious(min);
-          neighbour.setDistance(newDist);
-          if (!known.contains(osm.getId())) {
-            known.add(osm.getId());
-            heap.insert(new Node(osm, newDist));
-          }
+        Long id = neighbour.getId();
+        if (!unknown.contains(id)) {
+          // heap insert
+          unknown.add(id);
+          long dist = knownDist.getOrDefault(id, Long.MAX_VALUE) + neighbour.distance(last);
+          dist = dist < 0 ? Long.MAX_VALUE : dist;
+          Object handle = heap.insert(new Node(neighbour, dist));
+          handles.put(id, handle);
+        }
+        long newDist = knownDist.get(min.getId()) + min.distance(neighbour);
+        if (newDist < knownDist.getOrDefault(id, Long.MAX_VALUE)) {
+          previous.put(id, min.getId());
+          Node n = new Node(neighbour, newDist + neighbour.distance(last));
+          // heap update
+          Object handle = handles.get(id);
+          heap.replaceWithSmallerElement(handle, n);
+          knownDist.put(id, newDist);
         }
       }
     }
 
     LinkedList<OSMNode> path = new LinkedList<>();
-    OSMNode end = closest(to);
-    Node current = nodesDist.get(end.getId());
-    long pathLength = current.getDistance();
-    while (!current.equals(start)) {
-      path.addFirst(current.getValue());
-      Node old = current;
-      current = current.getPrevious();
+    OSMNode current = last;
+    long pathLength = knownDist.get(last.getId());
+    while (!current.equals(first)) {
+      path.addFirst(current);
+      OSMNode old = current;
+      current = nodes.get(previous.get(current.getId()));
       if (current == null) {
         System.err.printf("error in route reconstruction "
             + "%s does not have a parent\n", old);
@@ -195,16 +203,11 @@ public class MapGraph {
 
   class Node implements Comparable<Node> {
 
-    private Node previous;
     private OSMNode value;
     private long distance = Long.MAX_VALUE;
 
     Node(OSMNode value, long distance) {
       this.value = value;
-      this.distance = distance;
-    }
-
-    public void setDistance(long distance) {
       this.distance = distance;
     }
 
@@ -214,14 +217,6 @@ public class MapGraph {
 
     public OSMNode getValue() {
       return value;
-    }
-
-    public Node getPrevious() {
-      return previous;
-    }
-
-    public void setPrevious(Node previous) {
-      this.previous = previous;
     }
 
     @Override

@@ -2,7 +2,6 @@ package aufgabe11_7;
 
 import static org.junit.Assert.assertEquals;
 
-import java.time.Instant;
 import org.junit.Test;
 
 public class CompilerTest {

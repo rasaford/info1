@@ -3,12 +3,19 @@ package aufgabe11_7;
 public class BinaryCondition extends Condition {
 
   private Condition lhs;
+  private Bbinop operator;
+  private Condition rhs;
+
+  public BinaryCondition(Condition lhs, Bbinop operator, Condition rhs) {
+    super();
+    this.lhs = lhs;
+    this.operator = operator;
+    this.rhs = rhs;
+  }
 
   public Condition getLhs() {
     return lhs;
   }
-
-  private Bbinop operator;
 
   public Bbinop getOperator() {
     return operator;
@@ -19,17 +26,8 @@ public class BinaryCondition extends Condition {
     return operator.getPriority();
   }
 
-  private Condition rhs;
-
   public Condition getRhs() {
     return rhs;
-  }
-
-  public BinaryCondition(Condition lhs, Bbinop operator, Condition rhs) {
-    super();
-    this.lhs = lhs;
-    this.operator = operator;
-    this.rhs = rhs;
   }
 
   @Override

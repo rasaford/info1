@@ -10,8 +10,9 @@ public class MiniJava {
     String s = JOptionPane.showInputDialog(frame, text);
     frame.dispose();
 
-    if (s == null)
+    if (s == null) {
       System.exit(0);
+    }
     return s;
   }
 
@@ -25,8 +26,9 @@ public class MiniJava {
     frame.dispose();
 
     int x;
-    if (s == null)
+    if (s == null) {
       System.exit(0);
+    }
     try {
       x = Integer.parseInt(s.trim());
     } catch (NumberFormatException e) {
@@ -53,8 +55,9 @@ public class MiniJava {
     frame.dispose();
 
     double x;
-    if (s == null)
+    if (s == null) {
       System.exit(0);
+    }
     try {
       x = Double.parseDouble(s.trim());
     } catch (NumberFormatException e) {

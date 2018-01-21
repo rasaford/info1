@@ -21,18 +21,16 @@ public class Nogivan {
     }
     System.out.println("Finished reading OSM data...");
 
-//    new GPXWriter("ways.gpx").writeGPX(g.getNodes(), g.getWays());
-
+    Instant start = Instant.now();
     RoutingResult rr = g
         .route(new MapPoint(48.2690197, 11.6751468), new MapPoint(48.2638814, 11.6661943));
 //    RoutingResult rr = g
 //        .route(new MapPoint(48.2690197, 11.6751468), new MapPoint(48.003833, 11.317972)); //<55km
 //    RoutingResult rr = g
 //        .route(new MapPoint(48.2690197, 11.6751468), new MapPoint(48.098, 11.508833));
-    Instant now = Instant.now();
 //    RoutingResult rr = g
 //        .route(new MapPoint(47.862916, 11.0275), new MapPoint(48.349388, 11.768416)); //looong
-    System.out.println("route calculation time " + Duration.between(now, Instant.now()));
+    System.out.println("route calculation time " + Duration.between(start, Instant.now()));
 
     if (rr == null) {
       System.out.println("No route :-(");

@@ -1,15 +1,16 @@
 package aufgabe11_7;
 
 public class Variable extends Expression {
+
   private String name;
-  
-  public String getName() {
-    return name;
-  }
-  
+
   public Variable(String name) {
     super();
     this.name = name;
+  }
+
+  public String getName() {
+    return name;
   }
 
   @Override

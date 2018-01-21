@@ -1,15 +1,16 @@
 package aufgabe11_7;
 
 public class Number extends Expression {
+
   private int value;
-  
-  public int getValue() {
-    return value;
-  }
-  
+
   public Number(int value) {
     super();
     this.value = value;
+  }
+
+  public int getValue() {
+    return value;
   }
 
   @Override

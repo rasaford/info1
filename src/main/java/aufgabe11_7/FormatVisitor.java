@@ -381,7 +381,7 @@ public class FormatVisitor extends Visitor {
     appendf("%s(", call.getFunctionName());
     // priorities get reset within function calls.
     int oldPriority = prevPriority;
-    prevPriority  = Integer.MAX_VALUE;
+    prevPriority = Integer.MAX_VALUE;
     render(call.getArguments());
     prevPriority = oldPriority;
     appendf(")");
