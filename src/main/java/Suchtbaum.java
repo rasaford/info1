@@ -1,5 +1,3 @@
-import java.util.concurrent.Semaphore;
-
 public class Suchtbaum<T extends Comparable<T>> {
 
   private class SuchtbaumElement {
@@ -8,7 +6,8 @@ public class Suchtbaum<T extends Comparable<T>> {
     private SuchtbaumElement left = null;
     private SuchtbaumElement right = null;
 
-    private SuchtbaumElement(SuchtbaumElement left, SuchtbaumElement right, T element) {
+    private SuchtbaumElement(SuchtbaumElement left, SuchtbaumElement right,
+        T element) {
       this.left = left;
       this.right = right;
       this.element = element;
@@ -16,10 +15,6 @@ public class Suchtbaum<T extends Comparable<T>> {
 
     public T getElement() {
       return element;
-    }
-
-    public void setElement(T element) {
-      this.element = element;
     }
 
     public SuchtbaumElement getLeft() {
@@ -37,48 +32,92 @@ public class Suchtbaum<T extends Comparable<T>> {
     public void setRight(SuchtbaumElement right) {
       this.right = right;
     }
+
   }
 
-  private Semaphore s = new Semaphore(1);
   private SuchtbaumElement root;
+  private volatile boolean writingData = false;
 
-  public void insert(T element) throws InterruptedException {
-    SuchtbaumElement parent = search(root, element);
+  public synchronized void insert(T element) throws InterruptedException {
+    writingData = true;
+
+    SuchtbaumElement node = search(root, element);
     SuchtbaumElement newNode = new SuchtbaumElement(null, null, element);
-    if (parent == null) {
+    if (node == null) {
       this.root = newNode;
-    } else if (parent.getElement().compareTo(element) > 0) {
-      parent.setLeft(newNode);
-    } else if (parent.getElement().compareTo(element) < 0) {
-      parent.setRight(newNode);
+    } else if (node.getElement().compareTo(element) > 0) {
+      node.setLeft(newNode);
+    } else if (node.getElement().compareTo(element) < 0) {
+      node.setRight(newNode);
     } else {
-      throw new RuntimeException(
-          String.format("%s is already contained within the tree", element));
+      writingData = false;
+      throw new RuntimeException(String.format("%s is already contained within the tree", element));
     }
+    writingData = false;
   }
 
   public boolean contains(T element) throws InterruptedException {
-    SuchtbaumElement parent = search(root, element);
-    return parent != null &&
-        parent.getRight() != null &&
-        parent.getLeft() != null &&
-        (parent.getRight().getElement().equals(element) ||
-            parent.getLeft().getElement().equals(element));
+    while (writingData) {
+      wait();
+    }
+    SuchtbaumElement node = search(root, element);
+    return node != null &&
+        (node.getLeft() != null && node.getLeft().getElement().compareTo(element) == 0
+            || node.getRight() != null && node.getRight().getElement().compareTo(element) == 0);
   }
 
-  public void remove(T element) throws InterruptedException {
+  public synchronized void remove(T element) throws InterruptedException {
+    writingData = true;
     SuchtbaumElement parent = search(root, element);
-    if (parent == null || parent.getLeft() != null && parent.getRight() != null) {
+    SuchtbaumElement toDelete;
+    if ((toDelete = parent.getLeft()) != null &&
+        element.compareTo(parent.getLeft().getElement()) == 0) {
+      if (toDelete.getLeft() == null) {
+        parent.setLeft(toDelete.getRight());
+      } else {
+        leftDelete(parent, toDelete);
+      }
+    } else if ((toDelete = parent.getRight()) != null &&
+        element.compareTo(parent.getRight().getElement()) == 0) {
+      if (toDelete.getLeft() == null) {
+        parent.setRight(toDelete.getRight());
+      } else {
+        leftDelete(parent, toDelete);
+      }
+    } else {
+      writingData = false;
+      notify();
       throw new RuntimeException(
           String.format("%s is not in the tree and cannot be deleted", element));
     }
-    // TODO write remove function
+    writingData = false;
+    notify();
   }
 
+  private void leftDelete(SuchtbaumElement parent, SuchtbaumElement toDelete) {
+    SuchtbaumElement max = max(toDelete.getLeft());
+    max.setLeft(toDelete.getLeft());
+    max.setRight(toDelete.getRight());
+    parent.setLeft(max);
+  }
+
+
+  private SuchtbaumElement max(SuchtbaumElement root) {
+    SuchtbaumElement prev = root;
+    while (root != null) {
+      prev = root;
+      root = root.getRight();
+    }
+    return prev;
+  }
+
+  /**
+   * @return the parent of the found node. Is null if the root is null.
+   */
   private SuchtbaumElement search(SuchtbaumElement root, T element) {
     SuchtbaumElement parent = root;
     while (root != null) {
-      int compare = root.getElement().compareTo(element);
+      int compare = element.compareTo(root.getElement());
       if (compare == 0) {
         return parent;
       }
@@ -92,14 +131,14 @@ public class Suchtbaum<T extends Comparable<T>> {
     if (root == null) {
       return;
     }
-    sb.append(String.format("%s;", root.getElement()));
+    sb.append(String.format("%s;\n", root.getElement()));
     if (root.getLeft() != null) {
-      sb.append(String.format("%s -> %s [label=left];",
+      sb.append(String.format("%s -> %s [label=left];\n",
           root.getElement(), root.getLeft().getElement()));
       printSubtree(root.getLeft(), sb);
     }
     if (root.getRight() != null) {
-      sb.append(String.format("%s -> %s [label=right];",
+      sb.append(String.format("%s -> %s [label=right];\n",
           root.getElement(), root.getRight().getElement()));
       printSubtree(root.getRight(), sb);
     }
@@ -108,9 +147,35 @@ public class Suchtbaum<T extends Comparable<T>> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("digraph G {\n");
-    printSubtree(root, sb);
-    sb.append("}\n");
+    try {
+      while (writingData) {
+        wait();
+      }
+      sb.append("digraph G {\n");
+      printSubtree(root, sb);
+      sb.append("}\n");
+    } catch (InterruptedException e) {
+    } finally {
+      notifyAll();
+    }
     return sb.toString();
+  }
+
+  class AtomicInteger {
+
+    private int counter;
+
+    public synchronized void increment() {
+      counter++;
+    }
+
+    public synchronized void decrement() {
+      counter--;
+    }
+
+    public synchronized int get() {
+      return counter;
+    }
+
   }
 }
