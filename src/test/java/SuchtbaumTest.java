@@ -24,6 +24,8 @@ public class SuchtbaumTest {
     }
   }
 
+
+  // TODO: fix tree deletion
   @Test
   public void testContainsRemove() throws InterruptedException {
     for (int j = 0; j < 10000; j++) {

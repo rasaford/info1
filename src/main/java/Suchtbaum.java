@@ -37,9 +37,13 @@ public class Suchtbaum<T extends Comparable<T>> {
 
   private SuchtbaumElement root;
   private volatile boolean writingData = false;
+  private AtomicInteger readCounter = new AtomicInteger();
 
   public synchronized void insert(T element) throws InterruptedException {
     writingData = true;
+    while (readCounter.get() != 0) {
+      wait();
+    }
 
     SuchtbaumElement node = search(root, element);
     SuchtbaumElement newNode = new SuchtbaumElement(null, null, element);
@@ -51,23 +55,32 @@ public class Suchtbaum<T extends Comparable<T>> {
       node.setRight(newNode);
     } else {
       writingData = false;
+      notify();
       throw new RuntimeException(String.format("%s is already contained within the tree", element));
     }
     writingData = false;
+    notify();
   }
 
   public boolean contains(T element) throws InterruptedException {
     while (writingData) {
       wait();
     }
+    readCounter.increment();
     SuchtbaumElement node = search(root, element);
-    return node != null &&
+    boolean result = node != null &&
         (node.getLeft() != null && node.getLeft().getElement().compareTo(element) == 0
             || node.getRight() != null && node.getRight().getElement().compareTo(element) == 0);
+    readCounter.decrement();
+    return result;
   }
 
   public synchronized void remove(T element) throws InterruptedException {
     writingData = true;
+    while (readCounter.get() != 0) {
+      wait();
+    }
+
     SuchtbaumElement parent = search(root, element);
     SuchtbaumElement toDelete;
     if ((toDelete = parent.getLeft()) != null &&
@@ -151,11 +164,13 @@ public class Suchtbaum<T extends Comparable<T>> {
       while (writingData) {
         wait();
       }
+      readCounter.increment();
       sb.append("digraph G {\n");
       printSubtree(root, sb);
       sb.append("}\n");
     } catch (InterruptedException e) {
     } finally {
+      readCounter.decrement();
       notifyAll();
     }
     return sb.toString();
