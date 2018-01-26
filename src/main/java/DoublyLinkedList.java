@@ -5,7 +5,7 @@ public class DoublyLinkedList {
   int size;
 
   /**
-   * constructor empty DoublyLinkedList
+   * constructor isEmpty DoublyLinkedList
    */
   public DoublyLinkedList() {
     //TODO

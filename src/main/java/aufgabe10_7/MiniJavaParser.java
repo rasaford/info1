@@ -547,7 +547,7 @@ public class MiniJavaParser {
     switch (tokens[from]) {
       case ";":
         from++;
-        System.out.println("created empty statement. this is stupid");
+        System.out.println("created isEmpty statement. this is stupid");
         return new EmptyStatement();
       case "{":
         from++;

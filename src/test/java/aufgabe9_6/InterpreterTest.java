@@ -73,7 +73,7 @@ public class InterpreterTest {
         "LDS 0\n" +
         "LDI 1\n" +
         // abbruch ?
-        "JE end\n" +
+        "JE done\n" +
         // rekursiver Aufruf mit n - 1
         "LDI 1\n" +
         "LDS 0\n" +
@@ -84,7 +84,7 @@ public class InterpreterTest {
         "LDS 0\n" +
         "MUL\n" +
         "STS 1\n" +
-        "end:\n" +
+        "done:\n" +
         "LDS 1\n" +
         // arg freigeben
         "RETURN 2";
@@ -109,7 +109,7 @@ public class InterpreterTest {
         "LDS 0\n" +
         "LDI 1\n" +
         // abbruch ?
-        "JE end\n" +
+        "JE done\n" +
         // rekursiver Aufruf mit n - 1
         "LDI 1\n" +
         "LDS 0\n" +
@@ -120,7 +120,7 @@ public class InterpreterTest {
         "LDS 0\n" +
         "MUL\n" +
         "STS 1\n" +
-        "end:\n" +
+        "done:\n" +
         "LDS 1\n" +
         // arg freigeben
         "RETURN 2";
@@ -145,7 +145,7 @@ public class InterpreterTest {
         "LDS 0\n" +
         "LDI 1\n" +
         // abbruch ?
-        "JE end\n" +
+        "JE done\n" +
         // rekursiver Aufruf mit n - 1
         "LDI 1\n" +
         "LDS 0\n" +
@@ -156,7 +156,7 @@ public class InterpreterTest {
         "LDS 0\n" +
         "MUL\n" +
         "STS 1\n" +
-        "end:\n" +
+        "done:\n" +
         "LDS 1\n" +
         // arg freigeben
         "RETURN 2";

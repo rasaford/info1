@@ -10,7 +10,7 @@ public class aufgabe2_9 extends MiniJava {
         writeConsole(String.format(str, (int) Math.pow(i, j)));
       }
     }
-    writeConsole("\\end{tabular}\n");
+    writeConsole("\\done{tabular}\n");
   }
 
   /**

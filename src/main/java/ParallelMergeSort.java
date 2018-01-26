@@ -14,34 +14,31 @@ public class ParallelMergeSort {
       return;
     }
     int mid = (low + high) / 2;
-    Future threadDone;
-    if (numberOfThreads > workers.get()) {
-      threadDone = dispatch(arr, low, mid);
-    } else {
-      NormalMergeSort.mergeSort(arr, low, mid);
-      threadDone = null;
-    }
+    Thread newThread = dispatch(arr, low, mid);
     mergeSort(arr, mid + 1, high);
-    if (threadDone != null) {
-      try {
-        threadDone.getDone();
-      } catch (InterruptedException e) {
-        System.err.println("Interrupted Thread while waiting");
+    try {
+      if (newThread != null) {
+        newThread.join();
       }
+    } catch (InterruptedException e) {
+      System.err.println("Interrupted Thread while waiting");
     }
     merge(arr, low, mid, high);
   }
 
-  public static synchronized Future dispatch(final int[] arr, final int low, final int high) {
-    workers.incrementAndGet();
-    Future isDone = new Future();
-    Thread t = new Thread(() -> {
+  public static synchronized Thread dispatch(final int[] arr, final int low, final int high) {
+    Thread t = null;
+    if (numberOfThreads > workers.get()) {
+      workers.incrementAndGet();
+      t = new Thread(() -> {
+        NormalMergeSort.mergeSort(arr, low, high);
+        workers.decrementAndGet();
+      });
+      t.start();
+    } else {
       NormalMergeSort.mergeSort(arr, low, high);
-      workers.decrementAndGet();
-      isDone.setDone();
-    });
-    t.start();
-    return isDone;
+    }
+    return t;
   }
 
   private static void merge(int[] arr, int low, int mid, int high) {
@@ -89,23 +86,6 @@ public class ParallelMergeSort {
 
     public synchronized int get() {
       return count;
-    }
-  }
-
-  private static class Future {
-
-    private boolean done;
-
-    public synchronized void setDone() {
-      this.done = true;
-      notify();
-    }
-
-    public synchronized boolean getDone() throws InterruptedException {
-      while (!done) {
-        wait();
-      }
-      return done;
     }
   }
 }

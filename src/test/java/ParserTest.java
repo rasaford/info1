@@ -525,7 +525,7 @@ public class ParserTest {
                 + "write(-1);\n"
                 + "else\n"
                 + "write(1);",
-            "", // empty program https://piazza.com/class/j7hxt8rsfjy1gk?cid=2312
+            "", // isEmpty program https://piazza.com/class/j7hxt8rsfjy1gk?cid=2312
             ";",
             "int x, y, result;\n" // *** ab hier aus der vorlesung ***
                 + "\n"

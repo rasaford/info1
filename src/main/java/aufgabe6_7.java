@@ -17,7 +17,7 @@ public class aufgabe6_7 extends MiniJava {
     int[] res = mul(a, b, base);
     System.out.println("\\hline");
     System.out.println(toLatex("=", res));
-    System.out.println("\\end{tabular}");
+    System.out.println("\\done{tabular}");
   }
 
   public static int[] readNumber() {

@@ -1,9 +1,10 @@
 
+import static org.junit.Assert.assertTrue;
+
+import com.sun.tools.javac.code.Attribute.Array;
 import java.util.Arrays;
 import java.util.Random;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import static org.junit.Assert.*;
 
 public class MergeSortTest {
 
@@ -163,6 +164,13 @@ public class MergeSortTest {
     assertTrue("ParallelMergeSort - n = 128 - Das Array sollte sortiert sein!",
         Arrays.equals(sortedArray, copy1));
     System.out.println("Parallel MergeSort with n = 128 took: " + timeDiff + " nanoseconds.");
-  }
 
+    copy1 = Arrays.copyOf(randomArray, randomArray.length);
+    timeStart = System.nanoTime();
+    copy1 = Arrays.stream(copy1).parallel().sorted().toArray();
+    timeEnd = System.nanoTime();
+    timeDiff = timeEnd - timeStart;
+    Arrays.equals(sortedArray, copy1);
+    System.out.println("Parallel streams took: " + timeDiff + " nanoseconds.");
+  }
 }

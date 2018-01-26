@@ -68,6 +68,9 @@ public class Klausur {
   }
 
   public Klausur() {
+    this.vorname = createVorname();
+    this.nachname = createNachname();
+
     for (int i = 0; i < antworten.length; i++) {
       antworten[i] = getRandomAntwort();
     }
@@ -76,16 +79,37 @@ public class Klausur {
   private String getRandomAntwort() {
     int zufall = random.nextInt(4);
     switch (zufall) {
-      case 0: return "a";
-      case 1: return "b";
-      case 2: return "c";
-      default: return "d";
+      case 0:
+        return "a";
+      case 1:
+        return "b";
+      case 2:
+        return "c";
+      default:
+        return "d";
     }
   }
 
   @Override
   public String toString() {
-    return nachname + ", " + vorname + " hat " + gesamtpunktzahl + 
-        " von 40 möglichen Punkten und eine " + note + "geschrieben.";
+    return nachname + ", " + vorname + " hat " + gesamtpunktzahl
+        + " von 40 möglichen Punkten und eine " + note + " geschrieben.";
+  }
+
+  private static String[] vornamen = new String[] {"Ean", "Markus", "Patrik", "Jonte", "Milan",
+      "Bent", "Rouven", "Aljoscha", "Johnny", "Said", "Salim", "Lorenz", "Gerald", "Samuel",
+      "Mailo", "Dirk", "Levi", "Liam", "Elias", "Frank", "Burglind", "Isabella", "Leila", "Lani",
+      "Samara", "Vera", "Nelli", "Fee", "Gloria", "Renesmee", "Rachel", "Ida", "Lina", "Mathilda",
+      "Laura", "Emma", "Emilia", "Fatme", "Bele", "Ella"};
+  private static String[] nachnamen = new String[] {"Mueller", "Maier", "Schmidt", "Schulz",
+      "Kranz", "Schroeder", "Behrens", "Jansen", "Hunter", "Ahler"};
+  private static Random rand = new Random();
+
+  private String createVorname() {
+    return vornamen[rand.nextInt(40)];
+  }
+
+  private String createNachname() {
+    return nachnamen[rand.nextInt(10)];
   }
 }

@@ -33,7 +33,7 @@ public class OSMWay {
   }
 
   /**
-   * Der Name des Weges, falls vorhanden (sonst null)
+   * Der Object des Weges, falls vorhanden (sonst null)
    */
   private String name;
 
