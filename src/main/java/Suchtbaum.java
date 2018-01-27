@@ -1,20 +1,67 @@
+import java.util.HashSet;
+import java.util.Random;
+
 public class Suchtbaum<T extends Comparable<T>> {
+
+  public static void main(String[] args) {
+    final int READERS = 30;
+    final int WRITERS = 2;
+    HashSet<Integer> testSet = new HashSet<>();
+    Random random = new Random();
+    int n = 10000;
+    for (int i = 0; i < n; i++) {
+      testSet.add(random.nextInt(20 * n));
+    }
+    Suchtbaum<Integer> suchti = new Suchtbaum<>();
+    for (Integer i : testSet) {
+      try {
+        suchti.insert(i);
+      } catch (InterruptedException e) {
+      }
+    }
+    for (int i = 0; i < READERS; i++) {
+      Thread t = new Thread(() -> {
+        while (true) {
+          try {
+            suchti.toString();
+            suchti.contains(42);
+          } catch (InterruptedException e) {
+          }
+        }
+      });
+      t.setName(t.getName() + " Reader");
+      t.start();
+    }
+    for (int i = 0; i < WRITERS; i++) {
+      Thread writer = new Thread(() -> {
+        int a = -new Random().nextInt(Integer.MAX_VALUE);
+        while (true) {
+          try {
+            suchti.insert(a);
+            Thread.sleep(1000);
+            suchti.remove(a);
+          } catch (InterruptedException e) {
+          }
+        }
+      });
+      writer.setName(writer.getName() + " Writer");
+      writer.start();
+    }
+  }
 
   private class SuchtbaumElement {
 
     private T element;
     private SuchtbaumElement left = null;
     private SuchtbaumElement right = null;
+    private SuchtbaumElement parent = null;
 
     private SuchtbaumElement(SuchtbaumElement left, SuchtbaumElement right,
-        T element) {
+        SuchtbaumElement parent, T element) {
       this.left = left;
       this.right = right;
+      this.parent = parent;
       this.element = element;
-    }
-
-    public T getElement() {
-      return element;
     }
 
     public SuchtbaumElement getLeft() {
@@ -33,87 +80,143 @@ public class Suchtbaum<T extends Comparable<T>> {
       this.right = right;
     }
 
+    public SuchtbaumElement getParent() {
+      return parent;
+    }
+
+    public void setParent(SuchtbaumElement parent) {
+      this.parent = parent;
+    }
+
+    public void setElement(T element) {
+      this.element = element;
+    }
+
+    public T getElement() {
+      return this.element;
+    }
+
   }
 
   private SuchtbaumElement root;
-  private volatile boolean writingData = false;
-  private AtomicInteger readCounter = new AtomicInteger();
+  private RWLock lock = new RWLock();
 
-  public synchronized void insert(T element) throws InterruptedException {
-    writingData = true;
-    while (readCounter.get() != 0) {
-      wait();
-    }
+  public void insert(T element) throws InterruptedException {
+    lock.startWrite();
 
-    SuchtbaumElement node = search(root, element);
-    SuchtbaumElement newNode = new SuchtbaumElement(null, null, element);
-    if (node == null) {
-      this.root = newNode;
-    } else if (node.getElement().compareTo(element) > 0) {
-      node.setLeft(newNode);
-    } else if (node.getElement().compareTo(element) < 0) {
-      node.setRight(newNode);
-    } else {
-      writingData = false;
-      notify();
-      throw new RuntimeException(String.format("%s is already contained within the tree", element));
+    try {
+      if (root == null) {
+        root = new SuchtbaumElement(null, null, null, element);
+        return;
+      }
+      SuchtbaumElement current = root;
+      SuchtbaumElement parent = root;
+      boolean left = false;
+      while (current != null) {
+        if (element.compareTo(current.getElement()) < 0) {
+          parent = current;
+          left = true;
+          current = current.getLeft();
+        } else if (element.compareTo(current.getElement()) > 0) {
+          parent = current;
+          left = false;
+          current = current.getRight();
+        } else {
+          throw new RuntimeException(
+              String.format("Element %s is already in the tree", element));
+        }
+      }
+      SuchtbaumElement leaf = new SuchtbaumElement(null, null, parent, element);
+      if (left) {
+        parent.setLeft(leaf);
+      } else {
+        parent.setRight(leaf);
+      }
+    } finally {
+      lock.endWrite();
     }
-    writingData = false;
-    notify();
   }
+
 
   public boolean contains(T element) throws InterruptedException {
-    while (writingData) {
-      wait();
+    lock.startRead();
+    SuchtbaumElement parent = root;
+    boolean found = false;
+    while (parent != null) {
+      int compare = element.compareTo(parent.getElement());
+      if (compare == 0) {
+        found = true;
+      }
+      parent = compare < 0 ? parent.getLeft() : parent.getRight();
     }
-    readCounter.increment();
-    SuchtbaumElement node = search(root, element);
-    boolean result = node != null &&
-        (node.getLeft() != null && node.getLeft().getElement().compareTo(element) == 0
-            || node.getRight() != null && node.getRight().getElement().compareTo(element) == 0);
-    readCounter.decrement();
-    return result;
+    lock.endRead();
+    return found;
   }
 
-  public synchronized void remove(T element) throws InterruptedException {
-    writingData = true;
-    while (readCounter.get() != 0) {
-      wait();
+  public void remove(T element) throws InterruptedException {
+    lock.startWrite();
+    try {
+      remove(root, element);
+    } finally {
+      lock.endWrite();
     }
+  }
 
-    SuchtbaumElement parent = search(root, element);
-    SuchtbaumElement toDelete;
-    if ((toDelete = parent.getLeft()) != null &&
-        element.compareTo(parent.getLeft().getElement()) == 0) {
-      if (toDelete.getLeft() == null) {
-        parent.setLeft(toDelete.getRight());
-      } else {
-        leftDelete(parent, toDelete);
+  private void remove(SuchtbaumElement node, T element) {
+    while (node != null) {
+      SuchtbaumElement prev = node;
+      SuchtbaumElement current = node;
+      // find the element to delete
+      while (current != null) {
+        prev = current;
+        if (element.compareTo(current.getElement()) < 0) {
+          current = current.getLeft();
+        } else if (element.compareTo(current.getElement()) > 0) {
+          current = current.getRight();
+        } else {
+          break;
+        }
       }
-    } else if ((toDelete = parent.getRight()) != null &&
-        element.compareTo(parent.getRight().getElement()) == 0) {
-      if (toDelete.getLeft() == null) {
-        parent.setRight(toDelete.getRight());
+      if (prev.getElement().compareTo(element) != 0) {
+        throw new RuntimeException(
+            String.format("The Element %s is not in the tree", element));
+      }
+      current = prev;
+      // handle the three possible scenarios for deletion
+      if (current.getLeft() == null && current.getRight() == null) {
+        replace(current, null);
+        node = null;
+      } else if (current.getLeft() == null && current.getRight() != null) {
+        replace(current, current.getRight());
+        node = null;
+      } else if (current.getLeft() != null && current.getRight() == null) {
+        replace(current, current.getLeft());
+        node = null;
       } else {
-        leftDelete(parent, toDelete);
+        SuchtbaumElement predecessor = max(current.getLeft());
+        current.setElement(predecessor.getElement());
+        node = predecessor;
+        element = predecessor.getElement();
+      }
+    }
+  }
+
+  private void replace(SuchtbaumElement node, SuchtbaumElement newNode) {
+    if (node.getParent() != null) {
+      if (node.getParent().getLeft() != null &&
+          node.getParent().getLeft().getElement().compareTo(node.getElement()) == 0) {
+        node.getParent().setLeft(newNode);
+      } else {
+        node.getParent().setRight(newNode);
       }
     } else {
-      writingData = false;
-      notify();
-      throw new RuntimeException(
-          String.format("%s is not in the tree and cannot be deleted", element));
+      this.root = newNode;
+      newNode.setParent(null);
     }
-    writingData = false;
-    notify();
+    if (newNode != null) {
+      newNode.setParent(node.getParent());
+    }
   }
-
-  private void leftDelete(SuchtbaumElement parent, SuchtbaumElement toDelete) {
-    SuchtbaumElement max = max(toDelete.getLeft());
-    max.setLeft(toDelete.getLeft());
-    max.setRight(toDelete.getRight());
-    parent.setLeft(max);
-  }
-
 
   private SuchtbaumElement max(SuchtbaumElement root) {
     SuchtbaumElement prev = root;
@@ -124,27 +227,15 @@ public class Suchtbaum<T extends Comparable<T>> {
     return prev;
   }
 
-  /**
-   * @return the parent of the found node. Is null if the root is null.
-   */
-  private SuchtbaumElement search(SuchtbaumElement root, T element) {
-    SuchtbaumElement parent = root;
-    while (root != null) {
-      int compare = element.compareTo(root.getElement());
-      if (compare == 0) {
-        return parent;
-      }
-      parent = root;
-      root = compare < 0 ? root.getLeft() : root.getRight();
-    }
-    return parent;
-  }
-
   private void printSubtree(SuchtbaumElement root, StringBuilder sb) {
     if (root == null) {
       return;
     }
     sb.append(String.format("%s;\n", root.getElement()));
+    if (root.getParent() != null) {
+      sb.append(String.format("%s -> %s [label=parent];\n",
+          root.getElement(), root.getParent().getElement()));
+    }
     if (root.getLeft() != null) {
       sb.append(String.format("%s -> %s [label=left];\n",
           root.getElement(), root.getLeft().getElement()));
@@ -159,37 +250,55 @@ public class Suchtbaum<T extends Comparable<T>> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    String res = "";
     try {
-      while (writingData) {
-        wait();
-      }
-      readCounter.increment();
+      lock.startRead();
+      StringBuilder sb = new StringBuilder();
       sb.append("digraph G {\n");
       printSubtree(root, sb);
       sb.append("}\n");
+      res = sb.toString();
+      lock.endRead();
     } catch (InterruptedException e) {
-    } finally {
-      readCounter.decrement();
-      notifyAll();
+      e.printStackTrace();
     }
-    return sb.toString();
+    return res;
   }
 
-  class AtomicInteger {
+  class RWLock {
 
-    private int counter;
+    private volatile int readers = 0;
+    private boolean writer = false;
 
-    public synchronized void increment() {
-      counter++;
+    public synchronized void startRead() throws InterruptedException {
+      while (readers < 0 || writer) {
+        System.out.printf("%s paused\n", Thread.currentThread().getName());
+        wait();
+      }
+      readers++;
     }
 
-    public synchronized void decrement() {
-      counter--;
+    public synchronized void endRead() throws InterruptedException {
+      readers--;
+      if (readers == 0) {
+        notifyAll();
+      }
     }
 
-    public synchronized int get() {
-      return counter;
+    public synchronized void startWrite() throws InterruptedException {
+      while (readers != 0) {
+        System.out.printf("%s paused\n", Thread.currentThread().getName());
+        writer = true;
+        wait();
+      }
+      System.out.printf("%s continued\n", Thread.currentThread().getName());
+      readers = -1;
+    }
+
+    public synchronized void endWrite() throws InterruptedException {
+      readers = 0;
+      writer = false;
+      notifyAll();
     }
 
   }

@@ -10,27 +10,28 @@ public class SuchtbaumTest {
 
   @Test
   public void testContains() throws InterruptedException {
-    HashSet<Integer> testSet = new HashSet<>();
-    int n = 10000;
-    for (int i = 0; i < n; i++) {
-      testSet.add(random.nextInt(20 * n));
-    }
-    Suchtbaum<Integer> suchti = new Suchtbaum<>();
-    for (Integer i : testSet) {
-      suchti.insert(i);
-    }
-    for (int i = 0; i < n; i++) {
-      assertEquals(testSet.contains(i), suchti.contains(i));
+    for (int j = 0; j < 100; j++) {
+      HashSet<Integer> testSet = new HashSet<>();
+      int n = 10000;
+      for (int i = 0; i < n; i++) {
+        testSet.add(random.nextInt(20 * n));
+      }
+      Suchtbaum<Integer> suchti = new Suchtbaum<>();
+      for (Integer i : testSet) {
+        suchti.insert(i);
+      }
+      for (int i = 0; i < n; i++) {
+        assertEquals(testSet.contains(i), suchti.contains(i));
+      }
     }
   }
 
 
-  // TODO: fix tree deletion
   @Test
   public void testContainsRemove() throws InterruptedException {
-    for (int j = 0; j < 10000; j++) {
+    for (int j = 0; j < 100; j++) {
       HashSet<Integer> testSet = new HashSet<>();
-      int n = 10;
+      int n = 10000;
       for (int i = 0; i < n; i++) {
         testSet.add(random.nextInt(20 * n));
       }
@@ -41,7 +42,6 @@ public class SuchtbaumTest {
       for (int i = 0; i < n; i++) {
         int next = random.nextInt(20 * n);
         if (testSet.contains(next)) {
-          System.out.println(suchti.toString());
           suchti.remove(next);
           testSet.remove(next);
         }
@@ -51,4 +51,5 @@ public class SuchtbaumTest {
       }
     }
   }
+
 }
