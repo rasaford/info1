@@ -124,7 +124,9 @@ public class Interpreter extends MiniJava {
     if (stackPointer < 0 || stackPointer >= stack.length) {
       error("Invalid stack access");
     }
-    return stack[stackPointer--];
+    int val = stack[stackPointer];
+    stack[stackPointer--] = 0;
+    return val;
   }
 
   public void push(int value) {
@@ -230,11 +232,11 @@ public class Interpreter extends MiniJava {
         case LDH: {
           int heapRef = pop();
           if (heapRef >= heap.length - 1 || heapRef < heap[heap.length - 1]) {
-            error("Memory error: invalid heap reference");
+            error("Memory error: invalid heap reference at " + (programCounter - 1));
           }
           int offset = pop();
           if (offset < 0) {
-            error("Memory erro: negative heap offset");
+            error("Memory error: negative heap offset");
           }
           int to = heap[heapRef] >>> 16;
           int from = heap[heapRef] & 0xffff;

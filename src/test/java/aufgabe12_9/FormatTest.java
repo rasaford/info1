@@ -61,7 +61,7 @@ public class FormatTest {
 
   @Test
   public void testExpression6() {
-    Expression exp = new ArrayAccess(new ArrayInitializer(new Number(99)), new Number(3));
+    Expression exp = new ArrayAccess(new ArrayInitializer(new Int(),new Number(99)), new Number(3));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("(new int[99])[3]", visitor.getResult());

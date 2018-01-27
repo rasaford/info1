@@ -2,15 +2,20 @@ package aufgabe12_9;
 
 public class ArrayInitializer extends Expression {
 
-  private Expression length;
+  private Expression size;
+  private Type type;
 
-  public ArrayInitializer(Expression length) {
-    super();
-    this.length = length;
+  public ArrayInitializer(Type type, Expression size) {
+    this.type = type;
+    this.size = size;
   }
 
-  public Expression getLength() {
-    return length;
+  public Expression getSize() {
+    return size;
+  }
+
+  public Type getType() {
+    return type;
   }
 
   @Override

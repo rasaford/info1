@@ -133,7 +133,7 @@ public class FormatVisitor extends Visitor {
   @Override
   public void visit(ArrayInitializer arrayInitializer) {
     result.append("new int[");
-    append(arrayInitializer.getLength());
+    append(arrayInitializer.getSize());
     result.append(']');
   }
 

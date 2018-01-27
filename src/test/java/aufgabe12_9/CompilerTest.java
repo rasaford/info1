@@ -424,8 +424,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(46, retVal);
   }
@@ -454,8 +454,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(100, retVal);
   }
@@ -488,8 +488,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(401, retVal);
   }
@@ -536,8 +536,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(408, retVal);
   }
@@ -861,4 +861,164 @@ public class CompilerTest {
         "}";
     Compiler.compile(invalidCode);
   }
+
+
+  /**
+   * own tests
+   */
+  @Test(expected = RuntimeException.class)
+  public void testThisOutsideClass() {
+    String invalidCode = "int ggt(int a, int b) {\n" +
+        "  return b;\n" +
+        "}\n" +
+        "\n" +
+        "int main() {\n" +
+        "  int a, b, r;\n" +
+        "  a = 3528;\n" +
+        "  b = 3780;\n" +
+        "  r = this.ggt(a, b);\n" +
+        "  return r;\n" +
+        "}";
+    Compiler.compile(invalidCode);
+
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testSuperOutsideClass() {
+    String invalidCode = "int ggt(int a, int b) {\n" +
+        "  int a;\n" +
+        "  return b;\n" +
+        "}\n" +
+        "\n" +
+        "int main() {\n" +
+        "  int a, b, r;\n" +
+        "  a = 3528;\n" +
+        "  b = 3780;\n" +
+        "  r = super.ggt(a, b);\n" +
+        "  return r;\n" +
+        "}";
+    Compiler.compile(invalidCode);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void noCallToSuperConstructor() {
+    String code =
+        "class Bar {\n" +
+            "  Bar() {\n" +
+            "  }\n" +
+            "\n" +
+            "  int x() {\n" +
+            "    return 22;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "class Foo extends Bar {\n" +
+            "  Foo() {\n" +
+            "  }\n" +
+            "\n" +
+            "  int y() {\n" +
+            "    return this.x() + 2;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "int main() {\n" +
+            "  Foo foo;\n" +
+            "  foo = new Foo();\n" +
+            "  return foo.y() + foo.x();\n" +
+            "}";
+    Compiler.compile(code);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void noCallToSuperConstructor2() {
+    String code =
+        "class Bar {\n" +
+            "  Bar() {\n" +
+            "  }\n" +
+            "\n" +
+            "  int x() {\n" +
+            "    return 22;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "class Foo extends Bar {\n" +
+            "  Foo() {\n" +
+            "  int a;\n" +
+            "  super.Bar()\n" +
+            "  }\n" +
+            "\n" +
+            "  int y() {\n" +
+            "    return this.x() + 2;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "int main() {\n" +
+            "  Foo foo;\n" +
+            "  foo = new Foo();\n" +
+            "  return foo.y() + foo.x();\n" +
+            "}";
+    Compiler.compile(code);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void classWithoutConstructor() {
+    String code =
+        "class Bar {\n" +
+            "  Bar() {\n" +
+            "  }\n" +
+            "\n" +
+            "  int x() {\n" +
+            "    return 22;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "class Foo extends Bar {\n" +
+            "\n" +
+            "  int y() {\n" +
+            "    return this.x() + 2;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "int main() {\n" +
+            "  Foo foo;\n" +
+            "  foo = new Foo();\n" +
+            "  return foo.y() + foo.x();\n" +
+            "}";
+    Compiler.compile(code);
+  }
+
+  @Test
+  public void dynamicMethodBinding() {
+    String code =
+        "class Bar {\n" +
+            "  Bar() {\n" +
+            "  }\n" +
+            "\n" +
+            "  int x() {\n" +
+            "    return 22;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "class Foo extends Bar {\n" +
+            "\n"
+            + "int x() {\n"
+            + "   return 42;\n"
+            + "}\n"
+            + "\n" +
+            "  int y() {\n" +
+            "    return this.x() + 2;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "int main() {\n" +
+            "  Foo foo;\n" +
+            "  foo = new Foo();\n" +
+            "  return foo.y() + foo.x();\n" +
+            "}";
+    int[] assembler = Compiler.compile(code);
+    int ret = Interpreter.execute(assembler);
+    assertEquals(66, ret);
+  }
+
+
 }

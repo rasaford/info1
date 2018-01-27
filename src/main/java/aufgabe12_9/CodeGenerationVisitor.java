@@ -36,11 +36,19 @@ import java.util.Map;
 
 class PatchLocation {
 
+  public String className;
   public final String functionName;
   public final int argumentCount;
   public final int ldiLocation;
 
   public PatchLocation(String functionName, int argumentCount, int ldiLocation) {
+    this.functionName = functionName;
+    this.argumentCount = argumentCount;
+    this.ldiLocation = ldiLocation;
+  }
+
+  public PatchLocation(String className, String functionName, int argumentCount, int ldiLocation) {
+    this.className = className;
     this.functionName = functionName;
     this.argumentCount = argumentCount;
     this.ldiLocation = ldiLocation;
@@ -63,23 +71,25 @@ class FunctionDesc {
 class ClassDesc {
 
   private final int allocIndex;
-  private final boolean hasSuper;
+  private final String superClass;
   private int constructorIndex;
   private Map<String, Integer> methodPointers = new HashMap<>();
+  private Map<String, Integer> heapVars = new HashMap<>();
   private List<String> vTable = new ArrayList<>();
+  private Map<String, Integer> argumentCounts = new HashMap<>();
 
 
-  public ClassDesc(int allocIndex, boolean hasSuper) {
+  public ClassDesc(int allocIndex, String superClass) {
     this.allocIndex = allocIndex;
-    this.hasSuper = hasSuper;
+    this.superClass = superClass;
   }
 
   public int getAllocIndex() {
     return allocIndex;
   }
 
-  public boolean getSuper() {
-    return hasSuper;
+  public String getSuper() {
+    return superClass;
   }
 
   public void setConstructorIndex(int constructorIndex) {
@@ -100,6 +110,19 @@ class ClassDesc {
 
   public Map<String, Integer> getMethodPointers() {
     return methodPointers;
+  }
+
+  public void setHeapVars(Map<String, Integer> heapVars) {
+    this.heapVars.clear();
+    this.heapVars.putAll(heapVars);
+  }
+
+  public Map<String, Integer> getHeapVars() {
+    return new HashMap<>(heapVars);
+  }
+
+  public Map<String, Integer> getArgumentCounts() {
+    return argumentCounts;
   }
 }
 
@@ -133,7 +156,7 @@ public class CodeGenerationVisitor extends Visitor {
 
   private Map<String, ClassDesc> classes = new HashMap<>();
 
-  private boolean method = false;
+  private String className;
   // name -> object index
   private Map<String, Integer> heapVars = new HashMap<>();
   // reference name -> Type
@@ -181,7 +204,7 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(Variable variable) {
-    if (method && heapVars.containsKey(variable.getName())) {
+    if (heapVars.containsKey(variable.getName())) {
       int index = heapVars.get(variable.getName());
       add(LDI.encode(index));
       add(LDS.encode(locals.get("$obj")));
@@ -259,7 +282,7 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(ArrayInitializer arrayInitializer) {
-    arrayInitializer.getLength().accept(this);
+    arrayInitializer.getSize().accept(this);
     // Kopie der Länge in t0 speichern
     add(STS.encode(locals.get("$t0")));
     add(LDS.encode(locals.get("$t0")));
@@ -501,13 +524,6 @@ public class CodeGenerationVisitor extends Visitor {
     locals.put("$t1", locals.size() + 1);
     int declarations = 2;
     add(ALLOC.encode(declarations));
-    if (method) {
-      // if method the object Reference has to be passed on the top of the stack
-      locals.put("$obj", locals.size() + 1);
-      declarations++;
-      add(ALLOC.encode(1));
-      add(STS.encode(locals.get("$obj")));
-    }
 
     for (Declaration d : function.getDeclarations()) {
       declarations += d.getNames().length;
@@ -530,6 +546,38 @@ public class CodeGenerationVisitor extends Visitor {
     locals.clear();
   }
 
+  public void methodCall(Function function) {
+    locals.clear();
+    types.clear();
+    // Wir müssen Platz für Generator-private Variablen schaffen (vgl. Code
+    // zur Initialisierung von Arrays)
+    locals.put("$obj", 0);
+    locals.put("$t0", locals.size() + 1);
+    locals.put("$t1", locals.size() + 1);
+    int declarations = 2;
+    add(ALLOC.encode(declarations));
+
+    for (Declaration d : function.getDeclarations()) {
+      declarations += d.getNames().length;
+      d.accept(this);
+    }
+    SingleDeclaration[] parameters = function.getParameters();
+    for (int i = 0; i < parameters.length; i++) {
+      if (locals.containsKey(parameters[i].getName()) ||
+          heapVars.containsKey(parameters[i].getName())) {
+        throw new RuntimeException("Variable '" + parameters[i].getName() + "' is already defined");
+      }
+      locals.put(parameters[i].getName(), -parameters.length + i);
+      types.put(parameters[i].getName(), parameters[i].getType());
+    }
+    frameCells = parameters.length + declarations + 1;
+    for (Statement s : function.getStatements()) {
+      s.accept(this);
+    }
+    types.clear();
+    locals.clear();
+  }
+
   @Override
   public void visit(Program program) {
     // Das Programm beginnt mit einem Sprung zur Hauptfunktion
@@ -539,7 +587,8 @@ public class CodeGenerationVisitor extends Visitor {
 
     for (Class clazz : program.getClasses()) {
       clazz.accept(this);
-      locals.clear();
+    }
+    for (Class clazz : program.getClasses()) {
     }
 
     boolean hasMain = false;
@@ -562,18 +611,33 @@ public class CodeGenerationVisitor extends Visitor {
     // Funktionsadressen laden.
     for (PatchLocation pl : patchLocations) {
       FunctionDesc fDesc = functions.get(pl.functionName);
-      if (fDesc == null) {
-        throw new RuntimeException("Unknown function " + pl.functionName);
+      ClassDesc cDesc = classes.get(pl.className);
+      if (pl.className != null) {
+        if (cDesc == null || !cDesc.getMethodPointers().containsKey(pl.functionName)) {
+          throw new RuntimeException(String.format("Unknown Method %s.%s",
+              pl.className, pl.functionName));
+        }
+        if (!cDesc.getArgumentCounts().containsKey(pl.functionName) ||
+            cDesc.getArgumentCounts().get(pl.functionName) != pl.argumentCount) {
+          throw new RuntimeException("Invalid number of method arguments");
+        }
+        int methodIndex = cDesc.getMethodPointers().get(pl.functionName);
+        instructions.set(pl.ldiLocation, LDI.encode(methodIndex));
+      } else if (pl.functionName != null) {
+        if (fDesc == null) {
+          throw new RuntimeException("Unknown function " + pl.functionName);
+        }
+        if (fDesc.argumentCount != pl.argumentCount) {
+          throw new RuntimeException("Invalid number of function arguments");
+        }
+        instructions.set(pl.ldiLocation, LDI.encode(fDesc.functionIndex));
       }
-      if (fDesc.argumentCount != pl.argumentCount) {
-        throw new RuntimeException("Invalid number of function arguments");
-      }
-      instructions.set(pl.ldiLocation, LDI.encode(fDesc.functionIndex));
     }
   }
 
   @Override
   public void visit(Class clazz) {
+    locals.clear();
     if (classes.containsKey(clazz.getName())) {
       throw new RuntimeException(
           String.format("class %s has already been defined", clazz.getName()));
@@ -583,11 +647,10 @@ public class CodeGenerationVisitor extends Visitor {
       throw new RuntimeException(
           String.format("superclass %s has not been defined", clazz.getSuperClass()));
     }
+    className = clazz.getName();
     // generate $alloc_Class
     int allocStart = instructions.size();
-    ClassDesc c = new ClassDesc(allocStart,
-        clazz.getSuperClass() != null
-    );
+    ClassDesc c = new ClassDesc(allocStart, clazz.getSuperClass());
     classes.put(clazz.getName(), c);
     // allocation specific variables
     locals.put("$vt", locals.size() + 1);
@@ -596,28 +659,41 @@ public class CodeGenerationVisitor extends Visitor {
     add(ALLOC.encode(localVariables));
     List<String> vTable = allocatevTable(clazz);
     Map<String, Integer> fields = allocateFields(clazz);
+    // return the obj ref
+    add(LDS.encode(locals.get("$obj")));
     add(RETURN.encode(localVariables));
     locals.clear();
-
-    // generate Methods
-    method = true;
     classes.get(clazz.getName()).setvTable(vTable);
-    heapVars = fields;
-    Map<String, Integer> methodPointers = classes.get(clazz.getName()).getMethodPointers();
+    classes.get(clazz.getName()).setHeapVars(fields);
+
+    generateMethods(clazz);
+    generateConstructor(clazz);
+  }
+
+  private void generateMethods(Class clazz) {
+    // generate Methods
+    ClassDesc cDesc = classes.get(clazz.getName());
+    heapVars = cDesc.getHeapVars();
+    Map<String, Integer> methodPointers = cDesc.getMethodPointers();
     for (Function method : clazz.getFunctions()) {
+      cDesc.getArgumentCounts().put(method.getName(), method.getParameters().length);
       int methodStart = instructions.size();
       methodPointers.put(method.getName(), methodStart);
-      method.accept(this);
+      methodCall(method);
     }
-    method = false;
-
-    // generate Constructor
-    int constructorStart = instructions.size();
-    classes.get(clazz.getName()).setConstructorIndex(constructorStart);
-    clazz.getConstructor().accept(this);
     heapVars.clear();
   }
 
+  private void generateConstructor(Class clazz) {
+    // generate Constructor
+    int constructorStart = instructions.size();
+    classes.get(clazz.getName()).setConstructorIndex(constructorStart);
+    heapVars = classes.get(clazz.getName()).getHeapVars();
+    clazz.getConstructor().accept(this);
+    className = null;
+    heapVars.clear();
+    locals.clear();
+  }
 
   private List<String> allocatevTable(Class initializer) {
     // TODO recursively add the superclass methods
@@ -625,21 +701,17 @@ public class CodeGenerationVisitor extends Visitor {
     methods.addAll(Arrays.asList(initializer.getFunctions()));
     List<String> vTable = new ArrayList<>();
 
-    vTable.add(null);
     for (int i = 0; i < methods.size(); i++) {
       vTable.add(methods.get(i).getName());
     }
     // generate vTable
-    add(LDI.encode(vTable.size()));
+    add(LDI.encode(methods.size()));
     add(ALLOCH.encode());
     // save vTable in $vt
     add(STS.encode(locals.get("$vt")));
     return vTable;
   }
 
-  /**
-   * leaves object pointer on top of the heap
-   */
   private Map<String, Integer> allocateFields(Class initializer) {
     // TODO recursively add the superclasses fields
     List<SingleDeclaration> fields = new ArrayList<>();
@@ -669,24 +741,32 @@ public class CodeGenerationVisitor extends Visitor {
       throw new RuntimeException(
           String.format("invalid constructor %s", name));
     }
+    ClassDesc clazz = classes.get(name);
+    clazz.setConstructorIndex(instructions.size());
+    locals.clear();
+    types.clear();
+
     // allocation specific variables
-    locals.put("$obj", locals.size() + 1);
     locals.put("$vt", locals.size() + 1);
-    int localVariables = 2;
+    int localVariables = 1;
     add(ALLOC.encode(localVariables));
 
-    // save object pointer to $obj
-    add(STS.encode(locals.get("$obj")));
+    SingleDeclaration[] param = constructor.getParameters();
+    for (int i = 0; i < param.length; i++) {
+      locals.put(param[i].getName(), -param.length + i);
+      types.put(param[i].getName(), param[i].getType());
+    }
+    // $obj is always the last argument when calling the constructor
+    locals.put("$obj", 0);
+    localVariables += param.length + 1;
     // save vtable pointer to $vt
-    add(LDI.encode(1));
+    add(LDI.encode(0));
     add(LDS.encode(locals.get("$obj")));
     add(LDH.encode());
     add(STS.encode(locals.get("$vt")));
 
-    ClassDesc clazz = classes.get(name);
-    clazz.setConstructorIndex(instructions.size());
     int stmtIndex = 0;
-    if (clazz.getSuper()) {
+    if (clazz.getSuper() != null) {
       Statement superCall = constructor.getStatements()[0];
       stmtIndex++;
       if (!(superCall instanceof ExpressionStatement)) {
@@ -722,29 +802,47 @@ public class CodeGenerationVisitor extends Visitor {
     }
     add(LDS.encode(locals.get("$obj")));
     add(RETURN.encode(localVariables));
+
+    locals.clear();
+    types.clear();
   }
 
   @Override
   public void visit(MethodCall methodCall) {
     String ref = methodCall.getRefName();
     String method = methodCall.getMethodName();
-    if (!locals.containsKey(ref)) {
-      throw new RuntimeException("undefined object reference " + ref);
-    }
-    if (!types.containsKey(ref)) {
-      throw new RuntimeException("undefined Type" + ref);
-    }
-    String obj = types.get(ref).codeString();
-    Map<String, Integer> methodPointers = classes.get(obj).getMethodPointers();
-    if (!methodPointers.containsKey(method)) {
-      throw new RuntimeException("undefined Method " + method + " on " + obj);
-    }
+    String clazz;
+    // put arguments on the stack
     for (Expression argument : methodCall.getArguments()) {
       argument.accept(this);
     }
-    new Variable(ref).accept(this);
-    add(LDI.encode(methodPointers.get(method)));
-    add(CALL.encode(methodCall.getArguments().length));
+    // put obj ref on top of the stack
+    if (ref.equals("this")) {
+      clazz = className;
+      if (!locals.containsKey("$obj")) {
+        throw new RuntimeException("the keyword this can only be used within a class");
+      }
+      add(LDS.encode(locals.get("$obj")));
+    } else if (ref.equals("super")) {
+      clazz = classes.get(className).getSuper();
+      if (!locals.containsKey("$obj")) {
+        throw new RuntimeException("the keyword this can only be used within a class");
+      }
+      add(LDS.encode(locals.get("$obj")));
+    } else if (locals.containsKey(ref) && types.containsKey(ref)) {
+      clazz = types.get(ref).codeString();
+      Integer location = locals.get(ref);
+      if (location == null) {
+        throw new RuntimeException("Unknown variable " + ref);
+      }
+      add(LDS.encode(location));
+    } else {
+      throw new RuntimeException("undefined object reference " + ref);
+    }
+    int patch = addDummy();
+    patchLocations.add(new PatchLocation(clazz, method, methodCall.getArguments().length, patch));
+    // + 1 for obj ref
+    add(CALL.encode(methodCall.getArguments().length + 1));
   }
 
   @Override
@@ -755,15 +853,17 @@ public class CodeGenerationVisitor extends Visitor {
           String.format("class %s has not been defined", name));
     }
     ClassDesc clazz = classes.get(name);
-    // call to $alloc_Class
-    add(LDI.encode(clazz.getAllocIndex()));
-    add(CALL.encode(0));
-    // call to constructor
+
     for (Expression expression : initializer.getArguments()) {
       expression.accept(this);
     }
+    // call to $alloc_Class
+    add(LDI.encode(clazz.getAllocIndex()));
+    add(CALL.encode(0));
+    // Constructor expects:
+    // arg0, ..., argN, obj ref
     add(LDI.encode(clazz.getConstructorIndex()));
-    add(CALL.encode(initializer.getArguments().length));
+    add(CALL.encode(initializer.getArguments().length + 1));
   }
 
   @Override

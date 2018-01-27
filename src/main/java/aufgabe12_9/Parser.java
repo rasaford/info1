@@ -135,9 +135,10 @@ public class Parser {
     return tokens[from++];
   }
 
-  public Type parseType() {
+  public Type parseType(boolean allowArrays) {
     if (tokens[from].equals("int")) {
-      if ((tokens[++from] + tokens[from + 1]).equals("[]")) {
+      from++;
+      if (allowArrays && (tokens[from] + tokens[from + 1]).equals("[]")) {
         from += 2;
         return new IntArray();
       }
@@ -147,7 +148,7 @@ public class Parser {
     if (name == null || isKeyword(name)) {
       return null;
     }
-    if ((tokens[from] + tokens[from + 1]).equals("[]")) {
+    if (allowArrays && (tokens[from] + tokens[from + 1]).equals("[]")) {
       from += 2;
       return new ObjectArray(name);
     }
@@ -155,7 +156,7 @@ public class Parser {
   }
 
   public Declaration parseDecl() {
-    Type type = parseType();
+    Type type = parseType(true);
     if (type == null) {
       return null;
     }
@@ -242,23 +243,35 @@ public class Parser {
     if (number != null) {
       return number;
     }
+    // length(<expr>)
+    if (tokens[from].equals("length") && tokens[from + 1].equals("(")) {
+      from += 2;
+      Expression expr = parseExpression();
+      if (expr == null || !tokens[from].equals(")")) {
+        return null;
+      }
+      from++;
+      return new ArrayLength(expr);
+    }
     from = before;
-    // new int[...]
+    // new <name> [...]
     if (tokens[from].equals("new")) {
       from++;
-      if (tokens[from].equals("int")
-          && tokens[from + 1].equals("[")) {
-        from += 2;
-        Expression length = parseExpression();
-        if (length == null) {
+      int prev = from;
+      Type type = parseType(false);
+      if (type != null && tokens[from].equals("[")) {
+        from++;
+        Expression size = parseExpression();
+        if (size == null) {
           return null;
         }
         if (tokens[from++].equals("]")) {
-          return new ArrayInitializer(length);
+          return new ArrayInitializer(type, size);
         } else {
           return null;
         }
       }
+      from = prev;
       String name = parseName();
       if (name == null) {
         return null;
@@ -687,7 +700,7 @@ public class Parser {
     ArrayList<SingleDeclaration> parameters = new ArrayList<>();
     if (!tokens[from].equals(")")) {
       do {
-        Type type = parseType();
+        Type type = parseType(true);
         if (type == null) {
           return null;
         }
@@ -706,7 +719,7 @@ public class Parser {
   }
 
   public Function parseFunction() {
-    Type returnType = parseType();
+    Type returnType = parseType(true);
     if (returnType == null) {
       return null;
     }
@@ -791,7 +804,7 @@ public class Parser {
   }
 
   private SingleDeclaration parseField() {
-    Type type = parseType();
+    Type type = parseType(true);
     if (type == null) {
       return null;
     }
