@@ -715,12 +715,21 @@ public class CodeGenerationVisitor extends Visitor {
       return;
     }
     Class clazz = classes.get(className);
+    collectMethods(clazz.getSuperClass(), methods);
     for (Function f : clazz.getFunctions()) {
-      if (methods.stream().noneMatch(method -> method.getName().equals(f.getName()))) {
-        methods.addFirst(f);
+      int index = -1;
+      for (int i = 0; i < methods.size(); i++) {
+        if (methods.get(i).getName().equals(f.getName())) {
+          index = i;
+          break;
+        }
+      }
+      if (index == -1) {
+        methods.add(f);
+      } else {
+        methods.set(index, f);
       }
     }
-    collectMethods(clazz.getSuperClass(), methods);
   }
 
   private void collectFields(String className, LinkedList<SingleDeclaration> fields) {
@@ -728,14 +737,22 @@ public class CodeGenerationVisitor extends Visitor {
       return;
     }
     Class clazz = classes.get(className);
+    collectFields(clazz.getSuperClass(), fields);
     for (SingleDeclaration s : clazz.getFields()) {
-      if (fields.stream().noneMatch(field -> field.getName().equals(s.getName()))) {
-        fields.addFirst(s);
+      int index = -1;
+      for (int i = 0; i < fields.size(); i++) {
+        if (fields.get(i).getName().equals(s.getName())) {
+          index = i;
+          break;
+        }
+      }
+      if (index == -1) {
+        fields.add(s);
+      } else {
+        fields.set(index, s);
       }
     }
-    collectFields(clazz.getSuperClass(), fields);
   }
-
 
   @Override
   public void visit(Constructor constructor) {
@@ -823,9 +840,14 @@ public class CodeGenerationVisitor extends Visitor {
       throw new RuntimeException(
           String.format("super class constructor %s is undefined", className));
     }
-    ClassDesc cDesc = classDesc.get(className);
-    classDesc.get(this.className).getMethodPointers().putAll(cDesc.getMethodPointers());
-    classDesc.get(this.className).getArgumentCounts().putAll(cDesc.getArgumentCounts());
+    ClassDesc superCDesc = classDesc.get(className);
+    ClassDesc thisC = classDesc.get(this.className);
+    superCDesc.getMethodPointers().forEach((k, v) ->
+        thisC.getMethodPointers().putIfAbsent(k, v)
+    );
+    superCDesc.getArgumentCounts().forEach((k, v) ->
+        thisC.getArgumentCounts().putIfAbsent(k, v)
+    );
     for (Expression argument : arguments) {
       argument.accept(this);
     }
@@ -840,16 +862,8 @@ public class CodeGenerationVisitor extends Visitor {
     String ref = methodCall.getRefName();
     String method = methodCall.getMethodName();
     String clazz;
-    // put arguments on the stack
-    // put obj ref on top of the stack
-    int location;
-    if (ref.equals("this")) {
-      clazz = className;
-      if (!locals.containsKey("$obj")) {
-        throw new RuntimeException("the keyword this can only be used within a class");
-      }
-      location = locals.get("$obj");
-    } else if (ref.equals("super")) {
+    // super calls have to be statically bound
+    if (ref.equals("super")) {
       // if it's actually a super Constructor call
       if (classes.containsKey(method)) {
         superConstructorCall(method, methodCall.getArguments());
@@ -859,23 +873,39 @@ public class CodeGenerationVisitor extends Visitor {
       if (!locals.containsKey("$obj")) {
         throw new RuntimeException("the keyword this can only be used within a class");
       }
-      location = locals.get("$obj");
-    } else if (locals.containsKey(ref) && types.containsKey(ref)) {
-      clazz = types.get(ref).codeString();
-      if (!locals.containsKey(ref)) {
-        throw new RuntimeException("Unknown variable " + ref);
+      for (Expression argument : methodCall.getArguments()) {
+        argument.accept(this);
       }
-      location = locals.get(ref);
+      add(LDS.encode(locals.get("$obj")));
+      int patch = addDummy();
+      patchLocations.add(new StaticCall(clazz, method, methodCall.getArguments().length, patch));
     } else {
-      throw new RuntimeException("undefined object reference " + ref);
+      int obj;
+      if (ref.equals("this")) {
+        if (!locals.containsKey("$obj")) {
+          throw new RuntimeException("the keyword this can only be used within a class");
+        }
+        obj = locals.get("$obj");
+      } else {
+        if (!locals.containsKey(ref) || !types.containsKey(ref)) {
+          throw new RuntimeException("Unknown variable " + ref);
+        }
+        obj = locals.get(ref);
+        className = types.get(ref).codeString();
+      }
+      for (Expression argument : methodCall.getArguments()) {
+        argument.accept(this);
+      }
+      add(LDS.encode(obj));
+      // lookup the method in the vtable
+      int patch = addDummy();
+      patchLocations
+          .add(new DynamicCall(className, method, methodCall.getArguments().length, patch));
+      add(LDI.encode(0));
+      add(LDS.encode(obj));
+      add(LDH.encode());
+      add(LDH.encode());
     }
-
-    for (Expression argument : methodCall.getArguments()) {
-      argument.accept(this);
-    }
-    add(LDS.encode(location));
-    int patch = addDummy();
-    patchLocations.add(new MethodPatch(clazz, method, methodCall.getArguments().length, patch));
     // + 1 for obj ref
     add(CALL.encode(methodCall.getArguments().length + 1));
   }
@@ -931,11 +961,11 @@ public class CodeGenerationVisitor extends Visitor {
     }
   }
 
-  class MethodPatch extends PatchLocation {
+  class StaticCall extends PatchLocation {
 
     public String className;
 
-    public MethodPatch(String className, String functionName, int argumentCount, int ldiLocation) {
+    public StaticCall(String className, String functionName, int argumentCount, int ldiLocation) {
       super(functionName, argumentCount, ldiLocation);
       this.className = className;
     }
@@ -949,9 +979,41 @@ public class CodeGenerationVisitor extends Visitor {
       }
       if (!cDesc.getArgumentCounts().containsKey(functionName) ||
           cDesc.getArgumentCounts().get(functionName) != argumentCount) {
-        throw new RuntimeException("Invalid number of method arguments");
+        throw new RuntimeException("Invalid number of method arguments for " + functionName);
       }
       int methodIndex = cDesc.getMethodPointers().get(functionName);
+      instructions.set(ldiLocation, LDI.encode(methodIndex));
+    }
+  }
+
+  class DynamicCall extends PatchLocation {
+
+    public String className;
+
+    public DynamicCall(String className, String functionName, int argumentCount, int ldiLocation) {
+      super(functionName, argumentCount, ldiLocation);
+      this.className = className;
+    }
+
+    @Override
+    public void patch() {
+      ClassDesc cDesc = classDesc.get(className);
+      List<String> vTable = cDesc.getvTable();
+      int methodIndex = -1;
+      for (int i = 0; i < vTable.size(); i++) {
+        if (vTable.get(i).equals(functionName)) {
+          methodIndex = i;
+          break;
+        }
+      }
+      if (methodIndex == -1) {
+        throw new RuntimeException(String.format("Unknown Method %s.%s",
+            className, functionName));
+      }
+      if (!cDesc.getArgumentCounts().containsKey(functionName) ||
+          cDesc.getArgumentCounts().get(functionName) != argumentCount) {
+        throw new RuntimeException("Invalid number of method arguments for " + functionName);
+      }
       instructions.set(ldiLocation, LDI.encode(methodIndex));
     }
   }

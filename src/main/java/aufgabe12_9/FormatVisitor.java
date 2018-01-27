@@ -132,7 +132,9 @@ public class FormatVisitor extends Visitor {
 
   @Override
   public void visit(ArrayInitializer arrayInitializer) {
-    result.append("new int[");
+    result.append("new ");
+    result.append(arrayInitializer.getType());
+    result.append("[");
     append(arrayInitializer.getSize());
     result.append(']');
   }
@@ -198,6 +200,7 @@ public class FormatVisitor extends Visitor {
   @Override
   public void visit(While while_) {
     indented("while(");
+//    result.append("while(");
     while_.getCond().accept(this);
     result.append(") ");
     recurse(while_.getBody());
@@ -332,7 +335,9 @@ public class FormatVisitor extends Visitor {
       result.append(' ');
       result.append(sd.getName());
     }
-    result.append(") {");
+    result.append(")");
+    indent();
+    result.append("{");
     for (Declaration decl : function.getDeclarations()) {
       recurse(decl);
     }
@@ -368,7 +373,7 @@ public class FormatVisitor extends Visitor {
     if (classObj.getSuperClass() != null) {
       result.append(String.format("extends %s ", classObj.getSuperClass()));
     }
-    result.append("{\n");
+    result.append("{");
     for (SingleDeclaration s : classObj.getFields()) {
       recurse(s);
       result.append("\n");
@@ -384,7 +389,7 @@ public class FormatVisitor extends Visitor {
   public void visit(Constructor constructor) {
     indent();
     result.append(constructor.getName());
-    result.append(" (");
+    result.append("(");
     for (int i = 0; i < constructor.getParameters().length; i++) {
       SingleDeclaration sd = constructor.getParameters()[i];
       if (i > 0) {
@@ -394,11 +399,12 @@ public class FormatVisitor extends Visitor {
       result.append(' ');
       result.append(sd.getName());
     }
-    result.append(") {");
+    result.append(")");
     if (constructor.getDeclarations().length != 0 ||
         constructor.getStatements().length != 0) {
       indent();
     }
+    result.append("{");
     for (Declaration declaration : constructor.getDeclarations()) {
       recurse(declaration);
     }

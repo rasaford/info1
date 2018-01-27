@@ -46,6 +46,51 @@ public class CompilerTest {
     int retVal = Interpreter.execute(assembly);
     assertEquals(25, retVal);
   }
+//
+//  @Test
+//  public void testObjectArrayFormat() {
+//    String code =
+//        "class Foo {\n" +
+//            "  int a;\n" +
+//            "\n" +
+//            "  Foo(int x)\n" +
+//            "  {\n" +
+//            "    a = x;\n" +
+//            "  }\n" +
+//            "\n" +
+//            "  int getA()\n" +
+//            "  {\n" +
+//            "    return a;\n" +
+//            "  }\n" +
+//            "}\n" +
+//            "\n" +
+//            "int main()\n" +
+//            "  {\n" +
+//            "  Foo[] foos;\n" +
+//            "  Foo foo;\n" +
+//            "  int sum, i;\n" +
+//            "  foos = new Foo[5];\n" +
+//            "  i = 0;\n" +
+//            "  while(i < length(foos))\n" +
+//            "  {\n" +
+//            "    foos[i] = new Foo(2*i + 1);\n" +
+//            "    i = i + 1;\n" +
+//            "  }\n" +
+//            "  i = length(foos);\n" +
+//            "  sum = 0;\n" +
+//            "  while(i > 0)\n" +
+//            "  {\n" +
+//            "    foo = foos[i - 1];\n" +
+//            "    sum = sum + foo.getA();\n" +
+//            "    i = i - 1;\n" +
+//            "  }\n" +
+//            "  return sum;\n" +
+//            "}";
+//    Program p = new Parser(code).parse();
+//    FormatVisitor f = new FormatVisitor();
+//    f.visit(p);
+//    assertEquals(code, f.getResult());
+//  }
 
   @Test
   public void testVisitor() {
@@ -1007,7 +1052,7 @@ public class CompilerTest {
             + "}\n"
             + "\n" +
             "  int y() {\n" +
-            "    return this.x() + 2;\n" +
+            "    return super.x() + 2;\n" +
             "  }\n" +
             "}\n" +
             "\n" +
@@ -1020,7 +1065,6 @@ public class CompilerTest {
     int ret = Interpreter.execute(assembler);
     assertEquals(66, ret);
   }
-
 
   @Test(expected = RuntimeException.class)
   public void doubleClassDefinition() {
