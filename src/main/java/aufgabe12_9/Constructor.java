@@ -37,4 +37,11 @@ public class Constructor implements Visitable {
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
+
+  @Override
+  public String toString() {
+    FormatVisitor f = new FormatVisitor();
+    f.visit(this);
+    return f.getResult();
+  }
 }

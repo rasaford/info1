@@ -23,4 +23,5 @@ public class Assignment extends Statement {
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
+
 }

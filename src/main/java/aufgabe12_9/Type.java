@@ -17,6 +17,10 @@ public class Type {
     return name;
   }
 
+  @Override
+  public String toString() {
+    return codeString();
+  }
 }
 
 class Int extends Type {

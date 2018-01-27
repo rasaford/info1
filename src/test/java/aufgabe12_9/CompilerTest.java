@@ -40,12 +40,9 @@ public class CompilerTest {
             "  }\n" +
             "  return sum;\n" +
             "}";
-//    Parser p = new Parser(code);
-//    Program ast = p.parse();
-//    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(25, retVal);
   }
@@ -163,8 +160,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(86, retVal);
   }
@@ -304,8 +301,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(42, retVal);
   }
@@ -342,8 +339,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(20, retVal);
   }
@@ -387,8 +384,8 @@ public class CompilerTest {
 //    Program ast = p.parse();
 //    System.out.println(ast);
     int[] assembly = Compiler.compile(code);
-//    System.out.println("######################");
-//    System.out.println(Interpreter.programToString(assembly));
+    System.out.println("######################");
+    System.out.println(Interpreter.programToString(assembly));
     int retVal = Interpreter.execute(assembly);
     assertEquals(319, retVal);
   }
@@ -1001,6 +998,10 @@ public class CompilerTest {
             "\n" +
             "class Foo extends Bar {\n" +
             "\n"
+            + "Foo() {\n"
+            + "   super.Bar();\n"
+            + "}\n"
+            + "\n"
             + "int x() {\n"
             + "   return 42;\n"
             + "}\n"
@@ -1021,4 +1022,33 @@ public class CompilerTest {
   }
 
 
+  @Test(expected = RuntimeException.class)
+  public void doubleClassDefinition() {
+    String code =
+        "class Bar {\n" +
+            "  Bar() {\n" +
+            "  }\n" +
+            "\n" +
+            "  int x() {\n" +
+            "    return 22;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "class Bar {\n" +
+            "  Bar() {\n" +
+            "  }\n" +
+            "\n" +
+            "  int x() {\n" +
+            "    return 42;\n" +
+            "  }\n" +
+            "}\n" +
+            "\n" +
+            "int main() {\n"
+            + "    Bar bar;\n"
+            + "    bar = new Bar();\n" +
+            "}";
+    int[] assembler = Compiler.compile(code);
+    int ret = Interpreter.execute(assembler);
+    assertEquals(66, ret);
+  }
 }

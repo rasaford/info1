@@ -34,6 +34,4 @@ public class MethodCall extends Expression {
     return 0;
   }
 
-
-
 }

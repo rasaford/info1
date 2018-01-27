@@ -232,7 +232,8 @@ public class Interpreter extends MiniJava {
         case LDH: {
           int heapRef = pop();
           if (heapRef >= heap.length - 1 || heapRef < heap[heap.length - 1]) {
-            error("Memory error: invalid heap reference at " + (programCounter - 1));
+            error(String.format(
+                "Memory error: invalid heap reference %d on line %d", heapRef, programCounter - 1));
           }
           int offset = pop();
           if (offset < 0) {
