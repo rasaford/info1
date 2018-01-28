@@ -119,9 +119,9 @@ public class Penguin implements Runnable {
       return false;
     }
     // 5 % chance to breed
-//    if (random.nextInt(20) != 0) {
-//      return false;
-//    }
+    if (random.nextInt(20) != 0) {
+      return false;
+    }
     try {
       if (random.nextBoolean()) {
         breed();
