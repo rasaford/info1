@@ -3,6 +3,7 @@ package aufgabe12_9;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class MiniJava {
 
   public static String readString(String text) {

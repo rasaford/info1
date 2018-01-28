@@ -1,5 +1,6 @@
 package korrektur;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class Korrekturschema {
 
   public static int punkte(int aufgabe, String antwort) {

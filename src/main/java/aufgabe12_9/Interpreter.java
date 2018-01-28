@@ -7,6 +7,7 @@ import static aufgabe12_9.SteckOperation.valueOf;
 import java.util.Hashtable;
 import java.util.Scanner;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class Interpreter extends MiniJava {
 
   public int[] stack = new int[128];

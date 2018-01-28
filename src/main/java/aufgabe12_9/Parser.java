@@ -3,6 +3,7 @@ package aufgabe12_9;
 import java.util.ArrayList;
 import java.util.List;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class Parser {
 
   private static final int PADDING = 3;

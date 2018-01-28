@@ -1,6 +1,7 @@
 package aufgabe12_9;
 
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class FormatVisitor extends Visitor {
 
   private StringBuilder result = new StringBuilder();

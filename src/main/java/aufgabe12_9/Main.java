@@ -3,6 +3,7 @@ package aufgabe12_9;
 
 public class Main {
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void main(String[] args) {
 //    Statement ggtSwap =
 //    new IfThen(new Comparison(new Variable("b"), Comp.Greater, new Variable("a")),

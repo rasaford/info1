@@ -1,4 +1,5 @@
 public class NormalMergeSort {
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public static void mergeSort(int[] arr) {
     mergeSort(arr, 0, arr.length - 1);
   }

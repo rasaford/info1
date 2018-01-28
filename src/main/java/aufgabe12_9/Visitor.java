@@ -1,5 +1,6 @@
 package aufgabe12_9;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public abstract class Visitor {
 
   public abstract void visit(ArrayAccess arrayAccess);

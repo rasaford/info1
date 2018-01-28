@@ -2,6 +2,7 @@ package korrektur;
 
 import java.util.Random;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class Uebungsleitung extends Stopable {
 
   private Buffer<Klausur> left;

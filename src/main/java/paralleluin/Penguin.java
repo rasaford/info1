@@ -18,6 +18,7 @@ public class Penguin implements Runnable {
   private Colony col;
   private volatile boolean breeding;
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public Penguin(boolean female, int x, int y, int age, Colony col) {
     this.female = female;
     this.x = x;

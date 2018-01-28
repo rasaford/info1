@@ -106,6 +106,7 @@ class ClassDesc {
   }
 }
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class CodeGenerationVisitor extends Visitor {
 
   /*

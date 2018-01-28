@@ -1,5 +1,6 @@
 package korrektur;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class Tutor extends Stopable {
 
   private Buffer<Klausur> left;

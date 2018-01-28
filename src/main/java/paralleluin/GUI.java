@@ -32,6 +32,7 @@ public class GUI extends JPanel {
   public static final int KLEINUIN = 4; // Pinguin-Bub
   public static final int KLEINUININ = 5; // Pinguin-Mädl
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   protected void generateAntarctic(int[][] landscape, Penguin[][] placed, boolean standard) {
     generate(landscape, placed, standard);
   }

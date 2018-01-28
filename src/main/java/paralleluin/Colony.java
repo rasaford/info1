@@ -9,6 +9,7 @@ public class Colony extends GUI {
   public final Object drawLock = new Object();
 
 
+  // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
   public Colony(int width, int height, boolean standard) {
     placed = new Penguin[width][height];
     landscape = new int[placed.length][placed[0].length];

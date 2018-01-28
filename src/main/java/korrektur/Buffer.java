@@ -3,6 +3,7 @@ package korrektur;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
+// utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
 public class Buffer<T> {
 
   private Semaphore free;
