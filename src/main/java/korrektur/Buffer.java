@@ -12,20 +12,22 @@ public class Buffer<T> {
   private int head;
   private int tail;
   private int cap;
-  private AtomicInteger counter;
+  private volatile int counter;
+
+  private final Object lock = new Object();
 
   @SuppressWarnings("unchecked")
   public Buffer(int size, int cap) {
     this.buffer = (T[]) new Object[size + 1];
     free = new Semaphore(size);
     occupied = new Semaphore(0);
-    counter = new AtomicInteger(cap);
+    counter = cap + 1;
     this.head = this.tail = 0;
     this.cap = size + 1;
   }
 
   public void add(T object) throws InterruptedException {
-    if (counter.get() == 0) {
+    if (counter == 0) {
       System.out.printf("trying to add more than %d elements\n", 1700);
       return;
     }
@@ -39,14 +41,18 @@ public class Buffer<T> {
 
 
   public T get() throws InterruptedException {
-    if (counter.done()) {
-      return null;
+    synchronized (lock) {
+      if (counter == 1) {
+        return null;
+      }
+      counter--;
+      occupied.acquire();
     }
-    occupied.acquire();
     T data;
     synchronized (this) {
       data = buffer[head];
-      head = (head + 1) & cap;
+      buffer[head] = null;
+      head = (head + 1) % cap;
     }
     free.release();
     return data;
@@ -54,37 +60,10 @@ public class Buffer<T> {
 
   @Override
   public String toString() {
-    return counter + Arrays.toString(buffer);
+    return counter + " " + Arrays.toString(buffer);
   }
 
   public synchronized boolean isEmpty() {
     return tail == head;
-  }
-
-  private class AtomicInteger {
-
-    private int counter;
-
-    public AtomicInteger(int counter) {
-      this.counter = counter;
-    }
-
-    public synchronized int get() {
-      return counter;
-    }
-
-    public synchronized boolean done() throws InterruptedException {
-      if (counter == 0) {
-        return true;
-      } else {
-        counter--;
-        return false;
-      }
-    }
-
-    @Override
-    public synchronized String toString() {
-      return Integer.toString(counter);
-    }
   }
 }

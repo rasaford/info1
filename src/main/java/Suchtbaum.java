@@ -1,11 +1,74 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class Suchtbaum<T extends Comparable<T>> {
 
+  private static volatile boolean done;
+
   public static void main(String[] args) {
-    Suchtbaum<Integer> i = new Suchtbaum<>();
-    try {
-      i.insert(123);
-    } catch (InterruptedException e) {
+    Suchtbaum<String> tree = new Suchtbaum<>();
+
+    Random rand = new Random();
+    int read = 20;
+    int write = 3;
+    done = false;
+    for (int i = 0; i < read; i++) {
+      Runnable task = new Runnable() {
+        @Override
+        public void run() {
+          try {
+            while (!done) {
+              tree.toString();
+              tree.contains("this is a test");
+            }
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+      };
+      Thread reader = new Thread(task);
+      reader.setName(reader.getName() + " READER");
+      reader.start();
     }
+    for (int j = 0; j < write; j++) {
+      int negRand = ~rand.nextInt(Integer.MAX_VALUE / 2);
+      Runnable task = new Runnable() {
+        @Override
+        public void run() {
+          try {
+            while (!done) {
+              List<String> inserts = new ArrayList<>();
+              for (int i = 0; i < rand.nextInt(20); i++) {
+                String random = Integer.toHexString(rand.nextInt(Integer.MAX_VALUE));
+                inserts.add(random);
+                tree.insert(random);
+              }
+              System.out.println(Thread.currentThread().getName() + " is done writing");
+              Thread.sleep(2000);
+              for (String r : inserts) {
+                tree.remove(r);
+              }
+
+            }
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+      };
+      Thread writer = new Thread(task);
+      writer.setName(writer.getName() + " WRITER");
+      writer.start();
+    }
+
+    int timeToRun = 20000;
+    try {
+      Thread.sleep(timeToRun);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    System.out.println("stopping all the threads");
+    done = true;
   }
 
   private class SuchtbaumElement {
@@ -170,7 +233,9 @@ public class Suchtbaum<T extends Comparable<T>> {
       }
     } else {
       this.root = newNode;
-      newNode.setParent(null);
+      if (newNode != null) {
+        newNode.setParent(null);
+      }
     }
     if (newNode != null) {
       newNode.setParent(node.getParent());
@@ -250,7 +315,6 @@ public class Suchtbaum<T extends Comparable<T>> {
         writer = true;
         wait();
       }
-      System.out.printf("%s continued\n", Thread.currentThread().getName());
       readers = -1;
     }
 

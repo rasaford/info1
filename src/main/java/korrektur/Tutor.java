@@ -1,7 +1,7 @@
 package korrektur;
 
 // utf8: "Köpfchen in das Wasser, Schwänzchen in die Höh." -CIA-Verhörmethode
-public class Tutor extends Stopable {
+public class Tutor extends Thread {
 
   private Buffer<Klausur> left;
   private Buffer<Klausur> right;
@@ -22,7 +22,6 @@ public class Tutor extends Stopable {
     while (true) {
       try {
         Klausur test = left.get();
-//        System.out.printf("%s got %s\n", getName(), test);
         if (test == null) {
           break;
         }

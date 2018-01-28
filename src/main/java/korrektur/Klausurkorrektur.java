@@ -10,23 +10,25 @@ public class Klausurkorrektur {
   private static final int SMALL_BUFFER_SIZE = 50;
   private static final int LARGE_BUFFER_SIZE = 1700;
 
-  private static final int TUTOR = 6;
+  private static final int TUTOR = 6; // 6 Tutoren pro Aufgabe
   private static final int UEBUNGSLEITUNG = 2;
-  private static final int ADDER = 1;
+  private static final int ADDER = 12; // 12 Addierer am Ende (sind auch Tutoren)
 
-  private List<List<Stopable>> threads = new ArrayList<>();
+  private List<List<Thread>> threads = new ArrayList<>();
 
   public static void main(String[] args) {
-    new Klausurkorrektur().grade();
+    Klausurkorrektur klausurkorrektur = new Klausurkorrektur();
+    try {
+      klausurkorrektur.grade();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
-  public void grade() {
+  public void grade() throws InterruptedException {
     Buffer<Klausur> tests = new Buffer<>(LARGE_BUFFER_SIZE, 1700);
     for (int i = 0; i < LARGE_BUFFER_SIZE; i++) {
-      try {
-        tests.add(new Klausur());
-      } catch (InterruptedException e) {
-      }
+      tests.add(new Klausur());
     }
     List<Buffer<Klausur>> buffers = new LinkedList<>();
     buffers.add(tests);
@@ -50,15 +52,9 @@ public class Klausurkorrektur {
         sum(current);
       }
     }
-    try {
-      Thread.sleep(500);
-    } catch (InterruptedException e) {
-
-    }
-    try {
-      threads.get(9).get(0).join();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    Thread.sleep(500);
+    for (Thread t : threads.get(9)) {
+      t.join();
     }
     System.out.println("Korrektur der Info 1 Klausur beendet :)");
   }
