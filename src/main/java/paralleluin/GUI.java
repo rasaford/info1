@@ -3,17 +3,26 @@
 /*************************************************/
 
 package paralleluin;
-import java.awt.*;
+
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.Random;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.event.*;
-import java.io.File;
-import javax.imageio.ImageIO;
 
 public class GUI extends JPanel {
+
   /******************************************************************/
 
   public static final int NIXUIN = 0; // kein Pingu
@@ -24,19 +33,18 @@ public class GUI extends JPanel {
   public static final int KLEINUININ = 5; // Pinguin-Mädl
 
   protected void generateAntarctic(int[][] landscape, Penguin[][] placed, boolean standard) {
-    generate(landscape,placed,standard);
+    generate(landscape, placed, standard);
   }
 
   protected static void setForeground(int[][] where, int x, int y, int fg) {
-    where[x][y] = compose(rtOf(where[x][y]), bgOf(where[x][y]),fgOf(fg));
+    where[x][y] = compose(rtOf(where[x][y]), bgOf(where[x][y]), fgOf(fg));
   }
 
-  public static boolean ocean(int[][] where, int x, int y, int fg) {
+  public static boolean ocean(int[][] where, int x, int y) {
     return bgOf(where[x][y]) == BACKGROUND_WATER;
   }
 
   /******************************************************************/
-
 
 
   private static final int BACKGROUND_ISLAND = 1 << 8;
@@ -48,7 +56,7 @@ public class GUI extends JPanel {
   private static final int FOREGROUND_PENGUIN_LM = KLEINUIN;
   private static final int FOREGROUND_PENGUIN_LF = KLEINUININ;
   private static final int ROTATE_0 = 0;
-  private static final int NO_KEY    = -1;
+  private static final int NO_KEY = -1;
 
   private static Image[][][] myImage = load();
 
@@ -57,12 +65,16 @@ public class GUI extends JPanel {
   }
 
   private class Field extends JPanel {
-    Point p; int x,y;
+
+    Point p;
+    int x, y;
+
     public Field(int x, int y) {
       this.x = x;
       this.y = y;
       p = getLocation();
     }
+
     public void paint(Graphics g) {
       super.paint(g);
       int background = bgOf(myState[x][y]);
@@ -89,7 +101,7 @@ public class GUI extends JPanel {
     private void drawSymbol(Graphics g, int what, int x, int y) {
       String iName = GUI.toString(what);
       int i1 = rtShift(what), i2 = bgShift(what), i3 = fgShift(what);
-      i2=0;
+      i2 = 0;
       //System.out.println(i1 +","+i2+","+i3);
       if (i1 >= image.length || i2 >= image[0].length || i3 >= image[0][0].length) {
         System.out.println("\n\nERROR: " + what + " is not a valid value! " + x + "," + y + "\n");
@@ -100,11 +112,11 @@ public class GUI extends JPanel {
         System.exit(-1);
       }
       ((Graphics2D) g).drawImage
-       (image[i1][i2][i3], 0, 0,
-        getWidth(), getHeight(), 0, 0,
-        image[i1][i2][i3].getWidth(null),
-        image[i1][i2][i3].getHeight(null),
-        null);
+          (image[i1][i2][i3], 0, 0,
+              getWidth(), getHeight(), 0, 0,
+              image[i1][i2][i3].getWidth(null),
+              image[i1][i2][i3].getHeight(null),
+              null);
     }
   }
 
@@ -120,20 +132,23 @@ public class GUI extends JPanel {
         for (int i3 = 0; i3 < image[0][0].length; i3++) {
           String iName = "./pics/" + _2(i1) + _2(i2) + _2(i3) + ".png";
           File f = new File(iName);
-          if(f.exists() && !f.isDirectory()) {
+          if (f.exists() && !f.isDirectory()) {
             //System.out.println("Loading image " + iName + ".");
             try {
               image[i1][i2][i3] = ImageIO.read(f);
-            } catch(Exception e) {
+            } catch (Exception e) {
               System.out.println("Datei " + iName + " konnte nicht geladen werden.");
               System.exit(-1);
             }
           } else if (i1 > 0) {
-            image[i1][i2][i3] = image[i1-1][i2][i3];
+            image[i1][i2][i3] = image[i1 - 1][i2][i3];
           } else {
             System.out.println("Fehlende Datei: " + iName);
             System.exit(-1);
-    } } } }
+          }
+        }
+      }
+    }
     return image;
   }
 
@@ -156,7 +171,7 @@ public class GUI extends JPanel {
     myFrame = new JFrame("Rettet die Antarktis!");
     fieldPanel.setLayout(new GridLayout(myState[0].length, myState.length));
     myFrame.getContentPane().add(fieldPanel);
-    myFrame.setSize (IWH * myState.length, IWH * myState[0].length);
+    myFrame.setSize(IWH * myState.length, IWH * myState[0].length);
     myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     myFrame.addComponentListener(new ComponentHandler());
     // myFrame.setExtendedState(myFrame.getExtendedState()|JFrame.MAXIMIZED_BOTH);
@@ -187,7 +202,8 @@ public class GUI extends JPanel {
     while (myGUI.pause) {
       try {
         Thread.sleep(50);
-      } catch (InterruptedException ie) {}
+      } catch (InterruptedException ie) {
+      }
     }
     myGUI.update(myState);
     try {
@@ -198,12 +214,15 @@ public class GUI extends JPanel {
   }
 
   private class ComponentHandler extends ComponentAdapter {
+
     @Override
     public void componentResized(ComponentEvent e) {
       repaint();
     }
   }
+
   private class KeyHandler extends KeyAdapter {
+
     @Override
     public void keyPressed(KeyEvent ke) {
       switch (ke.getKeyCode()) {
@@ -212,7 +231,9 @@ public class GUI extends JPanel {
           break;
         default:
           break;
-  } } }
+      }
+    }
+  }
 
   private Image[][][] image;
   private boolean pause = false;
@@ -223,13 +244,13 @@ public class GUI extends JPanel {
   private static String moveQueue = "";
 
   private void step(int direction) {
-    synchronized(cLock) {
+    synchronized (cLock) {
       try {
         Thread.sleep(10);
       } catch (InterruptedException ie) {
         /* Intentionally left blank */
       }
-      moveQueue+=""+direction;
+      moveQueue += "" + direction;
     }
   }
 
@@ -265,8 +286,10 @@ public class GUI extends JPanel {
   private static String toString(int arg) {
     String s = "";
     for (int i = 3; i >= 1; i--) {
-      s += _2(arg << (8 * (i-1)));
-      if(s.length()%2==1)s="0"+s;
+      s += _2(arg << (8 * (i - 1)));
+      if (s.length() % 2 == 1) {
+        s = "0" + s;
+      }
     }
     return s + ".png";
   }
@@ -280,27 +303,31 @@ public class GUI extends JPanel {
     int height = landscape[0].length;
     for (int i = 0; i < landscape.length; i++) {
       for (int j = 0; j < landscape[i].length; j++) {
-        if(Math.abs(2*width/5-j)+Math.abs(i-2*height/3)<((width+height)/7)+1) {
+        if (Math.abs(2 * width / 5 - j) + Math.abs(i - 2 * height / 3)
+            < ((width + height) / 7) + 1) {
           landscape[i][j] = BACKGROUND_ISLAND;
         } else {
           landscape[i][j] = BACKGROUND_WATER;
         }
-        switch (random.nextInt(width*(width+height)/5)) {
+        switch (random.nextInt(width * (width + height) / 5)) {
           case 1:
-            placed[i][j] = new Penguin(true,i,j,random.nextInt(Penguin.adultAge)+Penguin.adultAge,(Colony)this);
-            setForeground(landscape,i,j,placed[i][j].getFg());
+            placed[i][j] = new Penguin(true, i, j,
+                random.nextInt(Penguin.adultAge) + Penguin.adultAge, (Colony) this);
+            setForeground(landscape, i, j, placed[i][j].getFg());
             break;
           case 2:
-            placed[i][j] = new Penguin(false,i,j,random.nextInt(Penguin.adultAge)+Penguin.adultAge,(Colony)this);
-            setForeground(landscape,i,j,placed[i][j].getFg());
+            placed[i][j] = new Penguin(false, i, j,
+                random.nextInt(Penguin.adultAge) + Penguin.adultAge, (Colony) this);
+            setForeground(landscape, i, j, placed[i][j].getFg());
             break;
           case 4:
-            placed[i][j] = new Penguin(true,i,j,random.nextInt(Penguin.adultAge),(Colony)this);
-            setForeground(landscape,i,j,placed[i][j].getFg());
+            placed[i][j] = new Penguin(true, i, j, random.nextInt(Penguin.adultAge), (Colony) this);
+            setForeground(landscape, i, j, placed[i][j].getFg());
             break;
           case 5:
-            placed[i][j] = new Penguin(false,i,j,random.nextInt(Penguin.adultAge),(Colony)this);
-            setForeground(landscape,i,j,placed[i][j].getFg());
+            placed[i][j] = new Penguin(false, i, j, random.nextInt(Penguin.adultAge),
+                (Colony) this);
+            setForeground(landscape, i, j, placed[i][j].getFg());
             break;
           default:
             placed[i][j] = null;

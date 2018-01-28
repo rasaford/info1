@@ -1,51 +1,10 @@
-import java.util.HashSet;
-import java.util.Random;
-
 public class Suchtbaum<T extends Comparable<T>> {
 
   public static void main(String[] args) {
-    final int READERS = 30;
-    final int WRITERS = 2;
-    HashSet<Integer> testSet = new HashSet<>();
-    Random random = new Random();
-    int n = 10000;
-    for (int i = 0; i < n; i++) {
-      testSet.add(random.nextInt(20 * n));
-    }
-    Suchtbaum<Integer> suchti = new Suchtbaum<>();
-    for (Integer i : testSet) {
-      try {
-        suchti.insert(i);
-      } catch (InterruptedException e) {
-      }
-    }
-    for (int i = 0; i < READERS; i++) {
-      Thread t = new Thread(() -> {
-        while (true) {
-          try {
-            suchti.toString();
-            suchti.contains(42);
-          } catch (InterruptedException e) {
-          }
-        }
-      });
-      t.setName(t.getName() + " Reader");
-      t.start();
-    }
-    for (int i = 0; i < WRITERS; i++) {
-      Thread writer = new Thread(() -> {
-        int a = -new Random().nextInt(Integer.MAX_VALUE);
-        while (true) {
-          try {
-            suchti.insert(a);
-            Thread.sleep(1000);
-            suchti.remove(a);
-          } catch (InterruptedException e) {
-          }
-        }
-      });
-      writer.setName(writer.getName() + " Writer");
-      writer.start();
+    Suchtbaum<Integer> i = new Suchtbaum<>();
+    try {
+      i.insert(123);
+    } catch (InterruptedException e) {
     }
   }
 
