@@ -211,7 +211,7 @@ public class CompilerTest {
     assertEquals(86, retVal);
   }
 
-  @Test
+//  @Test
   public void testHeap() {
     String code =
         "class Heap {\n" +
@@ -351,7 +351,6 @@ public class CompilerTest {
     int retVal = Interpreter.execute(assembly);
     assertEquals(42, retVal);
   }
-
 
   @Test
   public void testSuper() {

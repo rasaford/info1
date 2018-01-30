@@ -410,9 +410,6 @@ public class CodeGenerationVisitor extends Visitor {
     add(STH.encode());
   }
 
-  private void loadVariable(String name) {
-
-  }
 
   /*
    * Condition
@@ -520,7 +517,8 @@ public class CodeGenerationVisitor extends Visitor {
     // zur Initialisierung von Arrays)
     locals.put("$t0", locals.size() + 1);
     locals.put("$t1", locals.size() + 1);
-    int declarations = 2;
+    locals.put("$trash", locals.size() + 1);
+    int declarations = 3;
     add(ALLOC.encode(declarations));
 
     for (Declaration d : function.getDeclarations()) {
@@ -552,7 +550,8 @@ public class CodeGenerationVisitor extends Visitor {
     locals.put("$obj", 0);
     locals.put("$t0", locals.size() + 1);
     locals.put("$t1", locals.size() + 1);
-    int declarations = 2;
+    locals.put("$trash", locals.size() + 1);
+    int declarations = 3;
     add(ALLOC.encode(declarations));
 
     for (Declaration d : function.getDeclarations()) {
@@ -568,6 +567,7 @@ public class CodeGenerationVisitor extends Visitor {
       locals.put(parameters[i].getName(), -parameters.length + i);
       types.put(parameters[i].getName(), parameters[i].getType());
     }
+    // +1 for $obj arg
     frameCells = parameters.length + declarations + 1;
     for (Statement s : function.getStatements()) {
       s.accept(this);
@@ -635,7 +635,8 @@ public class CodeGenerationVisitor extends Visitor {
     // allocation specific variables
     locals.put("$vt", locals.size() + 1);
     locals.put("$obj", locals.size() + 1);
-    int localVariables = 2;
+    locals.put("$trash", locals.size() + 1);
+    int localVariables = 3;
     add(ALLOC.encode(localVariables));
     List<String> vTable = allocatevTable(clazz);
     Map<String, Integer> fields = allocateFields(clazz);
@@ -773,7 +774,8 @@ public class CodeGenerationVisitor extends Visitor {
     locals.put("$vt", locals.size() + 1);
     locals.put("$t0", locals.size() + 1);
     locals.put("$t1", locals.size() + 1);
-    int localVariables = 3;
+    locals.put("$trash", locals.size() + 1);
+    int localVariables = 4;
     add(ALLOC.encode(localVariables));
 
     SingleDeclaration[] param = constructor.getParameters();
@@ -934,7 +936,15 @@ public class CodeGenerationVisitor extends Visitor {
 
   @Override
   public void visit(ExpressionStatement expressionStatement) {
+    // all <expr> increase the stack size by one
     expressionStatement.getExpression().accept(this);
+    // therefore the return value need to be removed from the stack
+    if (expressionStatement.getExpression() instanceof MethodCall) {
+      MethodCall m = (MethodCall) expressionStatement.getExpression();
+      if (!m.getRefName().equals("super")) {
+        add(STS.encode(locals.get("$trash")));
+      }
+    }
   }
 
 

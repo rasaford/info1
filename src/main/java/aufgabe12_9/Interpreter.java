@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Interpreter extends MiniJava {
 
   public int[] stack = new int[128];
-  public int[] heap = new int[128];
+  public int[] heap = new int[512];
   public int stackPointer = -1;
 
   public static SteckOperation getOperationByString(String instruction) {
@@ -152,6 +152,27 @@ public class Interpreter extends MiniJava {
         error("Invalid instruction at " + programCounter + ": " + program[programCounter] + ".");
       }
       int parameter = insn.getImmediate();
+      if (programCounter == 53) {
+        System.out.println("this.buildheap");
+      }
+      if (programCounter == 54) {
+        System.out.println("this.buildheap return");
+      }
+      if (programCounter == 138) {
+        System.out.println("return.sort");
+      }
+      if (programCounter == 213) {
+        System.out.println("buildheap call down");
+      }
+      if (programCounter == 214) {
+        System.out.println("buildheap down return");
+      }
+      if (programCounter == 223) {
+        System.out.println("this.down call");
+      }
+      if (programCounter == 301) {
+        System.out.println("this.down return");
+      }
       programCounter++;
       switch (insn.getOperation()) {
         case NOP: {
