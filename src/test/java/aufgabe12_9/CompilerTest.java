@@ -211,7 +211,7 @@ public class CompilerTest {
     assertEquals(86, retVal);
   }
 
-//  @Test
+  @Test
   public void testHeap() {
     String code =
         "class Heap {\n" +

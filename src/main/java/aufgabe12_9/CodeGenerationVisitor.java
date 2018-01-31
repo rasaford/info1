@@ -397,16 +397,16 @@ public class CodeGenerationVisitor extends Visitor {
     add(LDI.encode(1));
     add(ADD.encode());
 
-    Integer location;
     String name = arrayAssignment.getName();
     if (heapVars.containsKey(name)) {
-      location = heapVars.get(name);
+      add(LDI.encode(heapVars.get(name)));
+      add(LDS.encode(locals.get("$obj")));
+      add(LDH.encode());
     } else if (locals.containsKey(name)) {
-      location = locals.get(name);
+      add(LDS.encode(locals.get(name)));
     } else {
       throw new RuntimeException("unknown variable " + name);
     }
-    add(LDS.encode(location));
     add(STH.encode());
   }
 
@@ -547,17 +547,16 @@ public class CodeGenerationVisitor extends Visitor {
     types.clear();
     // Wir müssen Platz für Generator-private Variablen schaffen (vgl. Code
     // zur Initialisierung von Arrays)
-    locals.put("$obj", 0);
     locals.put("$t0", locals.size() + 1);
     locals.put("$t1", locals.size() + 1);
     locals.put("$trash", locals.size() + 1);
     int declarations = 3;
     add(ALLOC.encode(declarations));
-
     for (Declaration d : function.getDeclarations()) {
       declarations += d.getNames().length;
       d.accept(this);
     }
+    locals.put("$obj", 0);
     SingleDeclaration[] parameters = function.getParameters();
     for (int i = 0; i < parameters.length; i++) {
       if (locals.containsKey(parameters[i].getName()) ||
@@ -819,7 +818,6 @@ public class CodeGenerationVisitor extends Visitor {
       add(LDS.encode(locals.get("$vt")));
       add(STH.encode());
     }
-
     for (Declaration declaration : constructor.getDeclarations()) {
       for (String s : declaration.getNames()) {
         if (locals.containsKey(s) || heapVars.containsKey(s)) {
