@@ -1,7 +1,12 @@
-import java.lang.reflect.Field;
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+import org.junit.Test;
 
 public class WoststorageTest {
 
@@ -47,6 +52,30 @@ public class WoststorageTest {
     return null;
   }
 
+  @Test
+  public void lotsOfRandomTesting() {
+    for (int i = 0; i < 1 << 15; i++) {
+      randomInsert();
+    }
+  }
+
+  @Test
+  public void randomInsert() {
+    Worstorage w = new Worstorage();
+    Set<Integer> nums = new HashSet<>();
+    Random r = new Random();
+    for (int i = 0; i < 100; i++) {
+      nums.add(r.nextInt(1000000) - 500000);
+    }
+    for (Integer i : nums) {
+      w.insert(new Penguin(i));
+    }
+    for (Integer i : nums) {
+      if (!w.find(new Penguin(i))) {
+        System.err.println("error");
+      }
+    }
+  }
 
   @Test
   public void insertSimple() {
@@ -100,6 +129,7 @@ public class WoststorageTest {
     w.insert(p3);
     w.insert(p1);
     w.insert(p4);
+    System.out.println(w.toString());
 
     assertTrue(w.find(p1));
     assertTrue(w.find(p2));
